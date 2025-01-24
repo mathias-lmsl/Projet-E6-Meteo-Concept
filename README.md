@@ -18,7 +18,7 @@ Dans le cadre de notre formation en **BTS CIEL IR**, ce projet s'inscrit dans un
 
 - **PHP** : Langage principal utilisé pour le développement.
 - **HTML/CSS** : Pour la création de l'interface web.
-- **MySQL** : Pour la gestion des bases de données.
+- **MariaDB** : Pour la gestion des bases de données.
 - ...
 
 ## Installation
