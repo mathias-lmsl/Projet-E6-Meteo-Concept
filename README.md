@@ -17,7 +17,7 @@ Dans le cadre de notre formation en **BTS CIEL IR**, ce projet s'inscrit dans un
 ## Technologies utilisées
 
 - **PHP** : Langage principal utilisé pour le développement.
-- **HTML/CSS** : Pour la création de l'interface web.
+- **HTML/CSS** : Pour la création des interfaces web.
 - **MariaDB** : Pour la gestion des bases de données.
 - ...
 
