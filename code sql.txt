@@ -1,0 +1,111 @@
+-- Création de la base de données
+CREATE DATABASE projet;
+USE projet;
+
+-- Table Serre
+CREATE TABLE Serre (
+    IdSerre INT PRIMARY KEY AUTO_INCREMENT,
+    Description TEXT,
+    Commentaire TEXT
+) ENGINE=InnoDB;
+
+-- Table Chapelle
+CREATE TABLE Chapelle (
+    IdChapelle INT PRIMARY KEY AUTO_INCREMENT,
+    Description TEXT,
+    Commentaire TEXT,
+    IdSerre INT,
+    FOREIGN KEY (IdSerre) REFERENCES Serre(IdSerre) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Table Etat
+CREATE TABLE Etat (
+    EtatComposant VARCHAR(50) PRIMARY KEY
+) ENGINE=InnoDB;
+
+-- Table Grandeur
+CREATE TABLE Grandeur (
+    GrandeurCapt VARCHAR(50),
+    Unite VARCHAR(50),
+    PRIMARY KEY (GrandeurCapt, Unite)
+) ENGINE=InnoDB;
+
+-- Table Capteur
+CREATE TABLE Capteur (
+    IdCapteur INT PRIMARY KEY AUTO_INCREMENT,
+    Description TEXT,
+    Marque VARCHAR(255),
+    Reference VARCHAR(255),
+    NumSerie VARCHAR(255),
+    DateMiseEnService DATE,
+    Commentaire TEXT,
+    EtatComposant VARCHAR(50),
+    GrandeurCapt VARCHAR(50),
+    Unite VARCHAR(50),
+    FOREIGN KEY (EtatComposant) REFERENCES Etat(EtatComposant) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (GrandeurCapt, Unite) REFERENCES Grandeur(GrandeurCapt, Unite) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Table Carte
+CREATE TABLE Carte (
+    IdCarte INT PRIMARY KEY AUTO_INCREMENT,
+    DateMiseEnService DATE,
+    EUI VARCHAR(255),
+    AppEUI VARCHAR(255),
+    Marque VARCHAR(255),
+    Reference VARCHAR(255),
+    NumSerie VARCHAR(255),
+    Commentaire TEXT,
+    IdChapelle INT,
+    EtatComposant VARCHAR(50),
+    FOREIGN KEY (IdChapelle) REFERENCES Chapelle(IdChapelle) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (EtatComposant) REFERENCES Etat(EtatComposant) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Table Mesure
+CREATE TABLE Mesure (
+    Horodatage DATETIME,
+    Valeur FLOAT,
+    IdCapteur INT,
+    PRIMARY KEY (Horodatage, IdCapteur),
+    FOREIGN KEY (IdCapteur) REFERENCES Capteur(IdCapteur) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Table Possede
+CREATE TABLE Possede (
+    IdCapteur INT,
+    IdCarte INT,
+    PRIMARY KEY (IdCapteur, IdCarte),
+    FOREIGN KEY (IdCapteur) REFERENCES Capteur(IdCapteur) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (IdCarte) REFERENCES Carte(IdCarte) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Table FonctionUtilisateur
+CREATE TABLE FonctionUtilisateur (
+    Fonction VARCHAR(50) PRIMARY KEY
+) ENGINE=InnoDB;
+
+-- Table Utilisateur
+CREATE TABLE Utilisateur (
+    IdUtilisateur INT PRIMARY KEY AUTO_INCREMENT,
+    Prenom VARCHAR(255),
+    Nom VARCHAR(255),
+    Login VARCHAR(255),
+    Mdp VARCHAR(255),
+    DateHeureConnexion DATETIME,
+    AdresseMail VARCHAR(255),
+    NumTel VARCHAR(15),
+    Fonction VARCHAR(50),
+    FOREIGN KEY (Fonction) REFERENCES FonctionUtilisateur(Fonction) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Table Intervient
+CREATE TABLE Intervient (
+    IdUtilisateur INT,
+    IdCarte INT,
+    DateIntervention DATETIME,
+    NatureIntervention TEXT,
+    PRIMARY KEY (IdUtilisateur, IdCarte, DateIntervention),
+    FOREIGN KEY (IdUtilisateur) REFERENCES Utilisateur(IdUtilisateur) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (IdCarte) REFERENCES Carte(IdCarte) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
