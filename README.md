@@ -2,9 +2,9 @@
 
 ## Description du projet
 
-Ce projet a été réalisé dans le cadre du **BTS CIEL IR** (Conception, Intégration et Exploitation des Applications Informatiques et Réseaux), pour le compte de l'entreprise **METEO CONCEPT**.
+Ce projet a été réalisé dans le cadre du **BTS CIEL IR** (Cybersecurite, Informatique et reseaux, ELectronique Informatique et Reseaux), pour le compte de l'entreprise **METEO CONCEPT**.
 
-Le but de ce projet est de [ajoutez ici une description brève de l'objectif du projet, par exemple : "développer une solution de gestion des données météorologiques" ou "concevoir une application de suivi des prévisions météo"].
+Le but de ce projet est de .
 
 ## Contexte
 
@@ -18,7 +18,7 @@ Dans le cadre de notre formation en **BTS CIEL IR**, ce projet s'inscrit dans un
 
 - **PHP** : Langage principal utilisé pour le développement.
 - **HTML/CSS** : Pour la création des interfaces web.
-- **MariaDB** : Pour la gestion des bases de données.
+- **MariaDB** : Pour la gestion de la base de données.
 - ...
 
 ## Installation
