@@ -112,7 +112,7 @@ CREATE TABLE Intervient(
    IdUtilisateur SMALLINT NOT NULL,
    IdCarte SMALLINT NOT NULL,
    DateIntervention DATETIME NOT NULL,
-   NatureIntervention VARCHAR(400) NOT NULL,
+   NatureIntervention VARCHAR(500) NOT NULL,
    PRIMARY KEY(IdUtilisateur, IdCarte, DateIntervention),
    FOREIGN KEY(IdUtilisateur) REFERENCES Utilisateur(IdUtilisateur),
    FOREIGN KEY(IdCarte) REFERENCES Carte(IdCarte)
