@@ -1,111 +1,119 @@
 -- Création de la base de données
-CREATE DATABASE projet;
-USE projet;
+CREATE DATABASE meteoconcept 
+DEFAULT CHARACTER SET utf8mb4 
+DEFAULT COLLATE utf8mb4_unicode_ci;
 
--- Table Serre
-CREATE TABLE Serre (
-    IdSerre INT PRIMARY KEY AUTO_INCREMENT,
-    Description TEXT,
-    Commentaire TEXT
+USE meteoconcept;
+
+-- Création de la table Etat
+CREATE TABLE Etat(
+   EtatComposant VARCHAR(20),
+   PRIMARY KEY(EtatComposant)
 ) ENGINE=InnoDB;
 
--- Table Chapelle
-CREATE TABLE Chapelle (
-    IdChapelle INT PRIMARY KEY AUTO_INCREMENT,
-    Description TEXT,
-    Commentaire TEXT,
-    IdSerre INT,
-    FOREIGN KEY (IdSerre) REFERENCES Serre(IdSerre) ON DELETE CASCADE ON UPDATE CASCADE
+-- Création de la table Serre
+CREATE TABLE Serre(
+   IdSerre SMALLINT AUTO_INCREMENT,
+   Commentaire VARCHAR(200),
+   PRIMARY KEY(IdSerre)
 ) ENGINE=InnoDB;
 
--- Table Etat
-CREATE TABLE Etat (
-    EtatComposant VARCHAR(50) PRIMARY KEY
+-- Création de la table FonctionUtilisateur
+CREATE TABLE FonctionUtilisateur(
+   Fonction VARCHAR(50),
+   PRIMARY KEY(Fonction)
 ) ENGINE=InnoDB;
 
--- Table Grandeur
-CREATE TABLE Grandeur (
-    GrandeurCapt VARCHAR(50),
-    Unite VARCHAR(50),
-    PRIMARY KEY (GrandeurCapt, Unite)
+-- Création de la table Grandeur
+CREATE TABLE Grandeur(
+   GrandeurCapt VARCHAR(25),
+   Unite VARCHAR(10),
+   PRIMARY KEY(GrandeurCapt, Unite)
 ) ENGINE=InnoDB;
 
--- Table Capteur
-CREATE TABLE Capteur (
-    IdCapteur INT PRIMARY KEY AUTO_INCREMENT,
-    Description TEXT,
-    Marque VARCHAR(255),
-    Reference VARCHAR(255),
-    NumSerie VARCHAR(255),
-    DateMiseEnService DATE,
-    Commentaire TEXT,
-    EtatComposant VARCHAR(50),
-    GrandeurCapt VARCHAR(50),
-    Unite VARCHAR(50),
-    FOREIGN KEY (EtatComposant) REFERENCES Etat(EtatComposant) ON DELETE SET NULL ON UPDATE CASCADE,
-    FOREIGN KEY (GrandeurCapt, Unite) REFERENCES Grandeur(GrandeurCapt, Unite) ON DELETE CASCADE ON UPDATE CASCADE
+-- Création de la table Capteur
+CREATE TABLE Capteur(
+   IdCapteur SMALLINT AUTO_INCREMENT,
+   Marque VARCHAR(50),
+   Reference VARCHAR(50),
+   NumSerie VARCHAR(50),
+   DateMiseEnService DATETIME NOT NULL,
+   Commentaire VARCHAR(200),
+   EtatComposant VARCHAR(20) NOT NULL,
+   GrandeurCapt VARCHAR(25) NOT NULL,
+   Unite VARCHAR(10) NOT NULL,
+   PRIMARY KEY(IdCapteur),
+   FOREIGN KEY(EtatComposant) REFERENCES Etat(EtatComposant),
+   FOREIGN KEY(GrandeurCapt, Unite) REFERENCES Grandeur(GrandeurCapt, Unite)
 ) ENGINE=InnoDB;
 
--- Table Carte
-CREATE TABLE Carte (
-    IdCarte INT PRIMARY KEY AUTO_INCREMENT,
-    DateMiseEnService DATE,
-    EUI VARCHAR(255),
-    AppEUI VARCHAR(255),
-    Marque VARCHAR(255),
-    Reference VARCHAR(255),
-    NumSerie VARCHAR(255),
-    Commentaire TEXT,
-    IdChapelle INT,
-    EtatComposant VARCHAR(50),
-    FOREIGN KEY (IdChapelle) REFERENCES Chapelle(IdChapelle) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (EtatComposant) REFERENCES Etat(EtatComposant) ON DELETE SET NULL ON UPDATE CASCADE
+-- Création de la table Mesure
+CREATE TABLE Mesure(
+   Horodatage DATETIME,
+   Valeur FLOAT NOT NULL,
+   IdCapteur SMALLINT NOT NULL,
+   PRIMARY KEY(Horodatage, IdCapteur),
+   FOREIGN KEY(IdCapteur) REFERENCES Capteur(IdCapteur)
 ) ENGINE=InnoDB;
 
--- Table Mesure
-CREATE TABLE Mesure (
-    Horodatage DATETIME,
-    Valeur FLOAT,
-    IdCapteur INT,
-    PRIMARY KEY (Horodatage, IdCapteur),
-    FOREIGN KEY (IdCapteur) REFERENCES Capteur(IdCapteur) ON DELETE CASCADE ON UPDATE CASCADE
+-- Création de la table Utilisateur
+CREATE TABLE Utilisateur(
+   IdUtilisateur SMALLINT AUTO_INCREMENT,
+   Prenom VARCHAR(50) NOT NULL,
+   Nom VARCHAR(50) NOT NULL,
+   Login VARCHAR(50) NOT NULL UNIQUE,
+   Mdp VARCHAR(255) NOT NULL,
+   DateHeureConnexion DATETIME NOT NULL,
+   AdresseMail VARCHAR(50) NOT NULL,
+   NumTel VARCHAR(12) NOT NULL,
+   Fonction VARCHAR(50) NOT NULL,
+   PRIMARY KEY(IdUtilisateur),
+   FOREIGN KEY(Fonction) REFERENCES FonctionUtilisateur(Fonction)
 ) ENGINE=InnoDB;
 
--- Table Possede
-CREATE TABLE Possede (
-    IdCapteur INT,
-    IdCarte INT,
-    PRIMARY KEY (IdCapteur, IdCarte),
-    FOREIGN KEY (IdCapteur) REFERENCES Capteur(IdCapteur) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (IdCarte) REFERENCES Carte(IdCarte) ON DELETE CASCADE ON UPDATE CASCADE
+-- Création de la table Chapelle
+CREATE TABLE Chapelle(
+   IdChapelle SMALLINT AUTO_INCREMENT,
+   Commentaire VARCHAR(200),
+   IdSerre SMALLINT NOT NULL,
+   PRIMARY KEY(IdChapelle),
+   FOREIGN KEY(IdSerre) REFERENCES Serre(IdSerre)
 ) ENGINE=InnoDB;
 
--- Table FonctionUtilisateur
-CREATE TABLE FonctionUtilisateur (
-    Fonction VARCHAR(50) PRIMARY KEY
+-- Création de la table Carte
+CREATE TABLE Carte(
+   IdCarte SMALLINT AUTO_INCREMENT,
+   DateMiseEnService DATETIME NOT NULL,
+   EUI VARCHAR(50) NOT NULL,
+   AppEUI VARCHAR(50) NOT NULL,
+   Marque VARCHAR(50),
+   Reference VARCHAR(50),
+   NumSerie VARCHAR(50),
+   Commentaire VARCHAR(200),
+   IdChapelle SMALLINT NOT NULL,
+   EtatComposant VARCHAR(20) NOT NULL,
+   PRIMARY KEY(IdCarte),
+   UNIQUE(IdChapelle),
+   FOREIGN KEY(IdChapelle) REFERENCES Chapelle(IdChapelle),
+   FOREIGN KEY(EtatComposant) REFERENCES Etat(EtatComposant)
 ) ENGINE=InnoDB;
 
--- Table Utilisateur
-CREATE TABLE Utilisateur (
-    IdUtilisateur INT PRIMARY KEY AUTO_INCREMENT,
-    Prenom VARCHAR(255),
-    Nom VARCHAR(255),
-    Login VARCHAR(255),
-    Mdp VARCHAR(255),
-    DateHeureConnexion DATETIME,
-    AdresseMail VARCHAR(255),
-    NumTel VARCHAR(15),
-    Fonction VARCHAR(50),
-    FOREIGN KEY (Fonction) REFERENCES FonctionUtilisateur(Fonction) ON DELETE SET NULL ON UPDATE CASCADE
+-- Création de la table Possede (relation entre Capteur et Carte)
+CREATE TABLE Possede(
+   IdCapteur SMALLINT NOT NULL,
+   IdCarte SMALLINT NOT NULL,
+   PRIMARY KEY(IdCapteur),
+   FOREIGN KEY(IdCapteur) REFERENCES Capteur(IdCapteur),
+   FOREIGN KEY(IdCarte) REFERENCES Carte(IdCarte)
 ) ENGINE=InnoDB;
 
--- Table Intervient
-CREATE TABLE Intervient (
-    IdUtilisateur INT,
-    IdCarte INT,
-    DateIntervention DATETIME,
-    NatureIntervention TEXT,
-    PRIMARY KEY (IdUtilisateur, IdCarte, DateIntervention),
-    FOREIGN KEY (IdUtilisateur) REFERENCES Utilisateur(IdUtilisateur) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (IdCarte) REFERENCES Carte(IdCarte) ON DELETE CASCADE ON UPDATE CASCADE
+-- Création de la table Intervient (intervention des utilisateurs sur les cartes)
+CREATE TABLE Intervient(
+   IdUtilisateur SMALLINT NOT NULL,
+   IdCarte SMALLINT NOT NULL,
+   DateIntervention DATETIME NOT NULL,
+   NatureIntervention VARCHAR(400) NOT NULL,
+   PRIMARY KEY(IdUtilisateur, IdCarte, DateIntervention),
+   FOREIGN KEY(IdUtilisateur) REFERENCES Utilisateur(IdUtilisateur),
+   FOREIGN KEY(IdCarte) REFERENCES Carte(IdCarte)
 ) ENGINE=InnoDB;
