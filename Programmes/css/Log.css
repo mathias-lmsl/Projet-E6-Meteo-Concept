@@ -1,0 +1,21 @@
+* {
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    list-style: none;
+    box-sizing: border-box;
+}
+
+body {
+    min-width: 100px;
+    min-height: 100px;
+}
+
+#divConnexion {
+    width: 500px;
+    min-width: 100px;
+    height: 350px;
+    min-height: 70px;
+    border: 2px solid rgb(66, 66, 66);
+    border-radius: 15px;
+}
