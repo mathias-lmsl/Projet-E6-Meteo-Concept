@@ -40,11 +40,11 @@ if (!isset($_SESSION['user'])) {
         }
 
         select, button {
-            width: 100%;
+            width: 90%;
             padding: 10px;
             border-radius: 10px;
             margin-top: 10px;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         button {
@@ -99,12 +99,12 @@ if (!isset($_SESSION['user'])) {
             $stmt->closeCursor();
             ?>
         </select>
-
+        <br><br>
         <label for="lstChapelle">Sélectionnez une chapelle :</label>
         <select name="lstChapelle" id="lstChapelle" disabled>
             <option value="">-- Sélectionnez une serre d'abord --</option>
         </select>
-
+        <br><br>
         <label for="lstCarte">Sélectionnez une carte :</label>
         <select name="lstCarte" id="lstCarte" disabled>
             <option value="">-- Sélectionnez une chapelle d'abord --</option>

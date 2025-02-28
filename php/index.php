@@ -88,16 +88,14 @@ require "../includes/header.php";
 <body>
     
     <div class="container">
-        <h2>Page de connexion</h2>
+        <h2>Se connecter</h2>
         <?php
         if (!empty($_GET["page"])){
             switch ($_GET["page"]) {
                 case 1:
                     echo '<form action="login.php?page='. $_GET["page"] .'" method="POST">';
-                    echo '<label for="login">Login :</label>';
-                    echo '<input type="text" id="login" name="login" required> <br><br>';
-                    echo '<label for="mdp">Mot de passe :</label>';
-                    echo '<input type="password" id="mdp" name="mdp" required> <br><br>';
+                    echo '<input type="text" id="login" name="login" placeholder="Nom d\'utilisateur" required> <br>';
+                    echo '<input type="password" id="mdp" name="mdp" placeholder="Mot de passe" required> <br>';
                     echo '<input type="submit" value="Connexion">';
                     echo '</form>';
                     if (!empty($_GET["error"])) {
