@@ -6,34 +6,36 @@ COLLATE utf8mb4_unicode_ci;
 USE meteoconcept;
 
 -- Création de la table Etat
-CREATE TABLE Etat(
+CREATE TABLE etat(
    EtatComposant VARCHAR(20),
    PRIMARY KEY(EtatComposant)
 ) ENGINE=InnoDB;
 
 -- Création de la table Serre
-CREATE TABLE Serre(
+CREATE TABLE serre(
    IdSerre SMALLINT AUTO_INCREMENT,
+   Nom VARCHAR(100) NOT NULL,
    Commentaire VARCHAR(200),
    PRIMARY KEY(IdSerre)
 ) ENGINE=InnoDB;
 
 -- Création de la table FonctionUtilisateur
-CREATE TABLE FonctionUtilisateur(
+CREATE TABLE fonctionutilisateur(
    Fonction VARCHAR(50),
    PRIMARY KEY(Fonction)
 ) ENGINE=InnoDB;
 
 -- Création de la table Grandeur
-CREATE TABLE Grandeur(
+CREATE TABLE grandeur(
    GrandeurCapt VARCHAR(25),
    Unite VARCHAR(10),
    PRIMARY KEY(GrandeurCapt, Unite)
 ) ENGINE=InnoDB;
 
 -- Création de la table Capteur
-CREATE TABLE Capteur(
+CREATE TABLE capteur(
    IdCapteur SMALLINT AUTO_INCREMENT,
+   Nom VARCHAR(100) NOT NULL,
    Marque VARCHAR(50),
    Reference VARCHAR(50),
    NumSerie VARCHAR(50),
@@ -48,7 +50,7 @@ CREATE TABLE Capteur(
 ) ENGINE=InnoDB;
 
 -- Création de la table Mesure
-CREATE TABLE Mesure(
+CREATE TABLE mesure(
    Horodatage DATETIME,
    Valeur FLOAT NOT NULL,
    IdCapteur SMALLINT NOT NULL,
@@ -57,7 +59,7 @@ CREATE TABLE Mesure(
 ) ENGINE=InnoDB;
 
 -- Création de la table Utilisateur
-CREATE TABLE Utilisateur(
+CREATE TABLE utilisateur(
    IdUtilisateur SMALLINT AUTO_INCREMENT,
    Prenom VARCHAR(50) NOT NULL,
    Nom VARCHAR(50) NOT NULL,
@@ -72,8 +74,9 @@ CREATE TABLE Utilisateur(
 ) ENGINE=InnoDB;
 
 -- Création de la table Chapelle
-CREATE TABLE Chapelle(
+CREATE TABLE chapelle(
    IdChapelle SMALLINT AUTO_INCREMENT,
+   Nom VARCHAR(100) NOT NULL,
    Commentaire VARCHAR(200),
    IdSerre SMALLINT NOT NULL,
    PRIMARY KEY(IdChapelle),
@@ -81,8 +84,9 @@ CREATE TABLE Chapelle(
 ) ENGINE=InnoDB;
 
 -- Création de la table Carte
-CREATE TABLE Carte(
+CREATE TABLE carte(
    IdCarte SMALLINT AUTO_INCREMENT,
+   Nom VARCHAR(100) NOT NULL,
    DateMiseEnService DATETIME NOT NULL,
    EUI VARCHAR(50) NOT NULL,
    AppEUI VARCHAR(50) NOT NULL,
@@ -99,7 +103,7 @@ CREATE TABLE Carte(
 ) ENGINE=InnoDB;
 
 -- Création de la table Possede (relation entre Capteur et Carte)
-CREATE TABLE Possede(
+CREATE TABLE possede(
    IdCapteur SMALLINT NOT NULL,
    IdCarte SMALLINT NOT NULL,
    PRIMARY KEY(IdCapteur),
@@ -108,7 +112,7 @@ CREATE TABLE Possede(
 ) ENGINE=InnoDB;
 
 -- Création de la table Intervient (intervention des utilisateurs sur les cartes)
-CREATE TABLE Intervient(
+CREATE TABLE intervient(
    IdUtilisateur SMALLINT NOT NULL,
    IdCarte SMALLINT NOT NULL,
    DateIntervention DATETIME NOT NULL,
