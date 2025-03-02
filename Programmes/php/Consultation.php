@@ -42,10 +42,6 @@ try {
 } catch (PDOException $e) {
     die("Erreur lors de la récupération des mesures : " . $e->getMessage());
 }
-
-// Transformation des données pour le script JS
-$labels = array_column($mesures, 'Horodatage');
-$values = array_column($mesures, 'Valeur');
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +50,6 @@ $values = array_column($mesures, 'Valeur');
     <meta charset="UTF-8">
     <title>Consultation des Mesures</title> 
     <link href="../css/Consultation.css" rel="stylesheet" type="text/css"> 
-    <script src="../js/Fonctions.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -67,65 +62,88 @@ $values = array_column($mesures, 'Valeur');
             <a href="Log.php">Déconnexion</a>
         </div>
     </header>
+
     <div id="divSelect"> 
         <div id="selectGraphique">
-            <h3>Graphique 1</h3>
-            <img src="../img/plus.svg" alt="plus non trouvé">
+            <h3>Courbe 1 <img src="../img/plus.svg" alt="plus non trouvé" id="ajoutCourbe">
+            <img src="../img/moins.svg" alt="moins non trouvé" id="supprimerCourbe"></h3>
+            <div id="menuAjoutCourbe" style="display: none;">
+                <button data-grandeur="Temperature">Température</button>
+                <button data-grandeur="Humidite">Humidité</button>
+                <button data-grandeur="Vitesse du vent">Vitesse du vent</button>
+            </div>
         </div>
 
         <div id="selectSerre">
             <h3>Selection serre :</h3>
-            <select name="lstSerre" id="lstSerre" onchange="loadChapelles()">
+            <select name="lstSerre" id="lstSerre" data-url="getChapelles.php">
                 <option value="" selected>-- Sélectionner une serre --</option>
-                <?php
-                    try {
-                        $reqSerre = $bdd->query("SELECT IdSerre, Commentaire FROM Serre");
-                        while ($serre = $reqSerre->fetch(PDO::FETCH_ASSOC)) {
-                            echo '<option value="' . $serre['IdSerre'] . '">' . $serre['Commentaire'] . '</option>';
-                        }
-                    } catch (PDOException $e) {
-                        die("Erreur lors de la récupération des serres : " . $e->getMessage());
-                    }
-                ?>
+                <?php include 'getSerres.php'; ?>
             </select>
         </div>
 
         <div id="selectChapelle">
             <h3>Selection chapelle :</h3>
-            <select name="lstChapelle" id="lstChapelle" onchange="loadCartes()">
+            <select name="lstChapelle" id="lstChapelle" data-url="getCartes.php" disabled>
                 <option value="">-- Sélectionner une chapelle --</option>
-                <?php
-                    try {
-                        $reqSerre = $bdd->query("SELECT IdSerre, Commentaire FROM Serre");
-                        while ($serre = $reqSerre->fetch(PDO::FETCH_ASSOC)) {
-                            echo '<option value="' . $serre['IdSerre'] . '">' . $serre['Commentaire'] . '</option>';
-                        }
-                    } catch (PDOException $e) {
-                        die("Erreur lors de la récupération des serres : " . $e->getMessage());
-                    }
-                ?>
             </select>
         </div>
 
         <div id="selectCarte">
             <h3>Selection carte :</h3>
-            <select name="lstCarte" id="lstCarte" onchange="loadCapteurs()">
+            <select name="lstCarte" id="lstCarte" data-url="getCapteurs.php" disabled>
                 <option value="">-- Sélectionner une carte --</option>
             </select>
         </div>
 
         <div id="selectCapteur">
             <h3>Selection capteur :</h3>
-            <select name="lstCapteur" id="lstCapteur">
+            <select name="lstCapteur" id="lstCapteur" disabled>
                 <option value="">-- Sélectionner un capteur --</option>
             </select>
         </div>
 
         <div id="selectPlage">
             <button onclick="ouvertureModel()">Plage temporelle</button>
+            <p>Penser a diminuer les selects pour en ajouter d'autres pour la deuxième courbe</p>
+        </div>
+
+        <div id="ajoutCourbeDiv" class="model" style="display: none;">
+            <span class="close" id="closeAjoutCourbe">&times;</span>
+            <div id="selectSerre">
+                <h3>Selection serre :</h3>
+                <select name="lstSerreAjout" id="lstSerreAjout" data-url="getChapelles.php">
+                    <option value="" selected>-- Sélectionner une serre --</option>
+                    <?php include 'getSerres.php'; ?>
+                </select>
+            </div>
+
+            <div id="selectChapelle">
+                <h3>Selection chapelle :</h3>
+                <select name="lstChapelleAjout" id="lstChapelleAjout" data-url="getCartes.php" disabled>
+                    <option value="">-- Sélectionner une chapelle --</option>
+                </select>
+            </div>
+
+            <div id="selectCarte">
+                <h3>Selection carte :</h3>
+                <select name="lstCarteAjout" id="lstCarteAjout" data-url="getCapteurs.php" disabled>
+                    <option value="">-- Sélectionner une carte --</option>
+                </select>
+            </div>
+
+            <div id="selectCapteur">
+                <h3>Selection capteur :</h3>
+                <select name="lstCapteurAjout" id="lstCapteurAjout" disabled>
+                    <option value="">-- Sélectionner un capteur --</option>
+                </select>
+            </div>
+            <button id="validerAjoutCourbe">Valider</button>
         </div>
     </div> 
+
     <div id="model">
+        <span class="close" id="closePlage">&times;</span>
         <label for="startDate">Date de début :</label>
         <input type="date" id="startDate">
         <label for="startTime">Heure de début :</label>
@@ -136,22 +154,23 @@ $values = array_column($mesures, 'Valeur');
         <label for="endTime">Heure de fin :</label>
         <input type="time" id="endTime" required>
         <br><br>
-        <button onclick="validateTime()">Valider</button>
-        <button onclick="fermetureModel()">Fermer</button>
+        <button onclick="updateChartWithTimeRange()">Valider</button>
     </div>
 
     <div id="divGraphiques">
         <div id="Graphique">
-            <canvas id="graphiqueCapteur"></canvas>
+            <img src="../img/download.svg" alt="moins non trouvé" id="telechargeCourbe">
+            <canvas id="monGraphique"></canvas>
         </div>
         <div id="infoGraphique">
-
+            <span>Actuelle : ...</span>
+            <span>Minimum : ...</span>
+            <span>Maximum : ...</span>
+            <span>Moyenne : ...</span>
         </div>
     </div>
-    <script>
-        var labels = <?php echo json_encode($labels); ?>;
-        var values = <?php echo json_encode($values); ?>;
-    </script>
+
     <script src="../js/Consultation.js"></script>
+    <script src="../js/Fonctions.js"></script>
 </body>
 </html>
