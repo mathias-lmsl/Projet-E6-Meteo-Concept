@@ -48,11 +48,11 @@ CREATE TABLE `capteur` (
 
 INSERT INTO `capteur` (`IdCapteur`, `Nom`, `Marque`, `Reference`, `NumSerie`, `DateMiseEnService`, `Commentaire`, `SeuilMax`, `SeuilMin`, `EtatComposant`, `GrandeurCapt`, `Unite`) VALUES
 (1, 'Capteur Temp patates', NULL, NULL, NULL, '2025-02-28 13:49:50', NULL, '22', '-5', 'OK', 'Temperature', '°C'),
-(2, 'Capteur Hum', NULL, NULL, NULL, '2025-03-03 08:54:33', NULL, 'OK', 'Humidite', '%'),
-(3, 'Capteur Vit', NULL, NULL, NULL, '2025-03-03 08:54:33', NULL, 'HS', 'Vitesse du vent', 'km/h'),
-(4, 'Capteur Temp tomates', NULL, NULL, NULL, '2025-03-03 08:57:27', NULL, 'OK', 'Temperature', '°C'),
+(2, 'Capteur Hum', NULL, NULL, NULL, '2025-03-03 08:54:33', NULL, NULL, NULL,'OK', 'Humidite', '%'),
+(3, 'Capteur Vit', NULL, NULL, NULL, '2025-03-03 08:54:33', NULL, NULL, NULL,'HS', 'Vitesse du vent', 'km/h'),
+(4, 'Capteur Temp tomates', NULL, NULL, NULL, '2025-03-03 08:57:27', NULL, NULL, NULL,'OK', 'Temperature', '°C'),
 (5, 'Capteur Hum', NULL, NULL, NULL, '2025-03-03 08:57:46', NULL, '54', NULL, 'HS', 'Humidite', '%'),
-(6, 'Capteur Vit', NULL, NULL, NULL, '2025-03-03 08:57:46', NULL, 'Veille', 'Vitesse du vent', 'km/h');
+(6, 'Capteur Vit', NULL, NULL, NULL, '2025-03-03 08:57:46', NULL, NULL, NULL,'Veille', 'Vitesse du vent', 'km/h');
 
 -- --------------------------------------------------------
 
