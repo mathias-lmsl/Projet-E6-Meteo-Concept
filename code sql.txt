@@ -54,7 +54,7 @@ CREATE TABLE capteur(
 -- Création de la table mesure
 CREATE TABLE mesure(
    Horodatage DATETIME,
-   Valeur FLOAT NOT NULL,
+   Valeur FLOAT,
    IdCapteur SMALLINT NOT NULL,
    PRIMARY KEY(Horodatage, IdCapteur),
    FOREIGN KEY(IdCapteur) REFERENCES capteur(IdCapteur)
