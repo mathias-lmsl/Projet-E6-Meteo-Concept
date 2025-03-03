@@ -1,4 +1,5 @@
-admin : 
+# Privilèges pour `administrateur`@`%`
+
 GRANT USAGE ON *.* TO `administrateur`@`%` IDENTIFIED BY PASSWORD '*D89A99106002D77C1D327FC41E005919505638B0';
 
 GRANT SELECT, INSERT, UPDATE ON `meteoconcept`.`capteur` TO `administrateur`@`%`;
@@ -23,7 +24,16 @@ GRANT SELECT, INSERT, UPDATE ON `meteoconcept`.`intervient` TO `administrateur`@
 
 GRANT SELECT, INSERT, UPDATE ON `meteoconcept`.`carte` TO `administrateur`@`%`;
 
-tech :
+
+# Privilèges pour `log`@`%`
+
+GRANT USAGE ON *.* TO `log`@`%` IDENTIFIED BY PASSWORD '*E3A03728744BAD409DB845C3FA2C7B2879900D1E';
+
+GRANT SELECT (`Fonction`, `Mdp`, `Login`) ON `meteoconcept`.`utilisateur` TO `log`@`%`;
+
+
+# Privilèges pour `technicien`@`%`
+
 GRANT USAGE ON *.* TO `technicien`@`%` IDENTIFIED BY PASSWORD '*75CAB26DE0E70912C258B093730CFCB77A1926B3';
 
 GRANT SELECT ON `meteoconcept`.`mesure` TO `technicien`@`%`;
@@ -41,8 +51,3 @@ GRANT SELECT ON `meteoconcept`.`capteur` TO `technicien`@`%`;
 GRANT SELECT ON `meteoconcept`.`carte` TO `technicien`@`%`;
 
 GRANT SELECT ON `meteoconcept`.`serre` TO `technicien`@`%`;
-
-log:
-GRANT USAGE ON *.* TO `log`@`%` IDENTIFIED BY PASSWORD '*E3A03728744BAD409DB845C3FA2C7B2879900D1E';
-
-GRANT SELECT (`Fonction`, `Mdp`, `Login`) ON `meteoconcept`.`utilisateur` TO `log`@`%`;
