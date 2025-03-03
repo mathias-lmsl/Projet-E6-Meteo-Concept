@@ -35,6 +35,8 @@ CREATE TABLE `capteur` (
   `NumSerie` varchar(50) DEFAULT NULL,
   `DateMiseEnService` datetime NOT NULL,
   `Commentaire` varchar(200) DEFAULT NULL,
+  `SeuilMax` FLOAT DEFAULT NULL,
+  `SeuilMin` FLOAT DEFAULT NULL,
   `EtatComposant` varchar(20) NOT NULL,
   `GrandeurCapt` varchar(25) NOT NULL,
   `Unite` varchar(10) NOT NULL
@@ -44,12 +46,12 @@ CREATE TABLE `capteur` (
 -- Déchargement des données de la table `capteur`
 --
 
-INSERT INTO `capteur` (`IdCapteur`, `Nom`, `Marque`, `Reference`, `NumSerie`, `DateMiseEnService`, `Commentaire`, `EtatComposant`, `GrandeurCapt`, `Unite`) VALUES
-(1, 'Capteur Temp patates', NULL, NULL, NULL, '2025-02-28 13:49:50', NULL, 'OK', 'Temperature', '°C'),
+INSERT INTO `capteur` (`IdCapteur`, `Nom`, `Marque`, `Reference`, `NumSerie`, `DateMiseEnService`, `Commentaire`, `SeuilMax`, `SeuilMin`, `EtatComposant`, `GrandeurCapt`, `Unite`) VALUES
+(1, 'Capteur Temp patates', NULL, NULL, NULL, '2025-02-28 13:49:50', NULL, '22', '-5', 'OK', 'Temperature', '°C'),
 (2, 'Capteur Hum', NULL, NULL, NULL, '2025-03-03 08:54:33', NULL, 'OK', 'Humidite', '%'),
 (3, 'Capteur Vit', NULL, NULL, NULL, '2025-03-03 08:54:33', NULL, 'HS', 'Vitesse du vent', 'km/h'),
 (4, 'Capteur Temp tomates', NULL, NULL, NULL, '2025-03-03 08:57:27', NULL, 'OK', 'Temperature', '°C'),
-(5, 'Capteur Hum', NULL, NULL, NULL, '2025-03-03 08:57:46', NULL, 'HS', 'Humidite', '%'),
+(5, 'Capteur Hum', NULL, NULL, NULL, '2025-03-03 08:57:46', NULL, '54', NULL, 'HS', 'Humidite', '%'),
 (6, 'Capteur Vit', NULL, NULL, NULL, '2025-03-03 08:57:46', NULL, 'Veille', 'Vitesse du vent', 'km/h');
 
 -- --------------------------------------------------------
