@@ -41,11 +41,11 @@ CREATE TABLE capteur(
    NumSerie VARCHAR(50),
    DateMiseEnService DATETIME NOT NULL,
    Commentaire VARCHAR(200),
+   SeuilMax FLOAT,
+   SeuilMin FLOAT,
    EtatComposant VARCHAR(20) NOT NULL,
    GrandeurCapt VARCHAR(25) NOT NULL,
    Unite VARCHAR(10) NOT NULL,
-   SeuilMax FLOAT,
-   SeuilMin FLOAT,
    PRIMARY KEY(IdCapteur),
    FOREIGN KEY(EtatComposant) REFERENCES etat(EtatComposant),
    FOREIGN KEY(GrandeurCapt, Unite) REFERENCES grandeur(GrandeurCapt, Unite)
