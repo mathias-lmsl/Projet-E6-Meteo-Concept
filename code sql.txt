@@ -44,6 +44,8 @@ CREATE TABLE capteur(
    EtatComposant VARCHAR(20) NOT NULL,
    GrandeurCapt VARCHAR(25) NOT NULL,
    Unite VARCHAR(10) NOT NULL,
+   SeuilMax FLOAT,
+   SeuilMin FLOAT,
    PRIMARY KEY(IdCapteur),
    FOREIGN KEY(EtatComposant) REFERENCES etat(EtatComposant),
    FOREIGN KEY(GrandeurCapt, Unite) REFERENCES grandeur(GrandeurCapt, Unite)
