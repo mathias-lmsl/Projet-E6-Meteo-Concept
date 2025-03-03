@@ -35,8 +35,8 @@ CREATE TABLE `capteur` (
   `NumSerie` varchar(50) DEFAULT NULL,
   `DateMiseEnService` datetime NOT NULL,
   `Commentaire` varchar(200) DEFAULT NULL,
-  `SeuilMax` FLOAT DEFAULT NULL,
-  `SeuilMin` FLOAT DEFAULT NULL,
+  `SeuilMax` float DEFAULT NULL,
+  `SeuilMin` float DEFAULT NULL,
   `EtatComposant` varchar(20) NOT NULL,
   `GrandeurCapt` varchar(25) NOT NULL,
   `Unite` varchar(10) NOT NULL
