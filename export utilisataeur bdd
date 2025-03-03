@@ -1,0 +1,48 @@
+admin : 
+GRANT USAGE ON *.* TO `administrateur`@`%` IDENTIFIED BY PASSWORD '*D89A99106002D77C1D327FC41E005919505638B0';
+
+GRANT SELECT, INSERT, UPDATE ON `meteoconcept`.`capteur` TO `administrateur`@`%`;
+
+GRANT SELECT, INSERT, UPDATE ON `meteoconcept`.`chapelle` TO `administrateur`@`%`;
+
+GRANT SELECT, INSERT, UPDATE ON `meteoconcept`.`possede` TO `administrateur`@`%`;
+
+GRANT SELECT ON `meteoconcept`.`mesure` TO `administrateur`@`%`;
+
+GRANT SELECT, INSERT, UPDATE ON `meteoconcept`.`serre` TO `administrateur`@`%`;
+
+GRANT SELECT ON `meteoconcept`.`fonctionutilisateur` TO `administrateur`@`%`;
+
+GRANT SELECT ON `meteoconcept`.`etat` TO `administrateur`@`%`;
+
+GRANT SELECT ON `meteoconcept`.`grandeur` TO `administrateur`@`%`;
+
+GRANT SELECT, INSERT, UPDATE ON `meteoconcept`.`utilisateur` TO `administrateur`@`%`;
+
+GRANT SELECT, INSERT, UPDATE ON `meteoconcept`.`intervient` TO `administrateur`@`%`;
+
+GRANT SELECT, INSERT, UPDATE ON `meteoconcept`.`carte` TO `administrateur`@`%`;
+
+tech :
+GRANT USAGE ON *.* TO `technicien`@`%` IDENTIFIED BY PASSWORD '*75CAB26DE0E70912C258B093730CFCB77A1926B3';
+
+GRANT SELECT ON `meteoconcept`.`mesure` TO `technicien`@`%`;
+
+GRANT SELECT ON `meteoconcept`.`possede` TO `technicien`@`%`;
+
+GRANT SELECT, UPDATE (`Mdp`, `Prenom`, `AdresseMail`, `Nom`, `NumTel`, `Login`, `DateHeureConnexion`) ON `meteoconcept`.`utilisateur` TO `technicien`@`%`;
+
+GRANT SELECT, INSERT (`NatureIntervention`, `DateIntervention`), UPDATE (`NatureIntervention`, `DateIntervention`) ON `meteoconcept`.`intervient` TO `technicien`@`%`;
+
+GRANT SELECT ON `meteoconcept`.`chapelle` TO `technicien`@`%`;
+
+GRANT SELECT ON `meteoconcept`.`capteur` TO `technicien`@`%`;
+
+GRANT SELECT ON `meteoconcept`.`carte` TO `technicien`@`%`;
+
+GRANT SELECT ON `meteoconcept`.`serre` TO `technicien`@`%`;
+
+log:
+GRANT USAGE ON *.* TO `log`@`%` IDENTIFIED BY PASSWORD '*E3A03728744BAD409DB845C3FA2C7B2879900D1E';
+
+GRANT SELECT (`Fonction`, `Mdp`, `Login`) ON `meteoconcept`.`utilisateur` TO `log`@`%`;
