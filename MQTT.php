@@ -1,0 +1,106 @@
+<?php
+// =======================
+// CONFIGURATION DE LA BASE DE DONNÉES
+// =======================
+
+// Informations de connexion à la base de données
+$host = "192.168.1.205"; // Adresse du serveur MariaDB
+$dbname = "meteoconcept"; // Nom de la base de données
+$username = "mqtt"; // Nom d'utilisateur de la BDD
+$password = "Mqtt"; // Mot de passe (à adapter selon la config)
+
+// Création de la connexion avec PDO (PHP Data Objects)
+try {
+    $pdo = new PDO(mysql:host=$host;dbname=$dbname;charset=utf8mb4, $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, // Active les erreurs SQL
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC // Retourne les résultats sous forme de tableau associatif
+    ]);
+} catch (PDOException $e) {
+    die("Erreur : " . $e->getMessage());
+}
+
+// =======================
+// FONCTION POUR ENVOYER UNE ALERTE PAR EMAIL
+// =======================
+
+function envoyerEmail($$capteurId, $valeur, $seuilMin, $seuilMax) {
+    $to = "meteoconcept@example.com"; // Adresse e-mail du destinataire (à adapter)
+    $subject = "Alerte Capteur $capteurId"; // Sujet de l'e-mail
+
+    // Contenu du message
+    $message = "Alerte !\n\n";
+    $message .= "Capteur : $capteurId\n";
+    $message .= "Valeur mesurée : $valeur\n";
+    $message .= "Seuil Min : $seuilMin\n";
+    $message .= "Seuil Max : $seuilMax\n\n";
+    $message .= "Cette valeur dépasse les seuils définis !";
+
+    // En-têtes de l'email (expéditeur, format du texte...)
+    $headers = "From: alertes@monserveur.com\r\n"; // Adresse e-mail de l'expéditeur
+    $headers .= "Reply-To: no-reply@monserveur.com\r\n"; // Adresse de réponse
+    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n"; // Format du message
+
+    // Envoi du mail avec la fonction mail() de PHP
+    mail($to, $subject, $message, $headers);
+}
+
+// =======================
+// CONFIGURATION DU CLIENT MQTT (Mosquitto-PHP)
+// =======================
+
+// Création d'un client MQTT
+$client = new Mosquitto\Client();
+
+// Callback appelé lorsqu'un message est reçu du broker MQTT
+$client->onMessage(function($message) use ($pdo) {
+    // Récupération du topic et du payload du message MQTT
+    $topic = $message->topic;
+    $payload = floatval($message->payload); // Convertir la valeur en nombre
+
+    // Extraire l'ID du capteur depuis le topic MQTT
+    // Exemple : topic "capteurs/123" → capteur_id = 123
+    $parts = explode("/", $topic);
+    $capteurId = end($parts);
+
+    // =======================
+    // RÉCUPÉRATION DES SEUILS EN BASE DE DONNÉES
+    // =======================
+    
+    // Préparation de la requête SQL pour récupérer les seuils du capteur
+    $req = $pdo->query("SELECT `SeuilMin`, `SeuilMax` FROM `capteur` WHERE `IdCapteur` = '".$capteurId."';");
+    $seuils = $req->fetch(); // Récupération des résultats
+
+    if ($seuils) { // Vérifie si des seuils existent pour ce capteur ????
+        $seuilMin = $seuils['SeuilMin']; // Affectation des seuils dans des variables
+        $seuilMax = $seuils['SeuilMax'];
+
+        // Vérification si la valeur reçue dépasse les seuils
+        if ($payload < $seuilMin || $payload > $seuilMax) {
+            // Envoi d'un e-mail d'alerte
+            envoyerEmail($capteurId, $payload, $seuilMin, $seuilMax);
+        }
+    }
+
+    // =======================
+    // INSERTION DES DONNÉES DANS LA BASE
+    // =======================
+
+    // Requête SQL pour stocker la mesure
+    $req = $pdo->query("INSERT INTO `mesure`(`Horodatage`,`Valeur`,`IdCapteur`) VALUES (NOW(),'".$payload."','".$capteurId."');");
+	});
+
+// =======================
+// CONNEXION AU BROKER MQTT ET ABONNEMENT AUX MESSAGES
+// =======================
+
+// Connexion au broker MQTT (adressekyliann, port 1883)
+$client->connect("x.x.x.x", 1883, 60);
+
+// S'abonner au topic "capteurs/+" (tous les capteurs) sans qos
+$client->subscribe("capteurs/+", 0);
+
+// "Boucle infinie" (script en attente des messages du brocker) pour écouter les messages MQTT
+while (true) {
+    $client->loop();
+}
+?>
