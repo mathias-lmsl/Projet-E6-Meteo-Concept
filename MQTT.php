@@ -23,7 +23,7 @@ try {
 // FONCTION POUR ENVOYER UNE ALERTE PAR EMAIL
 // =======================
 
-function envoyerEmail($$capteurId, $valeur, $seuilMin, $seuilMax) {
+function envoyerEmail($capteurId, $valeur, $seuilMin, $seuilMax) {
     $to = "meteoconcept@example.com"; // Adresse e-mail du destinataire (à adapter)
     $subject = "Alerte Capteur $capteurId"; // Sujet de l'e-mail
 
