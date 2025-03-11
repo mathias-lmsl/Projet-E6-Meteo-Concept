@@ -2,6 +2,12 @@
 require 'phpmqtt/phpMQTT.php'; // Inclure phpMQTT
 use Bluerhinos\phpMQTT;
 
+require 'phpmailer/src/PHPMailer.php'; //Inculre PHPMailer
+require 'phpmailer/src/SMTP.php';
+require 'phpmailer/src/Exception.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 // Informations de connexion à la base de données
 $host = "192.168.1.205"; // Adresse du serveur MariaDB
 $dbname = "meteoconcept"; // Nom de la base de données
@@ -19,12 +25,12 @@ try {
 }
 
 // Configuration MQTT
-$server = '192.168.1.163';     // Adresse du serveur MQTT
+$brocker = '192.168.1.163';     // Adresse du serveur MQTT
 $port = 1883;              // Port MQTT
-$client_id = 'phpClient';  // ID unique du client MQTT
+$clientId = 'phpClient';  // ID unique du client MQTT
 
 // Connexion au serveur MQTT
-$mqtt = new phpMQTT($server, $port, $client_id);
+$mqtt = new phpMQTT($brocker, $port, $clientId);
 
 if (!$mqtt->connect(true, NULL)) {
     exit("Impossible de se connecter au serveur MQTT\n");
@@ -55,14 +61,38 @@ $mqtt->close();
     $req = $pdo->query("SELECT `SeuilMin`, `SeuilMax` FROM `capteur` WHERE `IdCapteur` = '".$capteurId."';");
     $seuils = $req->fetch(); // Récupération des résultats
 
-    if ($seuils) { // Vérifie si des seuils existent pour ce capteur ????
+    if ($seuils['SeuilMin']) { // Vérifie si des seuils existent pour ce capteur 
         $seuilMin = $seuils['SeuilMin']; // Affectation des seuils dans des variables
         $seuilMax = $seuils['SeuilMax'];
 
         // Vérification si la valeur reçue dépasse les seuils
         if ($data < $seuilMin || $data > $seuilMax) {
             // Envoi d'un e-mail d'alerte (a changer)
-            echo "mail !";
+    $mail = new PHPMailer(true); // Correction ici
+
+    try {
+        // Configuration SMTP Gmail
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'projet.meteoconcept@gmail.com'; // Remplacez par votre email Gmail
+        $mail->Password = 'nlvp sgay fmsz holb'; // Utilisez un mot de passe d'application Gmail
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; 
+        $mail->Port = 587;
+
+        // Configuration de l'email
+        $mail->setFrom('projet.meteoconcept@gmail.com', 'Alerte Capteur');
+        $mail->addAddress('projet.meteoconcept@gmail.com'); //Destinataire (peut être n'importe qui)
+
+        $mail->isHTML(true);
+        $mail->Subject = "TEST";
+        $mail->Body = "TEST";
+
+        $mail->send();
+    } catch (Exception $e) {
+        echo "Erreur d'envoi : {$mail->ErrorInfo}";
+    }
+
         }
     }
 
