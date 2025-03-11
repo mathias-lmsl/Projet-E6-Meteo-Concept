@@ -14,6 +14,9 @@ $dbname = "meteoconcept"; // Nom de la base de données
 $username = "mqtt"; // Nom d'utilisateur de la BDD
 $password = "Mqtt"; // Mot de passe (à adapter selon la config)
 
+// mail
+$mail = new PHPMailer(true); 
+
 // Création de la connexion avec PDO (PHP Data Objects)
 try {
     $pdo = new PDO(mysql:host=$host;dbname=$dbname;charset=utf8mb4, $username, $password, [
@@ -50,14 +53,16 @@ function donnee($topic, $message) {
 }
 
 // S'abonner au topic MQTT
-$mqtt->subscribe([$topic => ['qos' => 0, 'function' => 'donnee']]);
+$mqtt->subscribe([$topic => ['qos' => 0, 'function' => 'donnee']]);donne est une fonction callback
 
 // Boucle d'écoute
 while ($mqtt->proc()) {}
 
 $mqtt->close();
 
- 
+ // Préparation de la requête SQL pour récupérer les seuils du capteur
+    $req = $pdo->query("SELECT `SeuilMin`, `SeuilMax` FROM `capteur` WHERE `IdCapteur` = '".$capteurId."';");
+    $seuils = $req->fetch(); // Récupération des résultats
 
     if ($seuils) { // Vérifie si des seuils existent pour ce capteur 
         $seuilMin = $seuils['SeuilMin']; // Affectation des seuils dans des variables
@@ -66,7 +71,6 @@ $mqtt->close();
         // Vérification si la valeur reçue dépasse les seuils
         if ($data < $seuilMin || $data > $seuilMax) {
             // Envoi d'un e-mail d'alerte (a changer)
-    $mail = new PHPMailer(true); 
 
     try {
         // Configuration SMTP Gmail
@@ -84,7 +88,7 @@ $mqtt->close();
 
         $mail->isHTML(true);
         $mail->Subject = "Alerte Capteur";
-        $mail->Body = "Seuil dépassé";
+        $mail->Body = "Seuil du capteur ".$capteurId." dépassé !\nLa valeur mesurée est de :".$data;
 
         $mail->send();
     } catch (Exception $e) {
@@ -92,6 +96,10 @@ $mqtt->close();
     }
 
         }
+    }else if{$seuilMin == $seuils['SeuilMin']){
+$seuilMin = $seuils['SeuilMin']; // Affectation des seuils dans des variables
+	    }else{
+
     }
 
     // =======================
