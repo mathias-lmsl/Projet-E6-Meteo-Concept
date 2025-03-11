@@ -45,7 +45,7 @@ function donnee($topic, $message) {
     $data = json_decode($message, true);
     if ($data) {
         // affichage dans l'invite de commande de la donnée
-        $data = floatval(base64_decode($data['data']));
+        $data = floatval(hexdec($data['data']));
     }
 }
 
@@ -57,18 +57,16 @@ while ($mqtt->proc()) {}
 
 $mqtt->close();
 
-// Préparation de la requête SQL pour récupérer les seuils du capteur
-    $req = $pdo->query("SELECT `SeuilMin`, `SeuilMax` FROM `capteur` WHERE `IdCapteur` = '".$capteurId."';");
-    $seuils = $req->fetch(); // Récupération des résultats
+ 
 
-    if ($seuils['SeuilMin']) { // Vérifie si des seuils existent pour ce capteur 
+    if ($seuils) { // Vérifie si des seuils existent pour ce capteur 
         $seuilMin = $seuils['SeuilMin']; // Affectation des seuils dans des variables
         $seuilMax = $seuils['SeuilMax'];
 
         // Vérification si la valeur reçue dépasse les seuils
         if ($data < $seuilMin || $data > $seuilMax) {
             // Envoi d'un e-mail d'alerte (a changer)
-    $mail = new PHPMailer(true); // Correction ici
+    $mail = new PHPMailer(true); 
 
     try {
         // Configuration SMTP Gmail
@@ -85,8 +83,8 @@ $mqtt->close();
         $mail->addAddress('projet.meteoconcept@gmail.com'); //Destinataire (peut être n'importe qui)
 
         $mail->isHTML(true);
-        $mail->Subject = "TEST";
-        $mail->Body = "TEST";
+        $mail->Subject = "Alerte Capteur";
+        $mail->Body = "Seuil dépassé";
 
         $mail->send();
     } catch (Exception $e) {
