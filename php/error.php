@@ -87,8 +87,8 @@
 </head>
 <body>
     <div class="cloud" style="top: 20%; left: 10%;"></div>
-    <div class="cloud" style="top: 40%; right: 15%; animation-delay: 2s;"></div>
-    <div class="cloud" style="top: 60%; left: 20%; animation-delay: 4s;"></div>
+    <div class="cloud" style="top: 40%; right: 15%; animation-delay: 0s;"></div>
+    <div class="cloud" style="top: 60%; left: 20%; animation-delay: 0s;"></div>
     
     <div class="message">
         <h1>Oups ! Tempête en vue...</h1>

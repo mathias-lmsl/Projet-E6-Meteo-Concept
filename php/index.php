@@ -1,15 +1,15 @@
 <?php
 require "../config/session.php";
-require "../config/database.php";
-require "../includes/header.php";
 ?>
+<link rel="stylesheet" href="../includes/style.css" type="text/css" />
+<link rel="stylesheet" href="../includes/stylelog.css" type="text/css" />
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page de connexion</title>
-    <style>
+    <title>Se connecter</title>
+    <!--<style>
         body {
             height: 100vh;
             margin: 0;
@@ -83,10 +83,49 @@ require "../includes/header.php";
                 max-width: 100%;
             }
         }
-    </style>
+    /*------------------------------------------------------*/
+        .cloud {
+            position: absolute;
+            width: 100px;
+            height: 60px;
+            background: white;
+            border-radius: 50px;
+            box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+            animation: float 6s infinite alternate ease-in-out;
+            z-index: -1;
+        }
+
+        .cloud::before, .cloud::after {
+            content: "";
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .cloud::before {
+            width: 70px;
+            height: 70px;
+            top: -35px;
+            left: 10px;
+        }
+
+        .cloud::after {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            right: 10px;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(-30px); }
+            100% { transform: translateX(30px); }
+        }
+    </style>-->
 </head>
 <body>
-    
+    <div class="cloud" style="top: 20%; left: 10%;"></div>
+    <div class="cloud" style="top: 40%; right: 15%;"></div>
+    <div class="cloud" style="top: 70%; left: 20%;"></div>
     <div class="container">
         <h2>Se connecter</h2>
         <?php
@@ -100,16 +139,13 @@ require "../includes/header.php";
                     echo '</form>';
                     if (!empty($_GET["error"])) {
                         if ($_GET["error"] == 1) echo '<br><span style="color:red;">Login/mot de passe incorrect</span>';
-                        if ($_GET["error"] == 2) echo '<br><span style="color:red;">Veuillez remplir le login/mot de passe</span>';
                     }
                     break;
                 case 2:
                     if (!empty($_GET["id"])){
                         echo '<form action="login.php?id=' . $_GET["id"] .'&page='. $_GET["page"] .'" method="POST">';
-                        echo '<label for="login">Login :</label>';
-                        echo '<input type="text" id="login" name="login" required> <br><br>';
-                        echo '<label for="mdp">Mot de passe :</label>';
-                        echo '<input type="password" id="mdp" name="mdp" required> <br><br>';
+                        echo '<input type="text" id="login" name="login" placeholder="Nom d\'utilisateur" required> <br>';
+                        echo '<input type="password" id="mdp" name="mdp" placeholder="Mot de passe" required> <br>';
                         echo '<input type="submit" value="Connexion">';
                         echo '</form>';
                         if (!empty($_GET["error"])) {

@@ -1,6 +1,6 @@
 <?php
 require "../config/session.php";
-require "../config/database.php";
+require "../config/databaselog.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $login = isset($_POST['login']) ? htmlspecialchars(trim($_POST['login'])) : '';
@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $donnees = $stmt->fetch();
             
             if ($_GET["page"]==1) { //Pour l'accès a la page de génération de qrcode
-                if ($donnees && password_verify($mdp, $donnees['Mdp']) && $donnees['Fonction']=='Admin') {
+                if ($donnees && password_verify($mdp, $donnees['Mdp']) && $donnees['Fonction']=='Administrateur') {
                     session_regenerate_id(true);
                     $_SESSION['user'] = $login;
                     header('Location: creationqrcode.php');     

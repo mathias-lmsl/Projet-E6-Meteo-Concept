@@ -1,5 +1,5 @@
 <?php
-require "../config/database.php";
+require "../config/databaseadmin.php";
 
 if(isset($_POST['serre_id'])) {
     $serre_id = $_POST['serre_id'];

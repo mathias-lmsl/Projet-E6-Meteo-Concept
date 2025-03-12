@@ -1,5 +1,5 @@
 <?php
-require "../config/database.php";
+require "../config/databaseadmin.php";
 include_once('../phpqrcode/qrlib.php');
 
 if (!empty($_POST['carte_id'])) {
@@ -20,7 +20,7 @@ if (!empty($_POST['carte_id'])) {
         }
         
         // Générer le QR Code
-        QRcode::png($lien, $file, QR_ECLEVEL_L, 4);
+        QRcode::png($lien, $file, QR_ECLEVEL_L, 3);
         
         echo '<img src="' . htmlspecialchars($file) . '" alt="QR Code">';
     } else {
