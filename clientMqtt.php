@@ -16,12 +16,9 @@ $password = "Mqtt"; // Mot de passe (à adapter selon la config)
 // Création de la connexion avec PDO (PHP Data Objects)
 try
 {
-    $pdo = new PDO(mysql:"host=meteoconcept;dbname=192.168.1.205;charset=utf8mb4", $username, $password, 
-    [PDO::ATTR_ERRMODE = > PDO::ERRMODE_EXCEPTION, // Active les erreurs SQL
-    PDO::ATTR_DEFAULT_FETCH_MODE = > PDO::FETCH_ASSOC // Retourne les résultats sous forme de tableau associatif
-    ]);
+    $pdo = new PDO(mysql:"host=meteoconcept;dbname=192.168.1.205;charset=utf8mb4", $username, $password);
 }
-catch(PDOException $e)
+catch(Exception $e)
 {
     die("Erreur : " . $e->getMessage());
 }
@@ -42,7 +39,7 @@ if (!$mqtt->connect(true, NULL))
 
 //-----------------------------------------------ABONNEMENT AU TOPIC------------------------------------------------------
 // Chemin du topic et affectation tableau associatif
-$topic['application/863b91c6-a4ad-47b9-9100-66ff4580605f/device/0004a30b00216c4c/event/up'] = array("qos" = > 0, "function" = > "donnee");
+$topic['application/863b91c6-a4ad-47b9-9100-66ff4580605f/device/0004a30b00216c4c/event/up'] = array("qos" => 0, "function" => "donnee");
 
 // S'abonner au topic MQTT
 $mqtt->subscribe($topic, 0); //donnee est une fonction callback
