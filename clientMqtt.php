@@ -55,8 +55,8 @@ function donnee($topic, $message) {
     }
 
     // Récupération du capteurId et de la mesure
-    $capteurId = (int)substr($data, 1, 1);
-    $mesure = (float)substr($data, 4);
+    $capteurId = (int)substr($data,2,1);
+    $mesure = (float)substr($data,5,2);
 
     //----------------------------------------ENVOIE EMAIL EN FONCTION DES SEUILS---------------------------------------------
     $mail = new PHPMailer(true);
@@ -68,26 +68,28 @@ function donnee($topic, $message) {
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = 587;
 
-    // Requête SQL pour récupérer les seuils du capteur
-    $req = $pdo->query("SELECT `SeuilMin`, `SeuilMax` FROM `capteur` WHERE `IdCapteur` = '$capteurId'");
-    $seuils = $req->fetch();
+    // Requête SQL pour récupérer les infos du capteur
+    $req = $pdo->query("SELECT `SeuilMin`, `SeuilMax`, `Nom`, `Unite` FROM `capteur` WHERE `IdCapteur` = '$capteurId'");
+    $infos = $req->fetch();
+    
+        $seuilMin = $infos['SeuilMin'];
+        $seuilMax = $infos['SeuilMax'];
+        $NomCapt = $infos['Nom'];
+        $UniteCapt = $infos['Unite'];
 
-        $seuilMin = $seuils['SeuilMin'];
-        $seuilMax = $seuils['SeuilMax'];
-
-        if($mesure < $seuilMin ||$mesure > $seuilMax){
+        if($mesure < $seuilMin || $mesure > $seuilMax){
         if ($mesure < $seuilMin) {
-            $messageAlerte = "Seuil minimum du capteur $capteurId dépassé !<br>Valeur mesurée : $mesure";
+            $messageAlerte = "Seuil minimum du capteur $capteurId ($NomCapt) dépassé ! <br>Valeur mesurée : $mesure$UniteCapt";
         } elseif ($mesure > $seuilMax) {
-            $messageAlerte = "Seuil maximum du capteur $capteurId dépassé !<br>Valeur mesurée : $mesure";
+            $messageAlerte = "Seuil maximum du capteur $capteurId ($NomCapt) dépassé !<br>Valeur mesurée : $mesure$UniteCapt";
         }
 
         try {
             $mail->setFrom('projet.meteoconcept@gmail.com', 'Alerte Capteur');
-            $mail->addAddress('projet.meteoconcept@gmail.com');
+            $mail->addAddress('benoitaubouin@gmail.com');
             $mail->isHTML(true);
             $mail->Subject = "Alerte Capteur";
-            $mail->Body = $messageAlerte;
+            $mail->Body = "$messageAlerte";
             $mail->send();
         } catch (Exception $e) {
             echo "Erreur d'envoi : {$mail->ErrorInfo}";
