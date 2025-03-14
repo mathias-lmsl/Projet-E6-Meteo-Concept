@@ -130,5 +130,5 @@ else if ($mesure > $seuilMax)
 //--------------------------------------------INSERTION VALEUR DANS LA BDD------------------------------------------------
 // Requête SQL pour inserer la mesure dans la BDD
 $req = $pdo->query("INSERT INTO `mesure`(`Horodatage`,`Valeur`,`IdCapteur`) VALUES (NOW(),'" . $mesure . "','" . $capteurId . "');");
-});
+);
 ?>
