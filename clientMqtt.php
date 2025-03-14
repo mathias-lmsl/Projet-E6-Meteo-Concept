@@ -65,8 +65,8 @@ function donnee($topic, $message)
 }
 
 //Récupération du capteurId et de la mesure https://blog.alphorm.com/manipulation-des-chaines-en-php
-$capteurId = substr($data,1,1);
-$mesurre = substr($data,4,null);
+$capteurId = (int)substr($data,1,1);
+$mesurre = (float)substr($data,4,null);
 
     //----------------------------------------ENVOIE EMAIL EN FONCTION DES SEUILS---------------------------------------------
     // Configuration SMTP Gmail (https://support.google.com/a/answer/176600 -> OPTION 2)
