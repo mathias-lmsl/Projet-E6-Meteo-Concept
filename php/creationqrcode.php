@@ -151,7 +151,6 @@ if (!isset($_SESSION['user'])) {
             }
         }
     </style>-->
-
 </head>
 <body>
     <div class="cloud" style="top: 20%; left: 10%;"></div>

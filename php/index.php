@@ -1,6 +1,7 @@
 <?php
 require "../config/session.php";
 ?>
+<!--On ajoute les fichiers css-->
 <link rel="stylesheet" href="../includes/style.css" type="text/css" />
 <link rel="stylesheet" href="../includes/stylelog.css" type="text/css" />
 <!DOCTYPE html>
@@ -123,14 +124,17 @@ require "../config/session.php";
     </style>-->
 </head>
 <body>
+    <!--On ajoute les nuages-->
     <div class="cloud" style="top: 20%; left: 10%;"></div>
     <div class="cloud" style="top: 40%; right: 15%;"></div>
     <div class="cloud" style="top: 70%; left: 20%;"></div>
     <div class="container">
         <h2>Se connecter</h2>
         <?php
+        //On vérifie si la page est définie pour la redirection
         if (!empty($_GET["page"])){
             switch ($_GET["page"]) {
+                //Si la page est 1 ()
                 case 1:
                     echo '<form action="login.php?page='. $_GET["page"] .'" method="POST">';
                     echo '<input type="text" id="login" name="login" placeholder="Nom d\'utilisateur" required> <br>';

@@ -12,6 +12,10 @@ html, body {
     font-family: Arial, sans-serif;
 }
 
+h1{
+    margin-inline-start: 10px;
+}
+
 /* Styles généraux (Mode clair par défaut) */
 body {
     background: linear-gradient(to bottom, #87CEEB, #4682B4);
@@ -101,6 +105,7 @@ body.darkmode #moon-icon {
     box-sizing: border-box;
     overflow: hidden; /* Cache le contenu qui dépasse */
     word-wrap: break-word; /* Permet de casser les mots longs */
+    
 }
 
 /* Boîte centrale pour les informations principales */
@@ -121,17 +126,19 @@ body.darkmode #moon-icon {
     word-wrap: break-word; /* Force la coupure des mots longs */
     margin-bottom: 20px;
     max-width: 100%;
+    
 }
 
 body.darkmode .card {
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 2px 0px 20px rgba(255, 255, 255, 0.1);
+    box-shadow: 0px 0px 50px rgba(255, 255, 255, 0.1);
     overflow: hidden; /* Cache le contenu qui dépasse */
     white-space: normal; /* Permet au texte de se diviser en plusieurs lignes */
     word-wrap: break-word; /* Force la coupure des mots longs */
     margin-bottom: 20px;
     max-width: 100%;
+    background: rgb(11, 4, 48);
 }
 
 .infocard {

@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
             }
             if ($_GET["page"]==2) { //Pour l'accès a la page de maintenance
-                if ($donnees && password_verify($mdp, $donnees['Mdp']) && $donnees['Fonction']=='Technicien') {
+                if ($donnees && password_verify($mdp, $donnees['Mdp']) && ($donnees['Fonction']=='Technicien' || $donnees['Fonction']=='Administrateur')) {
                     session_regenerate_id(true);
                     $_SESSION['user'] = $login;
                     $_SESSION['id_consultable'] = $_GET["id"];

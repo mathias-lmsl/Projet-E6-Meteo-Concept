@@ -1,6 +1,7 @@
 <?php require "../config/session.php"; ?>
 <!DOCTYPE html>
 <html lang="fr">
+<link rel="stylesheet" href="../includes/style.css" type="text/css" />
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,43 +19,6 @@
             color: white;
             text-align: center;
             position: relative;
-        }
-
-        .cloud {
-            position: absolute;
-            width: 100px;
-            height: 60px;
-            background: white;
-            border-radius: 50px;
-            box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
-            animation: float 6s infinite alternate ease-in-out;
-            z-index: -1;
-        }
-
-        .cloud::before, .cloud::after {
-            content: "";
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-        }
-
-        .cloud::before {
-            width: 70px;
-            height: 70px;
-            top: -35px;
-            left: 10px;
-        }
-
-        .cloud::after {
-            width: 50px;
-            height: 50px;
-            top: -25px;
-            right: 10px;
-        }
-
-        @keyframes float {
-            0% { transform: translateX(-20px); }
-            100% { transform: translateX(20px); }
         }
 
         .message {
@@ -86,14 +50,13 @@
     </style>
 </head>
 <body>
-    <div class="cloud" style="top: 20%; left: 10%;"></div>
-    <div class="cloud" style="top: 40%; right: 15%; animation-delay: 0s;"></div>
-    <div class="cloud" style="top: 60%; left: 20%; animation-delay: 0s;"></div>
+    <div class="cloud" style="top: 18%; left: 10%;"></div>
+    <div class="cloud" style="top: 40%; right: 15%;"></div>
+    <div class="cloud" style="top: 80%; left: 20%;"></div>
     
     <div class="message">
         <h1>Oups ! Tempête en vue...</h1>
         <p>Erreur 404 : Il semble que cette page se soit évaporée comme une goutte d'eau au soleil.</p>
-
     </div>
 </body>
 </html>
