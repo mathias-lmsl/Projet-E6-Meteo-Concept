@@ -108,5 +108,9 @@ while (true) {
 SELECT capteur.IdCapteur FROM capteur, possede, carte 
 WHERE carte.devEUI = possede.devEUI
 AND possede.IdCapteur = capteur.IdCapteur
-AND capteur.Grandeur = Temperature
+AND capteur.Grandeur = Temperature (manque $devEUI)
 
+
+ // Extraire l'ID du capteur à partir du topic MQTT
+    $topic_parts = explode("/", $topic);
+    $capteur_id = end($topic_parts); // Exemple : 'capteurs/temp_capteur1' => 'temp_capteur1'
