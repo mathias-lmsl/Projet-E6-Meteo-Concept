@@ -8,6 +8,9 @@ require 'phpmailer/src/Exception.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+//-------------------------------------------------PROTOTYPE-----------------------------------------------------------
+function hex2SigDem($hex);
+
 //-------------------------------------------------CONNEXION BDD-------------------------------------------------------
 // Informations de connexion à la base de données
 $username = "mqtt"; // Nom d'utilisateur de la BDD
@@ -35,7 +38,7 @@ if (!$mqtt->connect(true, NULL)) {
 
 //-----------------------------------------------ABONNEMENT AU TOPIC------------------------------------------------------
 // Chemin du topic et affectation tableau associatif
-$topic['application/863b91c6-a4ad-47b9-9100-66ff4580605f/device/0004a30b00216c4c/event/up'] = ["qos" => 0, "function" => "donnee"];
+$topic['application/863b91c6-a4ad-47b9-9100-66ff4580605f/device/+/event/up'] = ["qos" => 0, "function" => "donnee"];
 
 // S'abonner au topic MQTT
 $mqtt->subscribe($topic, 0);
@@ -51,12 +54,19 @@ function donnee($topic, $message) {
     // Traitement du message JSON
     $data = json_decode($message, true);
     if ($data) {
-        $data = base64_decode($data['data']);
+        //valeur hexa qui été convertit en base64 par le chipstarck que je reconvertit en hexa
+        $decodeData = bin2hex(base64_decode($data['data']));
+        $temperature = substr(decodeData, 0, 8)
+        $humidite = substr(decodeData, 8, 8)
+        $vitVent = substr(decodeData, 16, 8)
+        $dirVent = substr(decodeData, 24, 8)
+	    $decimalSigned = hex2SigDem($temperature);
     }
 
-    // Récupération du capteurId et de la mesure
-    $capteurId = (int)substr($data,2,1);
-    $mesure = (float)substr($data,5,2);
+        "SELECT capteur.IdCapteur FROM capteur, possede, carte WHERE carte.devEUI = possede.devEUI 
+        AND possede.IdCapteur = capteur.IdCapteur
+        AND carte.devEUI = '".$devEUI."'
+        AND capteur.Grandeur = 'Temperature'";
 
     //----------------------------------------ENVOIE EMAIL EN FONCTION DES SEUILS---------------------------------------------
     $mail = new PHPMailer(true);
@@ -98,5 +108,18 @@ function donnee($topic, $message) {
 
     //--------------------------------------------INSERTION VALEUR DANS LA BDD------------------------------------------------
     $pdo->query("INSERT INTO `mesure`(`Horodatage`, `Valeur`, `IdCapteur`) VALUES (NOW(), '$mesure', '$capteurId')");
+}
+
+//Fonction pour complémenter à 2 une valeur hexadecimal
+function Hex2SigDem($hex){
+//Convertir l'hexadécimal en un nombre entier
+    $decimal = hexdec($hex);
+
+    // Si le nombre dépasse la moitié, c'est un négatif en complément à deux
+    if ($decimal >= 32768) {
+        $decimal -= 65536 ; // Soustraction du max pour le signe
+    }
+
+    return $decimal;
 }
 ?>
