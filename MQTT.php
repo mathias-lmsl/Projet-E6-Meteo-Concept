@@ -104,3 +104,9 @@ while (true) {
     $client->loop();
 }
 ?>
+
+SELECT capteur.IdCapteur FROM capteur, possede, carte 
+WHERE carte.devEUI = possede.devEUI
+AND possede.IdCapteur = capteur.IdCapteur
+AND capteur.Grandeur = Temperature
+
