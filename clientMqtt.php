@@ -49,7 +49,7 @@ $mail->Port = 587; //TLS
 $topic = 'application/863b91c6-a4ad-47b9-9100-66ff4580605f/device/+/event/up';
 
 // S'abonner au topic MQTT
-$mqtt->subscribe($topic => ["qos" => 0, "function" => "donnee"]);
+$mqtt->subscribe([$topic => ["qos" => 0, "function" => "donnee"]]);
 
 // Boucle d'écoute
 while ($mqtt->proc()) {
