@@ -3,7 +3,7 @@ require "../config/session.php";
 require "../config/databaseadmin.php";
 
 if (!isset($_SESSION['user'])) {
-    header('Location: index.php?id='.$_GET["id"].'&page=1');
+    header('Location: index.php?page=1');
     exit;
 }
 
@@ -24,133 +24,6 @@ if (!isset($_SESSION['user'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Générateur de QR Code</title>
-    <!--
-    <style>
-        body {
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom, #87CEEB, #4682B4);
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .container {
-            text-align: center;
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-            opacity: 0.9;
-        }
-
-        select, button {
-            width: 90%;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 10px;
-            font-size: 15px;
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        a {
-            padding: 10px 20px;
-            margin-top: 10px;
-            border: none;
-            background-color: #007BFF;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        a:hover {
-            background-color: #0056b3;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 15px;
-            }
-        }
-
-        /*---------------------------Nuage---------------------------*/
-        .cloud { /*Bas nuage*/
-            position: absolute;
-            width: 150px;
-            height: 80px;
-            background: white;
-            border-radius: 50px;
-            box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
-            animation: float 6s infinite alternate ease-in-out;
-            z-index: -1;
-        }
-
-        .cloud::before, .cloud::after {
-            content: "";
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-        }
-
-        .cloud::before {/*Haut gauche*/
-            width: 85px;
-            height: 80px;
-            top: -35px;
-            left: 10px;
-        }
-
-        .cloud::after { /*Haut droit*/ 
-            width: 100px;
-            height: 60px;
-            top: -25px;
-            right: 10px;
-        }
-
-        @keyframes float { /*Deplacement des nuages*/
-            0% { transform: translateX(-30px); }
-            100% { transform: translateX(30px); }
-        }
-
-        /* Styles pour l'impression */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #qrCodeContainer, #qrCodeContainer * {
-                visibility: visible;
-            }
-            #qrCodeContainer {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-        }
-    </style>-->
 </head>
 <body>
     <div class="cloud" style="top: 20%; left: 10%;"></div>
@@ -190,6 +63,7 @@ if (!isset($_SESSION['user'])) {
         <br><br>
         <button id="generateQR" disabled>Générer le QR Code</button>
 
+        
         <div id="qrCodeContainer"></div> <!-- Emplacement du QR code qui sera crée -->
         
         <div id="Impression"></div> <!-- Emplacement du bouton imprimer -->
@@ -205,6 +79,8 @@ if (!isset($_SESSION['user'])) {
             const generateQR = document.getElementById("generateQR");
             const qrCodeContainer = document.getElementById("qrCodeContainer");
             const Impression = document.getElementById("Impression");
+            const gererQrCode = document.getElementById("gererQrCode");
+
 
             lstSerre.addEventListener("change", function () {
                 const serreId = this.value;
