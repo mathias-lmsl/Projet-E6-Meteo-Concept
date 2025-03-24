@@ -9,7 +9,10 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 //-------------------------------------------------PROTOTYPE-----------------------------------------------------------
+function donnee($topic, $message);
 function hex2SigDem($hex);
+function recupId($grandeur, $devEui);
+function traitementData($mesure, $capteurId);
 
 //-------------------------------------------------CONNEXION BDD-------------------------------------------------------
 // Informations de connexion à la base de données
@@ -38,80 +41,93 @@ if (!$mqtt->connect(true, NULL)) {
 
 //-----------------------------------------------ABONNEMENT AU TOPIC------------------------------------------------------
 // Chemin du topic et affectation tableau associatif
-$topic['application/863b91c6-a4ad-47b9-9100-66ff4580605f/device/+/event/up'] = ["qos" => 0, "function" => "donnee"];
+$topic = 'application/863b91c6-a4ad-47b9-9100-66ff4580605f/device/+/event/up';
 
 // S'abonner au topic MQTT
-$mqtt->subscribe($topic, 0);
+$mqtt->subscribe($topic => ["qos" => 0, "function" => "donnee"]);
 
 // Boucle d'écoute
 while ($mqtt->proc()) {}
 
 $mqtt->close();
 
+//-----------------------------------------------------FONCTIONS--------------------------------------------------------------
 // Fonction de traitement des messages
+// @param $topic : contient le chemin du topic
+//	  $message : contient la donnée que le broker envoi
 function donnee($topic, $message) {
-    global $pdo;
-    // Traitement du message JSON
-    $data = json_decode($message, true);
-    if ($data) {
-        //valeur hexa qui été convertit en base64 par le chipstarck que je reconvertit en hexa
-        $decodeData = bin2hex(base64_decode($data['data']));
-        $temperature = substr(decodeData, 0, 8)
-        $humidite = substr(decodeData, 8, 8)
-        $vitVent = substr(decodeData, 16, 8)
-        $dirVent = substr(decodeData, 24, 8)
-	    $decimalSigned = hex2SigDem($temperature);
-    }
+	global $pdo; //ça sert ??
 
-        "SELECT capteur.IdCapteur FROM capteur, possede, carte WHERE carte.devEUI = possede.devEUI 
-        AND possede.IdCapteur = capteur.IdCapteur
-        AND carte.devEUI = '".$devEUI."'
-        AND capteur.Grandeur = 'Temperature'";
+	
+    	// Traitement du message JSON
+    	$data = json_decode($message, true);
+	if($data){
+		// valeur hexa qui été convertit en base64 par le chipstarck que je reconvertit en hexa
+       	 	$decodeData = bin2hex(base64_decode($data['data']));
 
-    //----------------------------------------ENVOIE EMAIL EN FONCTION DES SEUILS---------------------------------------------
-    $mail = new PHPMailer(true);
-    $mail->isSMTP();
-    $mail->Host = 'smtp.gmail.com';
-    $mail->SMTPAuth = true;
-    $mail->Username = 'projet.meteoconcept@gmail.com';
-    $mail->Password = 'nlvp sgay fmsz holb'; // mot de passe d'application Gmail
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port = 587;
+		// je stocke la valeur mesuree pour chaque capteur
+        	$temperature = (hex2SigDem(substr(decodeData, 0, 8)))/10;
+		$humidite = (hex2SigDem(substr(decodeData, 8, 8)))/10;
+        	$vitVent = (hex2SigDem(substr(decodeData, 16, 8)))/10;
+        	$dirVent = (hex2SigDem(substr(decodeData, 24, 8)))/10;
 
-    // Requête SQL pour récupérer les infos du capteur
-    $req = $pdo->query("SELECT `SeuilMin`, `SeuilMax`, `Nom`, `Unite` FROM `capteur` WHERE `IdCapteur` = '$capteurId'");
-    $infos = $req->fetch();
-    
+		// je récupère les id des capteurs
+		$idCaptTemp = recupId($temperature);
+		$idCaptHum = recupId($humidite);
+		$idCaptVit = recupId($vitVent);
+		$idCaptDir = recupId($dirVent);
+
+		// appel fonction pour traitement des données
+		traitementData($temperature, $idCaptTemp);
+		traitementData($humidite, $idCaptHum);
+		traitementData($vitVent, $idCaptVit);
+		traitementData($dirVent, $idCaptDir);
+
+	}
+}
+
+// Fonction pour traiter les données, envoi du mail si besoin et insertion dans la BDD
+// @param $mesure : la mesure envoyé en mqtt
+//	  $capteurId : l'id du capteur lié a la mesure
+function traitementData($mesure, $capteurId){
+	// Envoi mail en fonction des seuils du capteur
+    	// Requête SQL pour récupérer les infos du capteur
+    	$req = $pdo->query("SELECT `SeuilMin`, `SeuilMax`, `Nom`, `Unite` FROM `capteur` WHERE `IdCapteur` = '$capteurId'");
+    	$infos = $req->fetch();
+
         $seuilMin = $infos['SeuilMin'];
         $seuilMax = $infos['SeuilMax'];
         $NomCapt = $infos['Nom'];
         $UniteCapt = $infos['Unite'];
 
+	//verification du depassment de seuil et envoi du mail
         if($mesure < $seuilMin || $mesure > $seuilMax){
-        if ($mesure < $seuilMin) {
-            $messageAlerte = "Seuil minimum du capteur $capteurId ($NomCapt) dépassé ! <br>Valeur mesurée : $mesure$UniteCapt";
-        } elseif ($mesure > $seuilMax) {
-            $messageAlerte = "Seuil maximum du capteur $capteurId ($NomCapt) dépassé !<br>Valeur mesurée : $mesure$UniteCapt";
-        }
+        	if ($mesure < $seuilMin) {
+            		$messageAlerte = "Seuil minimum du capteur $capteurId ($NomCapt) dépassé ! <br>Valeur mesurée : $mesure$UniteCapt";
+        	} else {
+            		$messageAlerte = "Seuil maximum du capteur $capteurId ($NomCapt) dépassé !<br>Valeur mesurée : $mesure$UniteCapt";
+        	}
 
-        try {
-            $mail->setFrom('projet.meteoconcept@gmail.com', 'Alerte Capteur');
-            $mail->addAddress('benoitaubouin@gmail.com');
-            $mail->isHTML(true);
-            $mail->Subject = "Alerte Capteur";
-            $mail->Body = "$messageAlerte";
-            $mail->send();
-        } catch (Exception $e) {
-            echo "Erreur d'envoi : {$mail->ErrorInfo}";
-        }
-    }
-
-    //--------------------------------------------INSERTION VALEUR DANS LA BDD------------------------------------------------
-    $pdo->query("INSERT INTO `mesure`(`Horodatage`, `Valeur`, `IdCapteur`) VALUES (NOW(), '$mesure', '$capteurId')");
+        	try {
+            		$mail->setFrom('projet.meteoconcept@gmail.com', 'Alerte Capteur');
+            		$mail->addAddress('benoitaubouin@gmail.com');
+           		$mail->isHTML(true);
+            		$mail->Subject = "Alerte Capteur";
+            		$mail->Body = "$messageAlerte";
+            		$mail->send();
+        	} catch (Exception $e) {
+            		echo "Erreur d'envoi : {$mail->ErrorInfo}";
+        	}
+    	}
+	
+	// Insertion dans la BDD
+    	$pdo->query("INSERT INTO `mesure`(`Horodatage`, `Valeur`, `IdCapteur`) VALUES (NOW(), '$mesure', '$capteurId')");
 }
 
-//Fonction pour complémenter à 2 une valeur hexadecimal
-function Hex2SigDem($hex){
+// Fonction pour complémenter à 2 une valeur hexadecimal
+// @param $hex : un chaine de caractères qui repsente une valeur hexa
+// @return : la valeur en décimal
+function hex2SigDem($hex){
 //Convertir l'hexadécimal en un nombre entier
     $decimal = hexdec($hex);
 
@@ -121,5 +137,18 @@ function Hex2SigDem($hex){
     }
 
     return $decimal;
+}
+
+// Fonction recupId pour récuperer l'id du capteur
+// @param $grandeur : nom de la grandeur du capteur a recuperer
+// 	  $devEui : le devEui pour identifier la carte
+// @return : l'id du capteur
+function recupId($grandeur, $devEui){
+	$req = $pdo->query("SELECT capteur.IdCapteur FROM capteur, possede, carte WHERE carte.devEUI = possede.devEUI 
+        AND possede.IdCapteur = capteur.IdCapteur
+        AND carte.devEUI = '$devEui'
+        AND capteur.Grandeur = '$grandeur'";)
+
+	return $req;
 }
 ?>
