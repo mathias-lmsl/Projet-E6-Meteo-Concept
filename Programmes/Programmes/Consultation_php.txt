@@ -99,7 +99,7 @@ try {
 
         <div id="actionGraphique">
             <div id="graphique">
-                <h2>Graphique n°2 (optionnel)</h2>
+                <h2>Graphique n°2</h2>
             </div>
         </div>
 

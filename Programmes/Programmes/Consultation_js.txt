@@ -1,0 +1,297 @@
+document.addEventListener('DOMContentLoaded', function() {
+    const selectSerre = document.getElementById('selectSerre');
+    const selectChapelle = document.getElementById('selectChapelle');
+    const selectCarte = document.getElementById('selectCarte');
+    const selectCapteur = document.getElementById('selectCapteur');
+    const selectUtilisateur = document.getElementById('selectUtilisateur');
+    const tableHeader = document.querySelector('.tabParametrage thead tr');
+    const tableBody = document.querySelector('.tabParametrage tbody');
+
+    let currentTable = 'capteur'; // Table par défaut au chargement
+
+    // Boutons de sélection
+    selectSerre.addEventListener('click', () => updateTable('serre'));
+    selectChapelle.addEventListener('click', () => updateTable('chapelle'));
+    selectCarte.addEventListener('click', () => updateTable('carte'));
+    selectCapteur.addEventListener('click', () => updateTable('capteur'));
+    selectUtilisateur.addEventListener('click', () => updateTable('utilisateur'));
+
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', () => filterTable(searchInput.value.toLowerCase()));
+
+    function filterTable(searchTerm) {
+        const rows = document.querySelectorAll('.divTableau tbody tr');
+        rows.forEach(row => {
+            let found = false;
+            row.querySelectorAll('td').forEach(cell => {
+                if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                    found = true;
+                }
+            });
+            row.style.display = found ? '' : 'none';
+        });
+    }
+
+    async function updateTable(tableName) {
+        currentTable = tableName;
+
+        document.querySelectorAll('.selectionTable button').forEach(button => {
+            button.classList.remove('active');
+            if (button.id === 'select' + tableName.charAt(0).toUpperCase() + tableName.slice(1)) {
+                button.classList.add('active');
+            }
+        });
+
+        filterTable(searchInput.value.toLowerCase());
+
+        try {
+            const response = await fetch('getTableData.php?table=' + tableName);
+            const data = await response.json();
+
+            tableHeader.innerHTML = '';
+            data.columns.forEach(column => {
+                const th = document.createElement('th');
+                th.textContent = column;
+
+                if (column === "Actions" && (tableName === 'carte' || tableName === 'capteur')) {
+                    const addButton = document.createElement('img');
+                    addButton.src = '../img/plus.svg';
+                    addButton.alt = 'Ajouter';
+                    addButton.classList.add('addImage');
+                    addButton.style.cursor = 'pointer';
+                    addButton.title = 'Ajouter';
+                    addButton.addEventListener('click', openAddModal);
+                    th.appendChild(addButton);
+                }
+
+                tableHeader.appendChild(th);
+            });
+
+            tableBody.innerHTML = '';
+            data.rows.forEach(row => {
+                const tr = document.createElement('tr');
+                data.columns.forEach(column => {
+                    const td = document.createElement('td');
+
+                    if (column === "Actions") {
+                        const modifyButton = document.createElement('img');
+                        modifyButton.src = '../img/modifier.svg';
+                        modifyButton.alt = 'Modifier';
+                        modifyButton.classList.add('modifyImage');
+                        const idKey = Object.keys(row).find(key => key.toLowerCase().includes('id'));
+                        modifyButton.setAttribute('data-id', row[idKey]);
+                        modifyButton.style.cursor = 'pointer';
+
+                        const deleteButton = document.createElement('img');
+                        deleteButton.src = '../img/moins.svg';
+                        deleteButton.alt = 'Supprimer';
+                        deleteButton.classList.add('deleteImage');
+                        deleteButton.setAttribute('data-id', row[idKey]);
+                        deleteButton.style.cursor = 'pointer';
+
+                        td.appendChild(modifyButton);
+                        td.appendChild(deleteButton);
+                    } else {
+                        td.textContent = row[column];
+                    }
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+
+            document.querySelectorAll('.modifyImage').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    console.log(`Modifier ${currentTable} avec l'ID ${id}`);
+                    // Ta logique de modification ici
+                });
+            });
+
+            document.querySelectorAll('.deleteImage').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    console.log(`Suppression ${currentTable} avec l'ID ${id}`);
+                    deleteRow(currentTable, id);
+                });
+            });
+
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour du tableau:', error);
+        }
+    }
+
+    async function deleteRow(tableName, id) {
+        try {
+            const response = await fetch('deleteRow.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `table=${tableName}&id=${id}`
+            });
+    
+            const result = await response.json();
+            if (result.success) {
+                alert('Suppression réussie !');
+                updateTable(currentTable); // Mettre à jour le tableau après suppression
+            } else {
+                alert('Erreur lors de la suppression : ' + result.error);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la suppression :', error);
+            alert('Erreur lors de la suppression. Veuillez réessayer.');
+        }
+    }    
+
+    // Modale d'ajout pour Carte/Capteur
+async function openAddModal() {
+    try {
+        const response = await fetch('getTableData.php?table=' + currentTable);
+        const data = await response.json();
+
+        const columns = data.columns.filter(col =>
+            col !== 'Actions' &&
+            col !== 'IdCapteur' && // On ignore l'ID car auto-incrément
+            col !== 'DateMiseEnService' && // Automatique dans insertRow.php
+            col !== 'Unite' // Tu peux l'ajouter si besoin
+        );
+
+        // Options pour les selects dynamiques
+        const selectOptions = await fetchSelectOptions();
+
+        // ➕ Création de la modale ➕
+        const modal = document.createElement('div');
+        modal.classList.add('modal');
+
+        const form = document.createElement('form');
+        form.classList.add('modal-form');
+
+        const title = document.createElement('h2');
+        title.textContent = `Ajouter un ${currentTable}`;
+        form.appendChild(title);
+
+        // Génération des champs dynamiques
+        columns.forEach(column => {
+            const label = document.createElement('label');
+            label.setAttribute('for', column);
+
+            let input;
+
+            if (column === 'EtatComposant') {
+                label.textContent = 'État du composant';
+                input = document.createElement('select');
+                selectOptions.EtatComposant.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt;
+                    option.textContent = opt;
+                    input.appendChild(option);
+                });
+            } else if (column === 'GrandeurCapt') {
+                label.textContent = 'Grandeur du capteur';
+                input = document.createElement('select');
+                selectOptions.GrandeurCapt.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt;
+                    option.textContent = opt;
+                    input.appendChild(option);
+                });
+            } else if (column === 'IdCarte') {
+                label.textContent = 'Carte associée';
+                input = document.createElement('select');
+                selectOptions.Cartes.forEach(carte => {
+                    const option = document.createElement('option');
+                    option.value = carte.IdCarte; // Respecte la casse du champ PHP
+                    option.textContent = carte.NomCarte; // Affiche le nom de la carte
+                    input.appendChild(option);
+                });
+            } else {
+                label.textContent = column;
+                input = document.createElement('input');
+                input.type = 'text';
+                input.name = column;
+                input.required = true;
+            }
+
+            input.name = column;
+            input.id = column;
+
+            form.appendChild(label);
+            form.appendChild(input);
+        });
+
+        // Boutons de la modale
+        const buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('modal-buttons');
+
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.textContent = 'Ajouter';
+
+        const cancelButton = document.createElement('button');
+        cancelButton.type = 'button';
+        cancelButton.textContent = 'Annuler';
+
+        buttonContainer.appendChild(submitButton);
+        buttonContainer.appendChild(cancelButton);
+        form.appendChild(buttonContainer);
+
+        modal.appendChild(form);
+        document.body.appendChild(modal);
+
+        // Affiche la modale
+        modal.style.display = 'flex';
+
+        // Fermeture de la modale si click sur Annuler
+        cancelButton.addEventListener('click', () => {
+            modal.remove();
+        });
+
+        // Gestion du submit
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            formData.append('table', currentTable);
+
+            try {
+                const response = await fetch('insertRow.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Ajout réussi !');
+                    modal.remove();
+                    updateTable(currentTable); // Rafraîchit le tableau
+                } else {
+                    alert('Erreur lors de l\'ajout : ' + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Erreur lors de l\'ajout.');
+            }
+        });
+
+    } catch (error) {
+        console.error('Erreur lors de l\'ouverture de la modale :', error);
+    }
+}
+
+    async function fetchSelectOptions() {
+        try {
+            const response = await fetch('getSelectOptions.php');
+            const options = await response.json();
+            return options;
+        } catch (error) {
+            console.error('Erreur lors du chargement des options de select:', error);
+            return {
+                EtatComposant: [],
+                GrandeurCapt: []
+            };
+        }
+    }
+
+    updateTable('capteur');
+});

@@ -36,12 +36,8 @@ body {
     background-color: #77B5FE;
 }
 
-.navBar #navAutre img{
-    transition: transform 0.2s ease;
-}
-
-.navBar #navAutre img:hover{
-    transform: scale(1.3);
+.navBar #navAutre:hover {
+    background-color: #7094e2;
 }
 
 .navBar #navAutre a {
@@ -103,21 +99,13 @@ body {
 #divSelect #actionGraphique #actions {
     display: flex;
     align-items: center;
-    width: 40px;
 }
 
 #divSelect #actionGraphique #actions #ajoutCourbe {
     display: flex;
     width: 15px;
     cursor: pointer;
-    float: left;
-    margin-right: 10px;
-    transition: transform 0.2s ease;
-
-}
-
-#divSelect #actionGraphique #actions #ajoutCourbe:hover {
-    transform: scale(1.5);
+    transform: translate(-50%, 0);
 
 }
 
@@ -125,12 +113,6 @@ body {
     display: flex;
     width: 15px;
     cursor: pointer;
-    float: right;
-    transition: transform 0.2s ease;
-}
-
-#divSelect #actionGraphique #actions #supprimerCourbe:hover {
-    transform: scale(1.5);
 }
 
 #divSelect #graphique {
@@ -451,27 +433,19 @@ body {
     background-color: #F5F2F0;
 }
 
-#divGraphiques #Graphique canvas{
-    height: 95%;
-    width: auto;
-}
-
 #divGraphiques #Graphique #telechargeCourbe {
     margin: 1% 1% 0;
     width: 15px;
     cursor: pointer;
     float: right;
-    transition: transform 0.2s ease;
-}
-
-#divGraphiques #Graphique #telechargeCourbe:hover {
-    transform: scale(1.3);
 }
 
 #divGraphiques #Graphique #monGraphique {
     flex: 1;
     float: left;
-    margin-left: 2%;
+    max-width: 95%;
+    height: 95%;
+    margin: 1%;
 }
 
 #divGraphiques #infoGraphique {

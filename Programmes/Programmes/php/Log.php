@@ -1,10 +1,10 @@
 <?php
 session_start();
-require "connectDB.php";
+require "connectLog.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $Nom = trim($_POST["Nom"]);
-    $Mdp = trim($_POST["Mdp"]);
+    $Mdp = $_POST["Mdp"]; // Ne pas trim le mot de passe avant le hashage
 
     // Requête préparée pour éviter les injections SQL
     $req = $bdd->prepare("SELECT Mdp FROM utilisateur WHERE Login = :nom");
@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $reponse = $req->fetch();
 
     if ($reponse) {
-        if ($Mdp == $reponse['Mdp']) { // Comparaison directe du mot de passe (sans hash)
+        if (password_verify($Mdp, $reponse['Mdp'])) { // Vérification du mot de passe hashé
             $_SESSION['login'] = $Nom;
             header('Location: Consultation.php');
             exit();
@@ -31,17 +31,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Connexion</title>
-    <link href="../css/Log.css" rel="stylesheet" type="text/css"> 
+    <link href="../css/Log.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+<div class="cloud" style="top: 20%; left: 10%;"></div>
+    <div class="cloud" style="top: 40%; right: 15%; animation-delay: 0s;"></div>
+    <div class="cloud" style="top: 60%; left: 20%; animation-delay: 0s;"></div>
     <div class="container">
+        <h2>Se connecter</h2>
         <form action="" method="POST">
-            <div id="divConnexion">
-                <p>Nom : <input type="text" name="Nom" required>
-                <p>Mdp : <input type="password" name="Mdp" required>
-                </br></br>
-                <input type="submit" value="Connexion">
-            </div>
+            <input type="text" name="Nom" placeholder="Nom d'utilisateur" required>
+            <input type="password" name="Mdp" placeholder="Mot de passe" required>
+            </br></br>
+            <input type="submit" value="Connexion">
         </form>
 
         <?php if (!empty($message)): ?>
