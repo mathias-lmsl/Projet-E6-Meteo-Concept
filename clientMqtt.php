@@ -73,17 +73,17 @@ function donnee($topic, $message)
         $decodeData = bin2hex(base64_decode($data['data']));
 
         // je stocke la valeur mesuree pour chaque capteur
-        $temperature = (hex2SigDem(substr($decodeData, 0, 8))) / 10;
-        $humidite = (hex2SigDem(substr($decodeData, 8, 8))) / 10;
-        $vitVent = (hex2SigDem(substr($decodeData, 16, 8))) / 10;
-        $dirVent = (hex2SigDem(substr($decodeData, 24, 8))) / 10;
+        $temperature = (hex2SigDem(substr($decodeData, 0, 4))) / 10;
+        $humidite = (hex2SigDem(substr($decodeData, 8, 4))) / 10;
+        $vitVent = (hex2SigDem(substr($decodeData, 12, 4))) / 10;
+        $dirVent = (hex2SigDem(substr($decodeData, 16, 4))) / 10;
 
         // je récupère les id des capteurs
-        $idCaptTemp = recupId($temperature, $devEui);
-        $idCaptHum = recupId($humidite, $devEui);
-        $idCaptVit = recupId($vitVent, $devEui);
-        $idCaptDir = recupId($dirVent, $devEui);
-
+        $idCaptTemp = recupId('Temperature', $devEui);
+        $idCaptHum = recupId('Humidite', $devEui);
+        $idCaptVit = recupId('Vitesse du vent', $devEui);
+        $idCaptDir = recupId('Direction du vent', $devEui);
+	
         // appel fonction pour traitement des données
         traitementData($temperature, $idCaptTemp);
         traitementData($humidite, $idCaptHum);
@@ -94,14 +94,14 @@ function donnee($topic, $message)
 
 // Fonction pour traiter les données, envoi du mail si besoin et insertion dans la BDD
 // @param $mesure : la mesure envoyé en mqtt
-//	      $capteurId : l'id du capteur lié a la mesure
+//	  $capteurId : l'id du capteur lié a la mesure
 function traitementData($mesure, $capteurId)
 {
     global $pdo, $mail; //pour utiliser la $pdo et le $mail
 
     // Envoi mail en fonction des seuils du capteur
     // Requête SQL pour récupérer les infos du capteur
-    $req = $pdo->query("SELECT `SeuilMin`, `SeuilMax`, `Nom`, `Unite` FROM `capteur` WHERE `IdCapteur` = '$capteurId'");
+    $req = $pdo->query("SELECT `SeuilMin`, `SeuilMax`, `Nom`, `Unite` FROM `capteur` WHERE `IdCapteur` = '".$capteurId."';");
     $infos = $req->fetch();
 
     $seuilMin = $infos['SeuilMin'];
@@ -119,7 +119,7 @@ function traitementData($mesure, $capteurId)
 
         try {
             $mail->setFrom('projet.meteoconcept@gmail.com', 'Alerte Capteur');
-            $mail->addAddress('benoitaubouin@gmail.com');
+            $mail->addAddress('mathias.lemasle.mlm@gmail.com');
             $mail->isHTML(true);
             $mail->Subject = "Alerte Capteur";
             $mail->Body = "$messageAlerte";
@@ -128,9 +128,9 @@ function traitementData($mesure, $capteurId)
             echo "Erreur d'envoi : {$mail->ErrorInfo}";
         }
     }
-
+    
     // Insertion dans la BDD
-    $pdo->query("INSERT INTO `mesure`(`Horodatage`, `Valeur`, `IdCapteur`) VALUES (NOW(), '$mesure', '$capteurId')");
+    $pdo->query("INSERT INTO `mesure`(`Horodatage`, `Valeur`, `IdCapteur`) VALUES (NOW(), '".$mesure."', '".$capteurId."');");
 }
 
 // Fonction pour complémenter à 2 une valeur hexadecimal
@@ -151,15 +151,16 @@ function hex2SigDem($hex)
 
 // Fonction recupId pour récuperer l'id du capteur
 // @param $grandeur : nom de la grandeur du capteur a recuperer
-// 	      $devEui : le devEui pour identifier la carte
+// 	  $devEui : le devEui pour identifier la carte
 // @return : l'id du capteur
 function recupId($grandeur, $devEui)
 {
     global $pdo;
-    $req = $pdo->query("SELECT capteur.IdCapteur FROM capteur, possede, carte WHERE carte.devEUI = possede.devEUI 
+    $req = $pdo->query("SELECT capteur.IdCapteur FROM capteur, possede, carte WHERE carte.DevEui = possede.DevEui 
         AND possede.IdCapteur = capteur.IdCapteur
-        AND carte.devEUI = '.$devEui.'
-        AND capteur.Grandeur = '.$grandeur.';");
-
-    return $req;
+        AND carte.DevEui = '".$devEui."'
+        AND capteur.GrandeurCapt = '".$grandeur."';");
+    $id = $req->fetch();
+    return $id['IdCapteur'];
 }
+?>
