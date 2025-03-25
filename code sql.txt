@@ -59,9 +59,7 @@ CREATE TABLE grandeur(
 
 -- Création de la table carte
 CREATE TABLE carte(
-   DevEUI VARCHAR(16),
-   AppEUI VARCHAR(16) NOT NULL,
-   AppKey VARCHAR(32) NOT NULL,
+   DevEui VARCHAR(16),
    Nom VARCHAR(100) NOT NULL,
    DateMiseEnService DATETIME NOT NULL,
    Marque VARCHAR(50),
@@ -70,7 +68,7 @@ CREATE TABLE carte(
    Commentaire VARCHAR(200),
    IdChapelle SMALLINT NOT NULL,
    EtatComposant VARCHAR(20) NOT NULL,
-   PRIMARY KEY(DevEUI),
+   PRIMARY KEY(DevEui),
    UNIQUE(IdChapelle),
    FOREIGN KEY(IdChapelle) REFERENCES chapelle(IdChapelle),
    FOREIGN KEY(EtatComposant) REFERENCES etat(EtatComposant)
@@ -98,10 +96,10 @@ CREATE TABLE capteur(
 -- Création de la table possede (relation entre capteur et carte)
 CREATE TABLE possede(
    IdCapteur SMALLINT NOT NULL,
-   DevEUI SMALLINT NOT NULL,
+   DevEui SMALLINT NOT NULL,
    PRIMARY KEY(IdCapteur),
    FOREIGN KEY(IdCapteur) REFERENCES capteur(IdCapteur),
-   FOREIGN KEY(DevEUI) REFERENCES carte(DevEUI)
+   FOREIGN KEY(DevEui) REFERENCES carte(DevEui)
 ) ENGINE=InnoDB;
 
 -- Création de la table mesure
@@ -116,10 +114,10 @@ CREATE TABLE mesure(
 -- Création de la table intervient (intervention des utilisateurs sur les cartes)
 CREATE TABLE intervient(
    IdUtilisateur SMALLINT NOT NULL,
-   DevEUI SMALLINT NOT NULL,
+   DevEui SMALLINT NOT NULL,
    DateIntervention DATETIME NOT NULL,
    NatureIntervention VARCHAR(500) NOT NULL,
-   PRIMARY KEY(IdUtilisateur, DevEUI, DateIntervention),
+   PRIMARY KEY(IdUtilisateur, DevEui, DateIntervention),
    FOREIGN KEY(IdUtilisateur) REFERENCES utilisateur(IdUtilisateur),
-   FOREIGN KEY(DevEUI) REFERENCES carte(DevEUI)
+   FOREIGN KEY(DevEui) REFERENCES carte(DevEui)
 ) ENGINE=InnoDB;
