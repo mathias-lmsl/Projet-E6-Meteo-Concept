@@ -36,14 +36,20 @@ void loop()
   debugSerial.println("-- LOOP");
 
 
-  int Pot_val = analogRead(A0)/* * 5) /1023*/;
-  int Pot_val2 = analogRead(A5)/* * 5) /1023*/;
+  int Pot_val = 100;// = analogRead(A0)/* * 5) /1023*/;
+  int Pot_val2 = 10;// = analogRead(A5)/* * 5) /1023*/;
   /*Pot_val = 0xa035;*/
-  int temp = -12.2*10;
-  int humidity = 0x00C8;
+  int temp = 50;
+  int humidity = 1330;// = 0x00C8;
   Serial.println(Pot_val); /*pour la vitesse du vent*/
   Serial.println(Pot_val2); /*pour la direction du vent*/
-  
+
+  //Changer les valeurs
+  temp += random(-5,5);
+  humidity += random(-30,30);
+  Pot_val1 += random(-10,10)
+  Pot_val2 = (Pot_val2 + random(-450,450)) % 360;
+ 
   // Split both words (16 bits) into 2 bytes of 8
   byte payload[8];
   payload[0] = highByte(temp);
@@ -64,5 +70,5 @@ void loop()
 
   ttn.sendBytes(payload, sizeof(payload));
 
-  delay(2000);
+  delay(1800000);
 }
