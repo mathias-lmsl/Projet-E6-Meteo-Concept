@@ -47,7 +47,7 @@ void loop()
   //Changer les valeurs
   temp += random(-5,5);
   humidity += random(-30,30);
-  Pot_val1 += random(-10,10)
+  Pot_val += random(-10,10);
   Pot_val2 = (Pot_val2 + random(-450,450)) % 360;
  
   // Split both words (16 bits) into 2 bytes of 8
