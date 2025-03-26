@@ -8,8 +8,8 @@ if (!isset($_SESSION['user'])) {
 }
 
 ?>
-<link rel="stylesheet" href="../includes/style.css" type="text/css" />
-<link rel="stylesheet" href="../includes/stylecreationqrcode.css" type="text/css" />
+<link rel="stylesheet" href="../includes/css/style.css" type="text/css" />
+<link rel="stylesheet" href="../includes/css/stylecreationqrcode.css" type="text/css" />
 
 <script>
     // Fonction pour basculer entre le mode sombre et clair
@@ -32,8 +32,8 @@ if (!isset($_SESSION['user'])) {
     <div class="container">
         <!-- Bouton pour basculer entre le mode sombre et clair -->
         <div class="darkmode-toggle" onclick="toggleDarkMode()">
-            <img src="../includes/sun-darkmode.svg" id="sun-icon" alt="Mode sombre" class="icon">
-            <img src="../includes/moon-darkmode.svg" id="moon-icon" alt="Mode clair" class="icon">
+            <img src="../includes/img/sun-darkmode.svg" id="sun-icon" alt="Mode sombre" class="icon">
+            <img src="../includes/img/moon-darkmode.svg" id="moon-icon" alt="Mode clair" class="icon">
         </div>
 
         <h1>Générateur de QR Code</h1>

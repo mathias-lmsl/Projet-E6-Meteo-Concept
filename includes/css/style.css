@@ -1,0 +1,44 @@
+/*---------------------------Nuage---------------------------*/
+.cloud { /*Bas nuage*/
+    position: absolute;
+    width: 150px;
+    height: 80px;
+    background: white;
+    border-radius: 50px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+    animation: float 15s infinite alternate ease-in-out;
+    z-index: -1;
+    opacity : 0.8;
+}
+
+.cloud::before, .cloud::after {
+    content: "";
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
+
+.cloud::before {/*Haut gauche*/
+    width: 85px;
+    height: 80px;
+    top: -35px;
+    left: 10px;
+}
+
+.cloud::after { /*Haut droit*/ 
+    width: 100px;
+    height: 60px;
+    top: -25px;
+    right: 10px;
+}
+
+@keyframes float { /*Deplacement des nuages*/
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(80%); }
+}
+
+@media (max-width: 723px) {/*Masquer les nuages sur mobile car cela cause des bugs*/
+    .cloud{
+        display: none;
+    }
+}

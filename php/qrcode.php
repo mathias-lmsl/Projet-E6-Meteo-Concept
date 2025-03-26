@@ -13,7 +13,7 @@ if ($_SESSION['id_consultable'] != $_GET["id"]) {
     header('Location: logout.php?id=' . $_GET["id"] . '&page=2');
 }
 
-//On verifie si l'ID de la carte est valide
+//On verifie si la clé primaire de la carte est valide et existe
 $stmt = $bdd->prepare('SELECT Nom, EtatComposant FROM carte WHERE DevEui = :id');
 $stmt->execute(['id' => $_GET["id"]]);
 $donnees = $stmt->fetch();
@@ -24,9 +24,6 @@ if (!$donnees) {
 $stmt->closeCursor();
 ?>
 
-<!--On importe les fichiers css de la page-->
-<link rel="stylesheet" href="../includes/style.css" type="text/css" />
-<link rel="stylesheet" href="../includes/styleqrcode.css" type="text/css" />
 <script>
     // Variable globale pour stocker l'id du capteur
     let idCapteurCommentaire = null;
@@ -40,12 +37,10 @@ $stmt->closeCursor();
 
     // Ouvrir la modal pour ajouter ou modifier un commentaire
     // Fonction pour ouvrir le modal
-    function openModal(idComm = null, typedutruc = null) {
-        console.log(typeof idComm, typeof typedutruc);
-        type = typedutruc;
+    function openModal(idComm = null, typeComm = null) {
+        type = typeComm;
         if (type=='capteur'){
             idCapteurCommentaire = idComm; // Assigner l'id du capteur à la variable globale
-            console.log('1');
             if (idCapteurCommentaire) {
             // Vous pouvez récupérer le commentaire du capteur ici via AJAX
             fetch("get_comment.php", {
@@ -58,11 +53,9 @@ $stmt->closeCursor();
             } else {
                 document.getElementById('commentText').value = "";
             }
-            
         }
         else if (type=='carte'){
             idCarteCommentaire = idComm; // Assigner l'id du capteur à la variable globale
-            console.log('2');
             if (idCarteCommentaire) {
             // Vous pouvez récupérer le commentaire du capteur ici via AJAX
             fetch("get_comment.php", {
@@ -76,8 +69,6 @@ $stmt->closeCursor();
                 document.getElementById('commentText').value = "";
             }
         }
-        console.log('3');
-        
         // Afficher le modal en modifiant son style display
         document.getElementById('commentModal').style.display = 'block';
     }
@@ -113,8 +104,10 @@ $stmt->closeCursor();
 
 </script>
 
-
 <!DOCTYPE html>
+<!--On importe les fichiers css de la page-->
+<link rel="stylesheet" href="../includes/css/style.css" type="text/css" />
+<link rel="stylesheet" href="../includes/css/styleqrcode.css" type="text/css" />
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -123,16 +116,12 @@ $stmt->closeCursor();
 
 </head>
 <body>
-    <!-- On affiche les nuages animés -->
-    <div class="cloud" style="top: 20%; left: 10%;"></div>
-    <div class="cloud" style="top: 40%; right: 15%;"></div>
-    <div class="cloud" style="top: 60%; left: 20%;"></div>
     <div class="container">
 
         <!-- Bouton pour basculer entre le mode sombre et clair -->
         <div class="darkmode-toggle" onclick="toggleDarkMode()">
-            <img src="../includes/sun-darkmode.svg" id="sun-icon" alt="Mode sombre" class="icon">
-            <img src="../includes/moon-darkmode.svg" id="moon-icon" alt="Mode clair" class="icon">
+            <img src="../includes/img/sun-darkmode.svg" id="sun-icon" alt="Mode sombre" class="icon">
+            <img src="../includes/img/moon-darkmode.svg" id="moon-icon" alt="Mode clair" class="icon">
         </div>
 
         <!-- Contenu de la page -->
@@ -199,7 +188,7 @@ $stmt->closeCursor();
                     echo '<div class="card">';
                         while ($donnees = $stmt->fetch()) {
                             if ($donnees['Valeur'] == NULL) {
-                                echo $donnees['Nom'] . ' : <span style="color:red;"><strong>Non disponible</strong></span><br>';
+                                echo $donnees['Nom'] . ' : <span style="color:red;"><strong>Aucune Valeur</strong></span><br>';
                             }else echo $donnees['Nom'] . ' : <strong>' . $donnees['Valeur'] . ' ' . $donnees['Unite'] . '</strong><br>';
                             
                         }
@@ -207,15 +196,31 @@ $stmt->closeCursor();
                 echo '</div>';
             }
             $stmt->closeCursor();
-            /*--------------------Affiche Informations de la carte ------------------------*/
+            /*-------------------- Affiche Informations de la carte ------------------------*/
             echo '<div class="centerbox">';
                 echo '<strong>Informations essentielles sur la station :</strong><br><br>';
                 $stmt = $bdd->prepare('SELECT * FROM carte WHERE DevEui = :id;');
                 $stmt->execute(['id' => $_GET["id"]]);
                 while ($donnees = $stmt->fetch()) {
-                    echo '<div class="card">';
+                    $style='';
+                    switch ($donnees['EtatComposant']) {
+                        case 'OK':
+                            $couleur = 'green';
+                            break;
+                        case 'HS':
+                            $couleur = 'red';
+                            $style='border: 0.2em solid red;'; //On met des contours rouges pour l'identifier rapidement
+                            break;
+                        case 'Veille':
+                            $couleur = 'grey';
+                            break;
+                    }
+                    echo '<div class="card" style="'.$style.'">';
+                        echo 'Nom de la station : <strong>' . $donnees['Nom'] . '</strong><br>';
                         echo 'Date de mise en service : <strong>' . $donnees['DateMiseEnService'] . '</strong><br>';
-                        echo 'AppKey : <strong><span class="eui">' . $donnees['AppKey'] . '</span></strong> || AppEui : <strong><span class="appeui">' . $donnees['AppEui'] . '</span></strong><br>';
+                        echo 'AppKey : <strong>' . $donnees['AppKey'] . '</strong><br>';
+                        echo 'AppEui : <strong>' . $donnees['AppEui'] . '</strong><br>';
+                        echo 'DevEui : <strong><span class="eui">' . $donnees['DevEui'] . '</span></strong><br>';
                         if ($donnees['Marque']) echo 'Marque : <strong>' . $donnees['Marque'] . '</strong><br>';
                         if ($donnees['Reference']) echo 'Référence : <strong>' . $donnees['Reference'] . '</strong><br>';
                         if ($donnees['NumSerie']) echo 'Numéro de série : <strong>' . $donnees['NumSerie'] . '</strong><br>';

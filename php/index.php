@@ -2,8 +2,8 @@
 require "../config/session.php";
 ?>
 <!--On ajoute les fichiers css-->
-<link rel="stylesheet" href="../includes/style.css" type="text/css" />
-<link rel="stylesheet" href="../includes/stylelog.css" type="text/css" />
+<link rel="stylesheet" href="../includes/css/style.css" type="text/css" />
+<link rel="stylesheet" href="../includes/css/stylelog.css" type="text/css" />
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -15,7 +15,7 @@ require "../config/session.php";
     <!--On ajoute les nuages-->
     <div class="cloud" style="top: 20%; left: 10%;"></div>
     <div class="cloud" style="top: 40%; right: 15%;"></div>
-    <div class="cloud" style="top: 70%; left: 20%;"></div>
+    <div class="cloud" style="top: 60%; left: 20%;"></div>
     <div class="container">
         <h2>Se connecter</h2>
         <?php

@@ -11,7 +11,7 @@ if (!empty($_POST['carte_id'])) {
     $donnees = $stmt->fetch();
     
     if ($donnees) {
-        $lien = "192.168.1.86/projettest/php/qrcode.php?id=" . $carteId;
+        $lien = "http://192.168.1.86/projettest/php/qrcode.php?id=" . $carteId;
         $file = "../qrcodes/dernierqrcodegenerer.png";
 
         // Assurer que le dossier qrcodes existe

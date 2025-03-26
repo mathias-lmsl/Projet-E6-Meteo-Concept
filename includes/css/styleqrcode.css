@@ -1,0 +1,316 @@
+/* Reset général pour tous les éléments */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* HTML et body pour éviter le débordement */
+html, body {
+    width: 100%;
+    height: 100%; /* Modifier la hauteur à 100% */
+    overflow-x: hidden; /* Masquer les barres de défilement horizontales */
+    overflow-y: auto; /* Permet au corps de défiler verticalement si nécessaire */
+    font-family: Arial, sans-serif;
+}
+
+h1{
+    text-align: center;
+    margin-left: 15px;
+}
+
+
+
+body {
+    background: linear-gradient(to bottom, #87CEEB, #4682B4); /* Dégradé */
+    background-attachment: fixed; /* Empêche le dégradé de se réinitialiser lors du défilement */
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto; /* Permet au corps de défiler verticalement si nécessaire */
+    height: auto; /* Utilisation de height auto pour ajuster la hauteur du body */
+    font-family: Arial, sans-serif;
+    color: #333; /* Couleur de texte par défaut (mode clair) */
+}
+
+/* Mode sombre */
+body.darkmode {
+    background: linear-gradient(to bottom, #0b0231, #030116); /* Dégradé pour mode sombre */
+    background-attachment: fixed; /* Empêche le dégradé de se réinitialiser lors du défilement */
+    color: #e0e0e0; /* Couleur de texte clair */
+}
+
+/* Container principal (mode clair par défaut) */
+.container {
+    background: rgb(255, 255, 255);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Evite tout débordement */
+    width: 100%; /* Utilise toute la largeur disponible */
+    max-width: 1000px;
+    margin: 0 auto; /* Centrer horizontalement */
+    opacity: 0.9;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px; /* Espace entre les boîtes */
+}
+
+/* Mode sombre pour le container */
+body.darkmode .container {
+    background: #090120; /* Fond plus sombre pour le container */
+    color: #e0e0e0; /* Couleur de texte claire pour le container */
+}
+
+/* Bouton de changement de mode sombre/clair */
+.darkmode-toggle {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* Masquer l'icône lorsque l'autre est active */
+.icon {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+}
+
+#sun-icon {
+    display: none;
+}
+
+/* Afficher l'icône du soleil lorsque le mode sombre est activé */
+body.darkmode #sun-icon {
+    display: inline-block;
+}
+
+/* Afficher l'icône de la lune lorsque le mode clair est activé */
+body.darkmode #moon-icon {
+    display: none;
+}
+
+/* Conteneur principal */
+.container {
+    text-align: center;
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Utilise toute la largeur disponible */
+    max-width: 1000px;
+    margin: 0 auto; /* Centrer horizontalement */
+    opacity: 0.9;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px; /* Espace entre les boîtes */
+    overflow: hidden;
+}
+
+/* Boîtes qui s'adaptent sur la même ligne en fonction de l'espace disponible */
+.box {
+    flex: 1 1 calc(50% - 20px); /* Permet aux boîtes de s'adapter côte à côte */
+    padding: 15px;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden; /* Cache le contenu qui dépasse */
+    word-wrap: break-word; /* Permet de casser les mots longs */
+}
+
+/* Boîte centrale pour les informations principales */
+.centerbox {
+    flex: 1 0 calc(100%); /* Même comportement que .box */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Carte d'information */
+.card {
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Cache le contenu qui dépasse */
+    white-space: normal; /* Permet au texte de se diviser en plusieurs lignes */
+    word-wrap: break-word; /* Force la coupure des mots longs */
+    margin-bottom: 20px;
+    max-width: 100%;
+}
+
+body.darkmode .card {
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 50px rgba(255, 255, 255, 0.1);
+    overflow: hidden; /* Cache le contenu qui dépasse */
+    white-space: normal; /* Permet au texte de se diviser en plusieurs lignes */
+    word-wrap: break-word; /* Force la coupure des mots longs */
+    margin-bottom: 20px;
+    max-width: 100%;
+    background: rgb(11, 4, 48);
+}
+
+.infocard {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px; /* Espace entre les boîtes */
+}
+
+.info-header {
+    width: 100%;
+    text-align: center;
+}
+
+a {
+    padding: 10px 20px;
+    margin-top: 10px;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+a:hover {
+    background-color: #0056b3;
+}
+
+button {
+    width: 60%;
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive design : ajustement pour les petits écrans */
+@media (max-width: 723px) {
+    .container {
+        padding: 10px;
+        
+    }
+    .box, .centerbox {
+        flex: 1 1 100%; /* Les boîtes prennent toute la largeur sur les petits écrans */
+    }
+}
+
+/* Conteneur pour le bouton de déconnexion */
+.logout-container {
+    display: flex;
+    justify-content: center; /* Centre le bouton horizontalement */
+    width: 100%; /* Prend toute la largeur de son parent */
+}
+
+.logout-container a {
+    padding: 12px 24px; /* Taille du bouton */
+    background-color: #007BFF; /* Couleur du fond */
+    color: white; /* Couleur du texte */
+    border-radius: 5px; /* Coins arrondis */
+    text-decoration: none; /* Enlève le soulignement */
+    font-size: 16px; /* Taille du texte */
+}
+
+.logout-container a:hover {
+    background-color: #0056b3; /* Couleur du fond au survol */
+}
+
+/* Styles de la modal */
+/* Modal */
+.modal {
+    display: none; /* Cacher le modal par défaut */
+    position: fixed;
+    z-index: 1; /* S'assurer que le modal est au-dessus de tout le contenu */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4); /* Arrière-plan semi-transparent */
+    padding-top: 60px; /* Décalage pour le modal */
+
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 10px;
+    width: 80%; /* Largeur plus petite pour mobile */
+    max-width: 600px; /* Limiter la largeur maximale */
+    box-sizing: border-box;
+}
+body.darkmode .modal-content {
+    background-color: #090120; /* Fond plus sombre pour le modal */
+    color: #e0e0e0; /* Couleur de texte claire pour le modal */
+}
+
+/* Le bouton de fermeture */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Le texte de la zone de texte */
+textarea {
+    width: 90%;
+    max-width: 90%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Bouton Enregistrer */
+#saveComment {
+    background-color: #007bff; /* Couleur de fond du bouton */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#saveComment:hover {
+    background-color: #0056b3;
+}
+
+/* Pour les petits écrans, on peut réduire le padding ou ajuster la taille du modal */
+@media (max-width: 600px) {
+    .modal-content {
+        width: 90%; /* Prendre plus de place sur mobile */
+    }
+}
+
+#commentModal {
+    display: none; /* Modal cachée par défaut */
+}
+
