@@ -3,7 +3,8 @@ require "../config/session.php";
 require "../config/databaseadmin.php";
 
 if (!isset($_SESSION['user'])) {
-    header('Location: index.php?page=1');
+    $_SESSION['redirect_to'] = 'creationqrcode.php';
+    header('Location: index.php');
     exit;
 }
 

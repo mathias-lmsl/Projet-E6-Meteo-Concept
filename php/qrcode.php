@@ -1,21 +1,23 @@
 <?php
 require "../config/session.php";
 require "../config/databasetech.php";
-
-//On vérifie si l'utilisateur est connecté
-if (!isset($_SESSION['user'])) {
-    header('Location: index.php?id=' . $_GET["id"] . '&page=2');
+if (!isset($_SESSION['id_consultable'])) {
+    $_SESSION['id_consultable'] = $_GET["id"]; //On stock le capteur a afficher
     exit;
 }
 
-//On vérifie si l'utilisateur a le droit d'accéder à cette page
-if ($_SESSION['id_consultable'] != $_GET["id"]) { 
-    header('Location: logout.php?id=' . $_GET["id"] . '&page=2');
+$_SESSION['redirect_to'] = 'qrcode.php'; //On redirige vers la page de maintenance
+
+//On vérifie si l'utilisateur est connecté
+if (!isset($_SESSION['user'])) {
+    header('Location: index.php');
+    exit;
 }
 
+$IDutilisable=$_SESSION['id_consultable'];
 //On verifie si la clé primaire de la carte est valide et existe
 $stmt = $bdd->prepare('SELECT Nom, EtatComposant FROM carte WHERE DevEui = :id');
-$stmt->execute(['id' => $_GET["id"]]);
+$stmt->execute(['id' => $IDutilisable]);
 $donnees = $stmt->fetch();
 if (!$donnees) {
     header('Location: error.php');
@@ -99,10 +101,49 @@ $stmt->closeCursor();
 
         // Fermer la modal après avoir enregistré
         closeModal();
+        setTimeout(500);
         window.location.href = window.location.href;
     }
-
 </script>
+<?php
+//Fonction pour afficher la direction du vent
+function directionVent($angle) {
+    switch (true) {
+        case ($angle >= 348 || $angle < 12.25):
+            return "NORD";
+        case ($angle >= 12.25 && $angle < 34.75):
+            return "NORD-NORD-EST";
+        case ($angle >= 34.75 && $angle < 57.25):
+            return "NORD-EST";
+        case ($angle >= 57.25 && $angle < 79.75):
+            return "EST-NORD-EST";
+        case ($angle >= 79.75 && $angle < 102.25):
+            return "EST";
+        case ($angle >= 102.25 && $angle < 124.75):
+            return "EST-SUD-EST";
+        case ($angle >= 124.75 && $angle < 147.25):
+            return "SUD-EST";
+        case ($angle >= 147.25 && $angle < 169.75):
+            return "SUD-SUD-EST";
+        case ($angle >= 169.75 && $angle < 192.25):
+            return "SUD";
+        case ($angle >= 192.25 && $angle < 214.75):
+            return "SUD-SUD-OUEST";
+        case ($angle >= 214.75 && $angle < 237.25):
+            return "SUD-OUEST";
+        case ($angle >= 237.25 && $angle < 259.75):
+            return "OUEST-SUD-OUEST";
+        case ($angle >= 259.75 && $angle < 282.25):
+            return "OUEST";
+        case ($angle >= 282.25 && $angle < 304.75):
+            return "OUEST-NORD-OUEST";
+        case ($angle >= 304.75 && $angle < 327.25):
+            return "NORD-OUEST";
+        default:
+            return "NORD-NORD-OUEST";
+    }
+}
+?>
 
 <!DOCTYPE html>
 <!--On importe les fichiers css de la page-->
@@ -127,13 +168,13 @@ $stmt->closeCursor();
         <!-- Contenu de la page -->
         <?php
         //On regarde si on a bien un ID de carte avant de tout commencer
-        if (!empty($_GET["id"])) {
+        if (!empty($_SESSION["id_consultable"])) {
 
             /* -------------------Affichage du titre de la page avec le nom de la carte --------------------------- */
             $stmt = $bdd->prepare('SELECT Nom FROM carte WHERE DevEui = :id');
-            $stmt->execute(['id' => $_GET["id"]]);
+            $stmt->execute(['id' => $IDutilisable]);
             $donnees = $stmt->fetch();
-            echo '<h1>Page de maintenance: ' . $donnees['Nom'] . '</h1><br><br><br>';
+            echo '<h1>Page de maintenance: ' . $donnees['Nom'] . '</h1><br>';
             $stmt->closeCursor();
 
             /*---------------------Affichage Etat des capteurs-------------------*/
@@ -141,7 +182,7 @@ $stmt->closeCursor();
                                             WHERE carte.DevEui = :id
                                             AND carte.DevEui = possede.DevEui
                                             AND possede.IdCapteur = capteur.IdCapteur;');
-            $stmt->execute(['id' => $_GET["id"]]);
+            $stmt->execute(['id' => $IDutilisable]);
             if($count = $stmt->rowCount()){
                 echo '<div class="box">';
                     echo '<strong>État des capteurs de la station:</strong><br><br>';
@@ -181,16 +222,21 @@ $stmt->closeCursor();
                                     AND mesure.Horodatage >= NOW() - INTERVAL 31 MINUTE
                                     WHERE carte.DevEui = :id;');
                                         
-            $stmt->execute(['id' => $_GET["id"]]);
+            $stmt->execute(['id' => $IDutilisable]);
             if($count = $stmt->rowCount()){
                 echo '<div class="box">';
                     echo '<strong>Résultat des capteurs en temps réel (<30min) :</strong><br><br>';
                     echo '<div class="card">';
                         while ($donnees = $stmt->fetch()) {
-                            if ($donnees['Valeur'] == NULL) {
+                            if ($donnees['Valeur'] === NULL) {
                                 echo $donnees['Nom'] . ' : <span style="color:red;"><strong>Aucune Valeur</strong></span><br>';
-                            }else echo $donnees['Nom'] . ' : <strong>' . $donnees['Valeur'] . ' ' . $donnees['Unite'] . '</strong><br>';
-                            
+                            }else{
+                                if ($donnees['Unite'] == '°'){
+                                    echo $donnees['Nom'] . ' : <strong>' . $donnees['Valeur'] . ' ' . $donnees['Unite'] . ' '.directionVent($donnees['Valeur']). '</strong><br>'; 
+                                }else{
+                                    echo $donnees['Nom'] . ' : <strong>' . $donnees['Valeur'] . ' ' . $donnees['Unite'] . '</strong><br>'; 
+                                }
+                            } 
                         }
                     echo '</div>';
                 echo '</div>';
@@ -200,7 +246,7 @@ $stmt->closeCursor();
             echo '<div class="centerbox">';
                 echo '<strong>Informations essentielles sur la station :</strong><br><br>';
                 $stmt = $bdd->prepare('SELECT * FROM carte WHERE DevEui = :id;');
-                $stmt->execute(['id' => $_GET["id"]]);
+                $stmt->execute(['id' => $IDutilisable]);
                 while ($donnees = $stmt->fetch()) {
                     $style='';
                     switch ($donnees['EtatComposant']) {
@@ -248,14 +294,14 @@ $stmt->closeCursor();
             /*---------------------Affichage Informations sur chaque capteur---------------------*/
             $stmt = $bdd->prepare('SELECT * FROM capteur WHERE IdCapteur IN (SELECT IdCapteur FROM possede WHERE DevEui = :id) 
                                    ORDER BY EtatComposant ASC;');
-            $stmt->execute(['id' => $_GET["id"]]);
+            $stmt->execute(['id' => $IDutilisable]);
             if($count = $stmt->rowCount()){
                 echo '<div class="info-header">';
                     echo '<strong>Informations sur chaque capteur associé à la station :</strong><br><br>';
                 echo '</div>';
                 echo '<div class="infocard">';
                     $stmt = $bdd->prepare('SELECT * FROM capteur WHERE IdCapteur IN (SELECT IdCapteur FROM possede WHERE DevEui = :id) ORDER BY EtatComposant ASC;');
-                    $stmt->execute(['id' => $_GET["id"]]);
+                    $stmt->execute(['id' => $IDutilisable]);
                     while ($donnees = $stmt->fetch()) {
                         echo '<div class="box">';
                             $style='';
@@ -279,8 +325,8 @@ $stmt->closeCursor();
                                 if ($donnees['Reference']) echo 'Référence : <strong>' . $donnees['Reference'] . '</strong><br>';
                                 if ($donnees['NumSerie']) echo 'Numéro de série : <strong>' . $donnees['NumSerie'] . '</strong><br>';
                                 echo 'Date de mise en service : <strong>' . $donnees['DateMiseEnService'] . '</strong><br>';
-                                if ($donnees['SeuilMax']) echo 'Seuil Minimum : <strong>' . $donnees['SeuilMax'].' '. $donnees['Unite']  . '</strong><br>';
-                                if ($donnees['SeuilMin']) echo 'Seuil Maximum : <strong>' . $donnees['SeuilMin'].' '. $donnees['Unite']  . '</strong><br>';
+                                if ($donnees['SeuilMax']) echo 'Seuil Minimum : <strong>' . $donnees['SeuilMin'].' '. $donnees['Unite']  . '</strong><br>';
+                                if ($donnees['SeuilMin']) echo 'Seuil Maximum : <strong>' . $donnees['SeuilMax'].' '. $donnees['Unite']  . '</strong><br>';
                                 if ($donnees['Commentaire']){
                                     echo 'Commentaire : <strong>' . $donnees['Commentaire'] . '</strong><br>';
                                     echo '<button id="boutonCommentaire" onclick="openModal(\''.$donnees['IdCapteur'].'\',\'capteur\')">Modifier le commentaire</button>';
@@ -291,7 +337,7 @@ $stmt->closeCursor();
                     <div class="modal-content">
                         <span class="close" onclick="closeModal()">&times;</span>
                         <h2>Ajouter/Modifier le commentaire</h2>
-                        <textarea id="commentText" rows="2" cols="40"></textarea><br><br>
+                        <textarea id="commentText" rows="4" cols="40"></textarea><br><br>
                         <button id="saveComment" onclick="saveComment()">Enregistrer le commentaire</button>
                     </div>
                 </div>
@@ -307,7 +353,7 @@ $stmt->closeCursor();
         }
         ?>
         <div class="logout-container">
-            <a href="logout.php?id=<?php echo $_GET["id"]; ?>&page=2">Déconnexion</a>
+            <a href="logout.php?id=<?php echo $_SESSION["id_consultable"]; ?>&page=2">Déconnexion</a>
         </div>
     </div>
 </body>

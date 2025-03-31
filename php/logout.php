@@ -2,11 +2,16 @@
 require "../config/session.php";
 
 session_unset();
-session_destroy();
-if (!empty($_GET["id"])){
-    header('Location: index.php?id='.$_GET["id"].'&page='.$_GET["page"].'');
+
+if ($_GET['page'] == 1) { //Si l'utilisateur viens d'une page de création de qr code
+    $_SESSION['redirect_to'] = 'creationqrcode.php';
+    header('Location: index.php');
     exit;
 }
-header('Location: index.php?page='.$_GET["page"].'');
-exit;
+elseif ($_GET['page'] == 2) { //Si l'utilisateur viens d'une page de maintenance
+    $_SESSION['id_consultable'] = $_GET["id"];
+    $_SESSION['redirect_to'] = 'qrcode.php';
+    header('Location: index.php');
+    exit;
+}
 ?>

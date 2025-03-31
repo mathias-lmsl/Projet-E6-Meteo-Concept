@@ -1,5 +1,7 @@
 <?php
 require "../config/session.php";
+$_SESSION['user']=null;//On commemence par supprimer les variables de la session qui pourrai etre en cours
+
 ?>
 <!--On ajoute les fichiers css-->
 <link rel="stylesheet" href="../includes/css/style.css" type="text/css" />
@@ -19,13 +21,7 @@ require "../config/session.php";
     <div class="container">
         <h2>Se connecter</h2>
         <?php
-        //On vérifie si la page est définie pour la redirection
-        if (!empty($_GET["page"])){
-            //On verifie le numero de la page
-            switch ($_GET["page"]) {
-                //Si la page est 1 ()
-                case 1:
-                    echo '<form action="login.php?page='. $_GET["page"] .'" method="POST">';
+                    echo '<form action="auth.php" method="POST">';
                     echo '<input type="text" id="login" name="login" placeholder="Nom d\'utilisateur" required> <br>';
                     echo '<input type="password" id="mdp" name="mdp" placeholder="Mot de passe" required> <br>';
                     echo '<input type="submit" value="Connexion">';
@@ -33,28 +29,6 @@ require "../config/session.php";
                     if (!empty($_GET["error"])) {
                         if ($_GET["error"] == 1) echo '<br><span style="color:red;">Login/mot de passe incorrect</span>';
                     }
-                    break;
-                case 2:
-                    if (!empty($_GET["id"])){
-                        echo '<form action="login.php?id=' . $_GET["id"] .'&page='. $_GET["page"] .'" method="POST">';
-                        echo '<input type="text" id="login" name="login" placeholder="Nom d\'utilisateur" required> <br>';
-                        echo '<input type="password" id="mdp" name="mdp" placeholder="Mot de passe" required> <br>';
-                        echo '<input type="submit" value="Connexion">';
-                        echo '</form>';
-                        if (!empty($_GET["error"])) {
-                            if ($_GET["error"] == 1) echo '<br><span style="color:red;">Login/mot de passe incorrect</span>';
-                        }
-                    }
-                    else echo '<p style="color:red;">Le QR code que vous venez de scanner n\'est pas valide !<br>Veuillez réessayer ou scanner un nouveau QR code</p>';
-                    break;
-                default:
-                    header('Location: error.php');
-                    exit;
-            }
-        }else {
-            header('Location: error.php');
-            exit;
-        }
         ?>
     </div>
 </body>

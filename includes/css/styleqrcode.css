@@ -255,8 +255,8 @@ button:hover {
     padding: 20px;
     border: 1px solid #888;
     border-radius: 10px;
-    width: 80%; /* Largeur plus petite pour mobile */
-    max-width: 600px; /* Limiter la largeur maximale */
+    width: 90%; /* Largeur plus petite pour mobile */
+    max-width: 650px; /* Limiter la largeur maximale */
     box-sizing: border-box;
 }
 body.darkmode .modal-content {
