@@ -8,180 +8,98 @@ function fermetureModel() {
     document.getElementById('model').style.display = 'none';
 }
 
-function updateChart(capteurId1, capteurId2, canvas1, canvas2, startDate = null, startTime = null, endDate = null, endTime = null) {
-    if (!capteurId1) {
-      console.warn("Aucun capteur 1 sélectionné.");
-      return;
+function updateChart(capteurId, canvas, startDate = null, startTime = null, endDate = null, endTime = null) {
+    if (!capteurId) {
+        console.warn("Aucun capteur sélectionné.");
+        return;
     }
-  
-    // Fonction pour ajuster les canvas si besoin
-    function adjustCanvasLayout(sameGrandeur) {
-        if (sameGrandeur) {
-            monGraphique.style.display = "block";
-            monGraphique.style.width = "95%";
-            monGraphique.style.heihgt = "95%";
-            monGraphique2.style.width = "95%";
-            monGraphique2.style.heihgt = "95%";
-            monGraphique2.style.display = "none";
-        } else {
-            monGraphique.style.display = "block";
-            monGraphique2.style.display = "block";
-            monGraphique.style.width = "45%";
-            monGraphique.style.heihgt = "95%";
-            monGraphique2.style.width = "45%";
-            monGraphique2.style.heihgt = "95%";
-            monGraphique2.style.transform = "translateX(100%)";
-        }
-    }
-  
+
     // Fonction générique pour récupérer les mesures
     function getMesures(capteurId) {
-      let url = `getMesures.php?capteur_id=${capteurId}`;
-      if (startDate && startTime && endDate && endTime) {
-        url += `&startDate=${startDate}&startTime=${startTime}&endDate=${endDate}&endTime=${endTime}`;
-      }
-      return fetch(url).then(response => response.json());
+        let url = `getMesures.php?capteur_id=${capteurId}`;
+        if (startDate && startTime && endDate && endTime) {
+            url += `&startDate=${startDate}&startTime=${startTime}&endDate=${endDate}&endTime=${endTime}`;
+        }
+        return fetch(url).then(response => response.json());
     }
-  
-    // Récupérer les infos du capteur 1
-    fetch(`getCapteurInfo.php?capteur_id=${capteurId1}`)
-      .then(response => response.json())
-      .then(capteurInfo1 => {
-        const grandeur1 = capteurInfo1.GrandeurCapt;
-        const unite1 = capteurInfo1.Unite;
-  
-        // Récupérer les mesures du capteur 1
-        getMesures(capteurId1).then(data1 => {
-          if (data1.error || data1.length === 0) {
-            console.error("Erreur ou aucune donnée pour le capteur 1");
-            return;
-          }
-  
-          const labels1 = data1.map(m => m.Horodatage);
-          const values1 = data1.map(m => parseFloat(m.Valeur));
-  
-          // Si aucun capteur 2 sélectionné => afficher uniquement capteur 1
-          if (!capteurId2) {
-            adjustCanvasLayout(true); // Pleine largeur
-            renderChart(canvas1, labels1, [{
-              label: `${grandeur1} (${unite1})`,
-              data: values1,
-              borderColor: 'rgb(231, 57, 57)',
-              tension: 0.1
-            }], unite1);
-            updateInfoGraphique(values1, unite1);
-            return;
-          }
-  
-          // Sinon, récupérer infos du capteur 2
-          fetch(`getCapteurInfo.php?capteur_id=${capteurId2}`)
-            .then(response => response.json())
-            .then(capteurInfo2 => {
-              const grandeur2 = capteurInfo2.GrandeurCapt;
-              const unite2 = capteurInfo2.Unite;
-  
-              getMesures(capteurId2).then(data2 => {
-                if (data2.error || data2.length === 0) {
-                  console.error("Erreur ou aucune donnée pour le capteur 2");
-                  return;
+
+    // Récupérer les infos du capteur
+    fetch(`getCapteurInfo.php?capteur_id=${capteurId}`)
+        .then(response => response.json())
+        .then(capteurInfo => {
+            const grandeur = capteurInfo.GrandeurCapt;
+            const unite = capteurInfo.Unite;
+
+            // Récupérer les mesures
+            getMesures(capteurId).then(data => {
+                if (!Array.isArray(data.mesures)) {
+                    console.error("Données invalides :", data);
+                    return;
                 }
-  
-                const labels2 = data2.map(m => m.Horodatage);
-                const values2 = data2.map(m => parseFloat(m.Valeur));
-  
-                if (grandeur1 === grandeur2) {
-                  // Même grandeur => même graphique
-                  adjustCanvasLayout(true);
-                  renderChart(canvas1, labels1, [
-                    {
-                      label: `${grandeur1} (${unite1})`,
-                      data: values1,
-                      borderColor: 'rgb(231, 57, 57)',
-                      tension: 0.1
-                    },
-                    {
-                      label: `${grandeur2} (${unite2})`,
-                      data: values2,
-                      borderColor: 'rgb(54, 162, 235)',
-                      tension: 0.1
-                    }
-                  ], unite1);
-                  updateInfoGraphique(values1.concat(values2), unite1);
-  
-                } else {
-                  // Grandeurs différentes => 2 graphiques
-                  adjustCanvasLayout(false);
-                  renderChart(canvas1, labels1, [{
-                    label: `${grandeur1} (${unite1})`,
-                    data: values1,
+
+                const labels = data.mesures.map(m => m.Horodatage);
+                const values = data.mesures.map(m => parseFloat(m.Valeur));
+
+                renderChart(canvas, labels, [{
+                    label: `${grandeur} (${unite})`,
+                    data: values,
                     borderColor: 'rgb(231, 57, 57)',
                     tension: 0.1
-                  }], unite1);
-                  updateInfoGraphique(values1, unite1);
-  
-                  renderChart(canvas2, labels2, [{
-                    label: `${grandeur2} (${unite2})`,
-                    data: values2,
-                    borderColor: 'rgb(54, 162, 235)',
-                    tension: 0.1
-                  }], unite2);
-                  updateInfoGraphique(values2, unite2);
-                }
-  
-              });
+                }], unite);
+
+                updateInfoGraphique(values, unite);
             });
         });
-      });
-  }
+}
   
-  // Fonction pour créer/mettre à jour un graphique sur un canvas
-  function renderChart(canvas, labels, datasets, unite) {
+// Fonction pour créer/mettre à jour un graphique sur un canvas
+function renderChart(canvas, labels, datasets, unite) {
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-  
+
     // Ajuster la résolution
     canvas.style.height = '400px';
     canvas.width = canvas.offsetWidth * dpr;
     canvas.height = 400 * dpr;
     ctx.scale(dpr, dpr);
-  
+
     // Détruire l'ancien graphique s'il existe
     if (canvas.myChart) {
-      canvas.myChart.destroy();
+        canvas.myChart.destroy();
     }
-  
+
     // Créer un nouveau graphique
     canvas.myChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: datasets
-      },
-      options: {
-        responsive: false,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: unite
-            }
-          }
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: datasets
         },
-        plugins: {
-          legend: {
-            labels: {
-              font: {
-                family: 'Arial',
-                size: 12
-              }
+        options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: unite
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            family: 'Arial',
+                            size: 12
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     });
-  }
+}
 
 // Fonction pour mettre à jour les informations du graphique (actuelle, min, max, moyenne)
 function updateInfoGraphique(values, unite) {
@@ -192,10 +110,10 @@ function updateInfoGraphique(values, unite) {
         const moyenne = values.reduce((acc, val) => acc + val, 0) / values.length;
 
         document.getElementById('infoGraphique').innerHTML = `
-        <span style="display: inline-block; width: 24%; text-align: center;">Actuelle : ${actuelle.toFixed(2)} ${unite}</span>
-        <span style="display: inline-block; width: 24%; text-align: center;">Minimum : ${min.toFixed(2)} ${unite}</span>
-        <span style="display: inline-block; width: 24%; text-align: center;">Maximum : ${max.toFixed(2)} ${unite}</span>
-        <span style="display: inline-block; width: 24%; text-align: center;">Moyenne : ${moyenne.toFixed(2)} ${unite}</span>`;
+        <span style="display: inline-block; width: 24%; text-align: center;">Actuelle : ${actuelle.toFixed(2)} ${unite}</span></br>
+        <span style="display: inline-block; width: 24%; text-align: center;">Minimum : ${min.toFixed(2)} ${unite}</span></br>
+        <span style="display: inline-block; width: 24%; text-align: center;">Maximum : ${max.toFixed(2)} ${unite}</span></br>
+        <span style="display: inline-block; width: 24%; text-align: center;">Moyenne : ${moyenne.toFixed(2)} ${unite}</span></br>`;
     } else {
         document.getElementById('infoGraphique').innerHTML = "Aucune donnée à afficher.";
     }
@@ -210,8 +128,7 @@ function updateChartWithTimeRange() {
     const endDate = document.getElementById('endDate').value;
     const endTime = document.getElementById('endTime').value;
     
-
-    updateChart(capteurId, startDate, startTime, endDate, endTime);
+    updateChart(capteurId, document.getElementById('monGraphique'), startDate, startTime, endDate, endTime);
     fermetureModel();
 }
 
@@ -355,111 +272,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Listeners sur les selects
     document.getElementById('lstCapteur').addEventListener('change', function () {
-        const capteurId1 = this.value;
-        const capteurId2 = document.getElementById('lstCapteur2').value;
-        updateChart(capteurId1, capteurId2, document.getElementById('monGraphique'), document.getElementById('monGraphique2'));
-    });
-
-    //aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-
-    document.getElementById('lstSerre2').addEventListener('change', function () {
-        var serreId = this.value;
-        if (serreId) {
-            // Récupérer les chapelles associées à la serre sélectionnée
-            fetch('getChapelles.php?serre_id=' + serreId)
-                .then(response => response.json())
-                .then(chapelles => {
-                    var chapelleSelect = document.getElementById('lstChapelle2');
-                    chapelleSelect.innerHTML = '<option value="">-- Sélectionnez une chapelle --</option>';
-                    chapelles.forEach(chapelle => {
-                        chapelleSelect.innerHTML += '<option value="' + chapelle.IdChapelle + '">' + chapelle.Nom + '</option>';
-                    });
-                    // Réinitialiser les sélecteurs de carte et de capteur
-                    document.getElementById('lstCarte2').innerHTML = '<option value="">-- Sélectionnez une carte --</option>';
-                    document.getElementById('lstCapteur2').innerHTML = '<option value="">-- Sélectionnez un capteur --</option>';
-                    // Activer le sélecteur de chapelle et désactiver les sélecteurs de carte et de capteur
-                    document.getElementById('lstChapelle2').removeAttribute('disabled');
-                    document.getElementById('lstCarte2').setAttribute('disabled', true);
-                    document.getElementById('lstCapteur2').setAttribute('disabled', true);
-                });
-        } else {
-            // Réinitialiser tous les sélecteurs et les désactiver
-            document.getElementById('lstChapelle2').innerHTML = '<option value="">-- Sélectionnez une chapelle --</option>';
-            document.getElementById('lstCarte2').innerHTML = '<option value="">-- Sélectionnez une carte --</option>';
-            document.getElementById('lstCapteur2').innerHTML = '<option value="">-- Sélectionnez un capteur --</option>';
-            document.getElementById('lstChapelle2').setAttribute('disabled', true);
-            document.getElementById('lstCarte2').setAttribute('disabled', true);
-            document.getElementById('lstCapteur2').setAttribute('disabled', true);
-        }
-    });
-
-    // Gestionnaire d'événement pour le changement de sélection de la chapelle
-    document.getElementById('lstChapelle2').addEventListener('change', function () {
-        // Récupère la valeur (l'ID) de la chapelle sélectionnée dans la liste déroulante.
-        var chapelleId = this.value;
-        // Vérifie si une chapelle est sélectionnée.
-        if (chapelleId) {
-            // Envoie une requête au serveur pour récupérer les cartes associées à la chapelle sélectionnée.
-            fetch('getCartes.php?chapelle_id=' + chapelleId)
-                // Convertit la réponse en JSON.
-                .then(response => response.json())
-                // Traite les données des cartes.
-                .then(cartes => {
-                    // Récupère l'élément select pour les cartes.
-                    var carteSelect = document.getElementById('lstCarte2');
-                    // Réinitialise la liste des cartes avec une option par défaut.
-                    carteSelect.innerHTML = '<option value="">-- Sélectionnez une carte --</option>';
-                    // Ajoute chaque carte comme une option dans la liste déroulante.
-                    cartes.forEach(carte => {
-                        carteSelect.innerHTML += '<option value="' + carte.DevEui + '">' + carte.Nom + '</option>';
-                    });
-                    // Réinitialise la liste des capteurs avec une option par défaut.
-                    document.getElementById('lstCapteur2').innerHTML = '<option value="">-- Sélectionnez un capteur --</option>';
-                    // Active la liste déroulante des cartes.
-                    document.getElementById('lstCarte2').removeAttribute('disabled');
-                    // Désactive la liste déroulante des capteurs.
-                    document.getElementById('lstCapteur2').setAttribute('disabled', true);
-                });
-        } else {
-            // Si aucune chapelle n'est sélectionnée, réinitialise et désactive les listes de cartes et de capteurs.
-            document.getElementById('lstCarte2').innerHTML = '<option value="">-- Sélectionnez une carte --</option>';
-            document.getElementById('lstCapteur2').innerHTML = '<option value="">-- Sélectionnez un capteur --</option>';
-            document.getElementById('lstCarte2').setAttribute('disabled', true);
-            document.getElementById('lstCapteur2').setAttribute('disabled', true);
-        }
-    });
-
-    document.getElementById('lstCarte2').addEventListener('change', function () {
-        // Récupère la valeur (l'ID) de la carte sélectionnée.
-        var carteId = this.value;
-        // Vérifie si une carte est sélectionnée.
-        if (carteId) {
-            // Envoie une requête au serveur pour récupérer les capteurs associés à la carte sélectionnée.
-            fetch('getCapteurs.php?carte_id=' + carteId)
-                .then(response => response.json())
-                .then(capteurs => {
-                    // Récupère l'élément select pour les capteurs.
-                    var capteurSelect = document.getElementById('lstCapteur2');
-                    // Réinitialise la liste des capteurs.
-                    capteurSelect.innerHTML = '<option value="">Sélectionnez un capteur</option>';
-                    // Ajoute chaque capteur comme une option dans la liste déroulante.
-                    capteurs.forEach(capteur => {
-                        capteurSelect.innerHTML += '<option value="' + capteur.IdCapteur + '">' + capteur.Nom + '</option>';
-                    });
-                    // Active la liste déroulante des capteurs.
-                    document.getElementById('lstCapteur2').removeAttribute('disabled');
-                });
-        } else {
-            // Si aucune carte n'est sélectionnée, réinitialise et désactive la liste des capteurs.
-            document.getElementById('lstCapteur2').innerHTML = '<option value="">-- Sélectionnez un capteur --</option>';
-            document.getElementById('lstCapteur2').setAttribute('disabled', true);
-        }
-    });
-
-    document.getElementById('lstCapteur2').addEventListener('change', function () {
-        const capteurId1 = document.getElementById('lstCapteur').value;
-        const capteurId2 = this.value;
-        updateChart(capteurId1, capteurId2, document.getElementById('monGraphique'), document.getElementById('monGraphique2'));
+        const capteurId = this.value;
+        const startDate = document.getElementById('startDate').value;
+        const startTime = document.getElementById('startTime').value;
+        const endDate = document.getElementById('endDate').value;
+        const endTime = document.getElementById('endTime').value;
+        updateChart(capteurId, document.getElementById('monGraphique'), startDate, startTime, endDate, endTime);
     });
 
     // Sélection des valeurs par défaut pour la plage temporelle
@@ -467,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     var serreIdParDefaut = 1;
     var chapelleIdParDefaut = 1;
-    var carteDevEuiParDefaut = 1;
+    var carteDevEuiParDefaut = "0004a30b00216c4c";
     var capteurIdParDefaut = 1;
 
     // Sélection des valeurs par défaut
@@ -564,111 +382,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    function creerNouveauGraphique(capteurId) {
-        // Récupère les mesures du capteur à partir du serveur.
-        fetch('getMesures.php?capteur_id=' + capteurId)
-            // Convertit la réponse en JSON.
-            .then(response => response.json())
-            // Traite les données des mesures.
-            .then(data => {
-                // Vérifie s'il y a une erreur dans les données.
-                if (data.error) {
-                    // Affiche l'erreur dans la console et sort de la fonction.
-                    console.error("Erreur lors de la récupération des mesures :", data.error);
-                    return;
-                }
-
-                // Extrait les horodatages et les valeurs des mesures.
-                const labels = data.map(mesure => mesure.Horodatage);
-                const values = data.map(mesure => parseFloat(mesure.Valeur));
-
-                // Inverse les tableaux d'horodatages et de valeurs pour afficher les données dans l'ordre chronologique.
-                labels.reverse();
-                values.reverse();
-
-                // Vérifie si les données sont valides.
-                if (labels && values && labels.length > 0 && values.length > 0) {
-                    // Récupère les informations du capteur (grandeur et unité).
-                    fetch('getCapteurInfo.php?capteur_id=' + capteurId)
-                        // Convertit la réponse en JSON.
-                        .then(response => response.json())
-                        // Traite les informations du capteur.
-                        .then(capteurInfo => {
-                            // Extrait la grandeur et l'unité du capteur.
-                            const grandeur = capteurInfo.GrandeurCapt;
-                            const unite = capteurInfo.Unite;
-
-                            // Crée un nouvel élément canvas pour le nouveau graphique.
-                            const nouveauCanvas = document.createElement('canvas');
-                            // Définit un ID unique pour le nouveau canvas.
-                            nouveauCanvas.id = 'nouveauGraphique_' + capteurId;
-                            // Ajoute le nouveau canvas à la div des graphiques.
-                            document.getElementById('divGraphiques').appendChild(nouveauCanvas);
-
-                            // Obtient le contexte 2D du nouveau canvas.
-                            const ctx = nouveauCanvas.getContext('2d');
-                            // Obtient le ratio de pixels de l'appareil.
-                            const dpr = window.devicePixelRatio || 1;
-
-                            // Ajuste la taille du canvas pour les écrans haute résolution.
-                            nouveauCanvas.style.width = nouveauCanvas.width + 'px';
-                            nouveauCanvas.style.height = nouveauCanvas.height + 'px';
-                            nouveauCanvas.width *= dpr;
-                            nouveauCanvas.height *= dpr;
-
-                            // Met à l'échelle le contexte 2D pour les écrans haute résolution.
-                            ctx.scale(dpr, dpr);
-
-                            // Crée un nouveau graphique Chart.js.
-                            new Chart(ctx, {
-                                type: 'line',
-                                data: {
-                                    labels: labels,
-                                    datasets: [{
-                                        label: `${grandeur} (${unite})`,
-                                        data: values,
-                                        borderColor: getRandomColor(),
-                                        tension: 0.1
-                                    }]
-                                },
-                                options: {
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true,
-                                            title: {
-                                                display: true,
-                                                text: unite
-                                            }
-                                        }
-                                    },
-                                    plugins: {
-                                        title: {
-                                            display: true,
-                                            text: `${grandeur} (${unite})`
-                                        }
-                                    },
-                                    font: {
-                                        family: 'Arial',
-                                        size: 12,
-                                        weight: 'normal'
-                                    }
-                                }
-                            });
-                        })
-                        // Gestion des erreurs lors de la récupération des informations du capteur.
-                        .catch(error => {
-                            console.error("Erreur lors de la récupération des informations du capteur :", error);
-                        });
-                } else {
-                    // Affiche une erreur si les données du graphique sont invalides ou vides.
-                    console.error("Données de graphique invalides ou vides.");
-                }
-            })
-            // Gestion des erreurs lors de la récupération des données.
-            .catch(error => {
-                console.error("Erreur lors de la récupération des données :", error);
-            });
-    }
 
     function getRandomColor() {
         // Génère une couleur hexadécimale aléatoire.
@@ -821,8 +534,32 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('model').style.display = 'block';
     }
 
+    document.getElementById('ajoutCourbe').addEventListener('click', function () {
+    // Crée un fond sombre derrière la modale
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop';
+    backdrop.id = 'ajoutCourbeBackdrop';
+    document.body.appendChild(backdrop);
+
+    // Affiche la div modale
+    document.getElementById('ajoutCourbeDiv').style.display = 'block';
+});
+
+document.getElementById('closeAjoutCourbe').addEventListener('click', function () {
+    // Masque la modale
+    document.getElementById('ajoutCourbeDiv').style.display = 'none';
+    const backdrop = document.getElementById('ajoutCourbeBackdrop');
+    if (backdrop) backdrop.remove();
+});
+
+document.getElementById('validerAjoutCourbe').addEventListener('click', function () {
+    // Ajout courbe logique...
+    document.getElementById('ajoutCourbeDiv').style.display = 'none';
+    const backdrop = document.getElementById('ajoutCourbeBackdrop');
+    if (backdrop) backdrop.remove();
+});
+
     function formaterHorodatage(horodatage) {
-        // Formate un horodatage en une chaîne de caractères lisible.
         const date = new Date(horodatage);
         const jour = String(date.getDate()).padStart(2, '0');
         const mois = String(date.getMonth() + 1).padStart(2, '0');
@@ -830,63 +567,59 @@ document.addEventListener('DOMContentLoaded', function () {
         const heures = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
         const secondes = String(date.getSeconds()).padStart(2, '0');
-        return `<span class="math-inline">\{jour\}/</span>{mois}/${annee} <span class="math-inline">\{heures\}\:</span>{minutes}:${secondes}`;
+        return `${jour}/${mois}/${annee} ${heures}:${minutes}:${secondes}`;
     }
-
+    
     function telechargerCSV() {
-        // Télécharge les données du graphique actuel au format CSV.
-        if (window.myLine && window.myLine.data.labels.length > 0) {
-            // Récupère les labels (horodatages) et les datasets du graphique.
-            const labels = window.myLine.data.labels;
-            const datasets = window.myLine.data.datasets;
-
-            // Initialise le contenu CSV avec l'en-tête.
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Horodatage,";
-
-            // Ajoute les noms des datasets comme en-têtes de colonnes.
-            datasets.forEach(dataset => {
-                csvContent += dataset.label + ",";
-            });
-            csvContent = csvContent.slice(0, -1) + "\n"; // Supprime la virgule finale et ajoute une nouvelle ligne.
-
-            // Ajoute les données de chaque ligne.
-            for (let i = 0; i < labels.length; i++) {
-                const horodatage = formaterHorodatage(labels[i]); // Formate l'horodatage.
-                csvContent += horodatage + ",";
-
-                // Ajouter les données de chaque dataset
-                datasets.forEach(dataset => {
-                    // Pour chaque dataset, ajoute la valeur correspondante à l'index 'i' au contenu CSV, suivie d'une virgule.
-                    csvContent += dataset.data[i] + ",";
-                });
-                // Supprime la dernière virgule ajoutée à la ligne et ajoute un saut de ligne pour passer à la ligne suivante.
-                csvContent = csvContent.slice(0, -1) + "\n";
-            }
-
-            // Encode l'URI du contenu CSV pour le téléchargement.
-            const encodedUri = encodeURI(csvContent);
-            // Crée un élément lien (<a>) pour le téléchargement.
-            const link = document.createElement("a");
-            // Définit l'attribut 'href' du lien avec l'URI encodé du contenu CSV.
-            link.setAttribute("href", encodedUri);
-            // Définit l'attribut 'download' du lien avec le nom du fichier CSV à télécharger.
-            link.setAttribute("download", "donnees_graphique.csv");
-            // Ajoute le lien au corps du document HTML.
-            document.body.appendChild(link);
-            // Simule un clic sur le lien pour lancer le téléchargement du fichier.
-            link.click();
-            // Supprime le lien du corps du document après le téléchargement.
-            document.body.removeChild(link);
-        } else {
-            // Affiche une alerte si aucune donnée n'est disponible pour le téléchargement (si le graphique est vide).
+        const canvas = document.getElementById('monGraphique');
+        const chart = canvas.myChart;
+    
+        if (!chart || !chart.data.labels || chart.data.labels.length === 0) {
             alert("Aucune donnée à télécharger.");
+            return;
         }
-
-        // Ajoute un gestionnaire d'événements au bouton de téléchargement de la courbe.
-        document.getElementById('telechargeCourbe').addEventListener('click', function () {
-            // Appelle la fonction 'telechargerCSV' pour lancer le processus de téléchargement du fichier CSV.
-            telechargerCSV();
-        });
+    
+        const labels = chart.data.labels;
+        const dataset = chart.data.datasets[0]; // 1ère courbe uniquement
+        const values = dataset.data;
+    
+        // Récupération des valeurs de plage temporelle
+        const startDate = document.getElementById('startDate').value;
+        const startTime = document.getElementById('startTime').value;
+        const endDate = document.getElementById('endDate').value;
+        const endTime = document.getElementById('endTime').value;
+    
+        // Format brut pour le nom du fichier
+        const formatNom = (str) => str.replaceAll(":", "-").replaceAll("/", "-").replaceAll(" ", "_");
+    
+        const debut = formatNom(`${startDate} ${startTime}`);
+        const fin = formatNom(`${endDate} ${endTime}`);
+    
+        // Nettoyage du nom du capteur pour un nom de fichier safe (sans unité)
+        const nomCapteur = dataset.label.split('(')[0].trim().replace(/\s+/g, '_');
+    
+        // Génération du contenu CSV
+        let csvContent = "Horodatage;Valeur\r\n";
+        for (let i = 0; i < labels.length; i++) {
+            const horodatage = formaterHorodatage(labels[i]);
+            const valeur = values[i];
+            csvContent += `"${horodatage}";${valeur}\r\n`;
+        }
+    
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+    
+        // Nom du fichier : Capteur_Température_2025-03-30_08-00_à_2025-03-31_08-00.csv
+        const fileName = `${nomCapteur}__${debut}__${fin}.csv`;
+    
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     }
+
+    document.getElementById('telechargeCourbe').addEventListener('click', telechargerCSV);
 });

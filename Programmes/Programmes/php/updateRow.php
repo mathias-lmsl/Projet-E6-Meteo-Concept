@@ -33,8 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table']) && isset($_P
 
         foreach ($columns as $col) {
             if (!in_array($col, $ignore) && isset($_POST[$col])) {
-                $setClause[] = "$col = :$col";
-                $params[":$col"] = $_POST[$col];
+                $setClause[] = $col." = :".$col;
+                $params[":".$col] = $_POST[$col];
             }
         }
 

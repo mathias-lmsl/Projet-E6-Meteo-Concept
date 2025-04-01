@@ -95,84 +95,22 @@ try {
                     <option value="">-- Sélectionner un capteur --</option>
                 </select>
             </div>
-        </div> 
-
-        <div id="actionGraphique">
-            <div id="graphique">
-                <h2>Graphique n°2 (optionnel)</h2>
-            </div>
         </div>
-
-        <div id="selectGraphique">
-            <div id="selectSerre">
-                <h3>Selection serre :</h3>
-                <select name="lstSerre2" id="lstSerre2" data-url="getChapelles.php">
-                    <option value="" selected>-- Sélectionner une serre --</option>
-                    <?php include 'getSerres.php'; ?>
-                </select>
-            </div>
-
-            <div id="selectChapelle">
-                <h3>Selection chapelle :</h3>
-                <select name="lstChapelle2" id="lstChapelle2" data-url="getCartes.php" disabled>
-                    <option value="">-- Sélectionner une chapelle --</option>
-                </select>
-            </div>
-
-            <div id="selectCarte">
-                <h3>Selection carte :</h3>
-                <select name="lstCarte2" id="lstCarte2" data-url="getCapteurs.php" disabled>
-                    <option value="">-- Sélectionner une carte --</option>
-                </select>
-            </div>
-
-            <div id="selectCapteur">
-                <h3>Selection capteur :</h3>
-                <select name="lstCapteur2" id="lstCapteur2" disabled>
-                    <option value="">-- Sélectionner un capteur --</option>
-                </select>
-            </div>
-        </div> 
 
         <div id="selectPlage">
             <button onclick="ouvertureModel()">Plage temporelle</button>
         </div>
 
-        <div id="ajoutCourbeDiv" class="model" style="display: none;">
-            <span class="close" id="closeAjoutCourbe">&times;</span>
-            <div id="selectSerre">
-                <h3>Selection serre :</h3>
-                <select name="lstSerreAjout" id="lstSerreAjout" data-url="getChapelles.php">
-                    <option value="" selected>-- Sélectionner une serre --</option>
-                    <?php include 'getSerres.php'; ?>
-                </select>
-            </div>
-
-            <div id="selectChapelle">
-                <h3>Selection chapelle :</h3>
-                <select name="lstChapelleAjout" id="lstChapelleAjout" data-url="getCartes.php" disabled>
-                    <option value="">-- Sélectionner une chapelle --</option>
-                </select>
-            </div>
-
-            <div id="selectCarte">
-                <h3>Selection carte :</h3>
-                <select name="lstCarteAjout" id="lstCarteAjout" data-url="getCapteurs.php" disabled>
-                    <option value="">-- Sélectionner une carte --</option>
-                </select>
-            </div>
-
-            <div id="selectCapteur">
-                <h3>Selection capteur :</h3>
-                <select name="lstCapteurAjout" id="lstCapteurAjout" disabled>
-                    <option value="">-- Sélectionner un capteur --</option>
-                </select>
-            </div>
-            <button id="validerAjoutCourbe">Valider</button>
+        <div id="infoGraphique">
+            <span>Actuelle : ...</span></br>
+            <span>Minimum : ...</span></br>
+            <span>Maximum : ...</span></br>
+            <span>Moyenne : ...</span></br>
         </div>
     </div> 
 
-    <div id="ajoutCourbeDiv" style="display: none;">
+    <div id="ajoutCourbeDiv" class="model" style="display: none;">
+        <span class="close" id="closeAjoutCourbe">&times;</span>
         <div id="selectSerre">
             <h3>Selection serre :</h3>
             <select name="lstSerreAjout" id="lstSerreAjout" data-url="getChapelles.php">
@@ -203,9 +141,12 @@ try {
         </div>
 
         <div id="selectPlage">
-            <button onclick="ouvertureModelAjout()">Plage temporelle</button>
+            <button onclick="ouvertureModel()">Plage temporelle</button>
         </div>
+
+        <button id="validerAjoutCourbe">Valider</button>
     </div>
+
 
     <div id="model">
         <span class="close" id="closePlage">&times;</span>
@@ -227,12 +168,6 @@ try {
             <img src="../img/download.svg" alt="moins non trouvé" id="telechargeCourbe" title="Export CSV">
             <canvas id="monGraphique"></canvas>
             <canvas id="monGraphique2"></canvas>
-        </div>
-        <div id="infoGraphique">
-            <span>Actuelle : ...</span>
-            <span>Minimum : ...</span>
-            <span>Maximum : ...</span>
-            <span>Moyenne : ...</span>
         </div>
     </div>
     <script src="../js/Consultation.js"></script>

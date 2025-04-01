@@ -18,10 +18,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
+            // Vérifie si la carte a déjà un capteur
+            $verifCapteurCarte = $bdd->prepare("
+                SELECT COUNT(*) FROM capteur 
+                WHERE DevEui = :DevEui
+            ");
+            $verifCapteurCarte->execute([':DevEui' => $_POST['DevEui']]);
+            $nbCapteurs = $verifCapteurCarte->fetchColumn();
+
+            if ($nbCapteurs > 0) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => "Impossible d'ajouter un capteur : la carte sélectionnée possède déjà un capteur."
+                ]);
+                exit;
+            }
+
             // Prépare la requête d'insertion du capteur
             $stmt = $bdd->prepare("
                 INSERT INTO capteur 
-                    (NomCapteur, GrandeurCapt, Unite, ValeurMin, ValeurMax, EtatComposant, DateMiseEnService, DevEui)
+                    (Nom, GrandeurCapt, Unite, ValeurMin, ValeurMax, EtatComposant, DateMiseEnService, DevEui)
                 VALUES 
                     (:NomCapteur, :GrandeurCapt, :Unite, :ValeurMin, :ValeurMax, :EtatComposant, NOW(), :DevEui)
             ");
@@ -33,11 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':ValeurMin'      => $_POST['ValeurMin'],
                 ':ValeurMax'      => $_POST['ValeurMax'],
                 ':EtatComposant'  => $_POST['EtatComposant'],
-                ':DevEui'        => $_POST['DevEui']
+                ':DevEui'         => $_POST['DevEui']
             ]);
 
         } elseif ($table === 'carte') {
-            // Vérifie les champs pour l'ajout d'une carte
             $requiredFields = ['NomCarte', 'EtatComposant'];
             foreach ($requiredFields as $field) {
                 if (!isset($_POST[$field])) {
@@ -51,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt = $bdd->prepare("
                 INSERT INTO carte 
-                    (NomCarte, EtatComposant, DateMiseEnService)
+                    (Nom, EtatComposant, DateMiseEnService)
                 VALUES 
                     (:NomCarte, :EtatComposant, NOW())
             ");

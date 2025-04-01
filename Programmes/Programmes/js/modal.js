@@ -9,222 +9,318 @@ export async function fetchSelectOptions() {
             Unite: options.Unite || []
         };
     } catch (e) {
-        console.error('Erreur chargement options select', e);
+        console.error('Erreur chargement options select :', e);
         return { EtatComposant: [], GrandeurCapt: [], Cartes: [], Unite: [] };
     }
 }
 
 export async function openAddModal(currentTable, updateTable) {
-    const modal = document.getElementById('modalOverlay'); // <- correspond à la div à afficher
-    const form = document.getElementById('modalDynamicForm');
-    const title = document.getElementById('modalTitle');
-    const fieldsContainer = document.getElementById('modalFieldsContainer');
-    const submitBtn = document.getElementById('modalSubmitBtn');
+    try {
+        const res = await fetch('getTableData.php?table=' + currentTable);
+        const data = await res.json();
+        const columns = data.columns.filter(c =>
+            c !== 'Actions' && c !== 'IdCapteur' && c !== 'DateMiseEnService'
+        );
+        const options = await fetchSelectOptions();
 
-    // Préparation
-    title.textContent = `Ajouter un ${currentTable}`;
-    fieldsContainer.innerHTML = '';
-    submitBtn.textContent = 'Ajouter';
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.appendChild(createCloseButton(() => modal.remove()));
 
-    const res = await fetch('getTableData.php?table=' + currentTable);
-    const data = await res.json();
-    const options = await fetchSelectOptions();
+        const form = document.createElement('form');
+        form.className = 'modal-form';
 
-    const columns = data.columns.filter(c =>
-        c !== 'Actions' && c !== 'IdCapteur' && c !== 'DateMiseEnService'
-    );
+        const titleContainer = document.createElement('div');
+        titleContainer.className = 'modal-title-container';
 
-    columns.forEach(col => {
-        const label = document.createElement('label');
-        label.textContent = getLabel(col);
-        label.setAttribute('for', col);
+        titleContainer.appendChild(createTitle(`Ajouter un ${currentTable}`));
+        titleContainer.appendChild(createCloseButton(() => modal.remove()));
+        form.appendChild(titleContainer);
 
-        let input;
+        columns.forEach(col => {
+            const label = document.createElement('label');
+            label.textContent = getLabel(col);
+            label.setAttribute('for', col);
 
-        if (col === 'EtatComposant') {
-            input = createSelect(col, options.EtatComposant);
-        } else if (col === 'GrandeurCapt') {
-            input = createSelect(col, options.GrandeurCapt);
-        } else if (col === 'Unite') {
-            input = createSelect(col, options.Unite);
-        } else {
-            input = document.createElement('input');
-            input.type = 'text';
-            input.name = col;
-            input.id = col;
-        }
+            let input;
+            if (col === 'EtatComposant') {
+                // Limite aux valeurs OK et Veille
+                input = createSelect(col, ['OK', 'Veille']);
+            } else if (col === 'GrandeurCapt') {
+                input = createSelect(col, options.GrandeurCapt);
 
-        fieldsContainer.appendChild(label);
-        fieldsContainer.appendChild(input);
-    });
+                // Gestion dynamique des unités
+                input.addEventListener('change', async e => {
+                    const selectedGrandeur = e.target.value;
+                    const uniteSelect = form.querySelector('#Unite');
 
-    // Carte liée pour capteur
-    if (currentTable === 'capteur') {
-        const labelCarte = document.createElement('label');
-        labelCarte.textContent = 'Carte associée';
-        labelCarte.setAttribute('for', 'DevEui');
+                    uniteSelect.innerHTML = ''; // Réinitialise
 
-        const select = createSelect('DevEui', options.Cartes.map(c => ({
-            value: c.DevEui,
-            label: c.NomCarte || `Carte #${c.DevEui}`
-        })));
+                    try {
+                        const res = await fetch(`getUnitesParGrandeur.php?grandeur=${encodeURIComponent(selectedGrandeur)}`);
+                        const unites = await res.json();
 
-        fieldsContainer.appendChild(labelCarte);
-        fieldsContainer.appendChild(select);
-    }
+                        unites.forEach(unite => {
+                            const opt = document.createElement('option');
+                            opt.value = unite;
+                            opt.textContent = unite;
+                            uniteSelect.appendChild(opt);
+                        });
+                    } catch (error) {
+                        console.error('Erreur lors de la récupération des unités :', error);
+                    }
+                });
+            } else if (col === 'Unite') {
+                input = document.createElement('select');
+                input.id = 'Unite';
+                input.name = 'Unite';
+            } else {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.name = col;
+                input.id = col;
+            }
 
-    modal.style.display = 'flex';
-
-    // Fermer la modale si on clique en dehors du formulaire
-    modal.addEventListener('click', function (event) {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-
-    // Gère soumission
-    form.onsubmit = async e => {
-        e.preventDefault();
-        const formData = new FormData(form);
-        formData.append('table', currentTable);
-
-        const res = await fetch('insertRow.php', {
-            method: 'POST',
-            body: formData
+            form.appendChild(label);
+            form.appendChild(input);
         });
 
-        const result = await res.json();
-        if (result.success) {
-            alert('Ajout réussi');
-            modal.style.display = 'none';
-            updateTable(currentTable);
-        } else {
-            alert('Erreur : ' + result.error);
+        if (currentTable === 'capteur') {
+            form.appendChild(createCarteSelect(options.Cartes));
         }
-    };
 
-    // Bouton annuler
-    document.getElementById('modalCancelBtn').onclick = () => {
-        modal.style.display = 'none';
-    };
+        form.appendChild(createButtonContainer('Ajouter', () => modal.remove()));
+        modal.appendChild(form);
+        document.body.appendChild(modal);
+        modal.style.display = 'flex';
+
+        // Déclenche le changement de grandeur par défaut si sélectionnée
+        const grandeurSelect = form.querySelector('#GrandeurCapt');
+        if (grandeurSelect && grandeurSelect.value) {
+            grandeurSelect.dispatchEvent(new Event('change'));
+        }
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            formData.append('table', currentTable);
+
+            const res = await fetch('insertRow.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                alert('Ajout réussi');
+                modal.remove();
+                updateTable(currentTable);
+            } else {
+                alert('Erreur : ' + result.error);
+            }
+        });
+    } catch (error) {
+        console.error('Erreur modale ajout :', error);
+    }
 }
 
 export async function openEditModal(rowData, currentTable, updateTable) {
-    const modal = document.getElementById('modalOverlay'); // <- correspond à la div à afficher
-    const form = document.getElementById('modalDynamicForm');
-    const title = document.getElementById('modalTitle');
-    const fieldsContainer = document.getElementById('modalFieldsContainer');
-    const submitBtn = document.getElementById('modalSubmitBtn');
+    try {
+        const options = await fetchSelectOptions();
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.appendChild(createCloseButton(() => modal.remove()));
 
-    title.textContent = `Modifier ${currentTable}`;
-    fieldsContainer.innerHTML = '';
-    submitBtn.textContent = 'Enregistrer';
+        const form = document.createElement('form');
+        form.className = 'modal-form';
 
-    const ignore = ['IdCapteur', 'DateMiseEnService', 'Actions'];
-    const options = await fetchSelectOptions();
+        const titleContainer = document.createElement('div');
+        titleContainer.className = 'modal-title-container';
 
-    Object.entries(rowData).forEach(([key, val]) => {
-        if (ignore.includes(key)) return;
+        titleContainer.appendChild(createTitle(`Modifier ${currentTable}`));
+        titleContainer.appendChild(createCloseButton(() => modal.remove()));
+        form.appendChild(titleContainer);
 
-        const label = document.createElement('label');
-        label.textContent = getLabel(key);
-        label.setAttribute('for', key);
+        const ignore = ['IdCapteur', 'DevEui', 'DateMiseEnService', 'Actions'];
 
-        let input;
-        if (key === 'EtatComposant') {
-            input = createSelect(key, options.EtatComposant, val);
-        } else if (key === 'GrandeurCapt') {
-            input = createSelect(key, options.GrandeurCapt, val);
-        } else if (key === 'Unite') {
-            input = createSelect(key, options.Unite, val);
-        } else {
-            input = document.createElement('input');
-            input.type = 'text';
-            input.name = key;
-            input.id = key;
-            input.value = val;
-        }
+        Object.entries(rowData).forEach(([key, val]) => {
+            if (ignore.includes(key)) return;
 
-        fieldsContainer.appendChild(label);
-        fieldsContainer.appendChild(input);
-    });
+            const label = document.createElement('label');
+            label.textContent = getLabel(key);
+            label.setAttribute('for', key);
 
-    // Sélecteur carte
-    if (currentTable === 'capteur') {
-        const label = document.createElement('label');
-        label.textContent = 'Carte associée';
-        label.setAttribute('for', 'DevEui');
+            let input;
+            if (key === 'EtatComposant') {
+                const allEtats = ['OK', 'Veille', 'HS'];
+                const etatsDisponibles = allEtats.filter(etat => etat !== val);
+                input = createSelect(key, etatsDisponibles);
+            } else if (key === 'GrandeurCapt') {
+                input = createSelect(key, options[key], val);
+                input.addEventListener('change', async (e) => {
+                    const selectedGrandeur = e.target.value;
+                    const uniteSelect = form.querySelector('#Unite');
+                    uniteSelect.innerHTML = '';
 
-        const select = createSelect('DevEui', options.Cartes.map(c => ({
-            value: c.DevEui,
-            label: c.NomCarte || `Carte #${c.DevEui}`
-        })), rowData.DevEui);
+                    try {
+                        const res = await fetch(`getUnitesParGrandeur.php?grandeur=${encodeURIComponent(selectedGrandeur)}`);
+                        const unites = await res.json();
+                        unites.forEach(unite => {
+                            const opt = document.createElement('option');
+                            opt.value = unite;
+                            opt.textContent = unite;
+                            uniteSelect.appendChild(opt);
+                        });
 
-        fieldsContainer.appendChild(label);
-        fieldsContainer.appendChild(select);
-    }
+                        // Si l’ancienne unité est toujours valide, la remettre
+                        if (unites.includes(rowData.Unite)) {
+                            uniteSelect.value = rowData.Unite;
+                        }
+                    } catch (error) {
+                        console.error("Erreur récupération unités :", error);
+                    }
+                });
+            } else if (key === 'Unite') {
+                input = document.createElement('select');
+                input.name = 'Unite';
+                input.id = 'Unite';
+            } else {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.name = key;
+                input.id = key;
+                input.value = val;
+            }
 
-    modal.style.display = 'flex';
-
-    // Fermer la modale si on clique en dehors du formulaire
-    modal.addEventListener('click', function (event) {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-
-    form.onsubmit = async e => {
-        e.preventDefault();
-        const formData = new FormData(form);
-        formData.append('table', currentTable);
-
-        const idKey = currentTable === 'capteur' ? 'IdCapteur' : 'DevEui';
-        formData.append('id', rowData[idKey]);
-
-        const res = await fetch('updateRow.php', {
-            method: 'POST',
-            body: formData
+            form.appendChild(label);
+            form.appendChild(input);
         });
 
-        const result = await res.json();
-        if (result.success) {
-            alert('Modification réussie');
-            modal.style.display = 'none';
-            updateTable(currentTable);
-        } else {
-            alert('Erreur : ' + result.error);
+        if (currentTable === 'capteur') {
+            form.appendChild(createCarteSelect(options.Cartes, rowData.DevEui));
         }
-    };
 
-    document.getElementById('modalCancelBtn').onclick = () => {
-        modal.style.display = 'none';
-    };
+        form.appendChild(createButtonContainer('Enregistrer', () => modal.remove()));
+        modal.appendChild(form);
+        document.body.appendChild(modal);
+        modal.style.display = 'flex';
+
+        // Déclencher l’event pour charger les unités si Grandeur existe déjà
+        const grandeurSelect = form.querySelector('#GrandeurCapt');
+        if (grandeurSelect && grandeurSelect.value) {
+            grandeurSelect.dispatchEvent(new Event('change'));
+        }
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            formData.append('table', currentTable);
+
+            const idKey = currentTable === 'capteur' ? 'IdCapteur' : 'DevEui';
+            formData.append('id', rowData[idKey]);
+
+            const res = await fetch('updateRow.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                alert('Modification réussie');
+                modal.remove();
+                updateTable(currentTable);
+            } else {
+                alert('Erreur : ' + result.error);
+            }
+        });
+    } catch (error) {
+        console.error('Erreur modale édition :', error);
+    }
 }
 
-// Helpers
-function getLabel(col) {
+function createTitle(text) {
+    const title = document.createElement('h2');
+    title.textContent = text;
+    return title;
+}
+
+function getLabel(key) {
     return {
         EtatComposant: 'État du composant',
-        GrandeurCapt: 'Grandeur',
-        Unite: 'Unité'
-    }[col] || col;
+        GrandeurCapt: 'Grandeur du capteur',
+        Unite: 'Unité',
+        DevEui: 'Carte associée',
+        DevEui: 'Carte associée'
+    }[key] || key;
 }
 
-function createSelect(name, list, selected = '') {
+function createSelect(name, options, selected = '', exclude = []) {
     const select = document.createElement('select');
     select.name = name;
     select.id = name;
 
-    list.forEach(opt => {
-        let val = opt.value ?? opt;
-        let text = opt.label ?? opt;
+    options.forEach(opt => {
+        const val = opt.value ?? opt;
+        const label = opt.label ?? opt;
+
+        // Si cette valeur est dans la liste des exclusions, on la saute
+        if (exclude.includes(val)) return;
 
         const option = document.createElement('option');
         option.value = val;
-        option.textContent = text;
+        option.textContent = label;
         if (val == selected) option.selected = true;
         select.appendChild(option);
     });
 
     return select;
+}
+
+function createCarteSelect(cartes, selected = '') {
+    const label = document.createElement('label');
+    label.textContent = 'Carte associée';
+    label.setAttribute('for', 'DevEui');
+
+    const select = document.createElement('select');
+    select.name = 'DevEui';
+    select.id = 'DevEui';
+
+    cartes.forEach(carte => {
+        const opt = document.createElement('option');
+        opt.value = carte.DevEui;
+        opt.textContent = carte.NomCarte || `Carte #${carte.DevEui}`;
+        if (carte.DevEui == selected) opt.selected = true;
+        select.appendChild(opt);
+    });
+
+    const container = document.createElement('div');
+    container.appendChild(label);
+    container.appendChild(select);
+    return container;
+}
+
+function createButtonContainer(confirmText, onCancel) {
+    const container = document.createElement('div');
+    container.className = 'modal-buttons';
+
+    const submit = document.createElement('button');
+    submit.type = 'submit';
+    submit.textContent = confirmText;
+
+    const cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.textContent = 'Annuler';
+    cancel.addEventListener('click', onCancel);
+
+    container.append(submit, cancel);
+    return container;
+}
+
+function createCloseButton(onClick) {
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.className = 'modal-close';
+    closeBtn.type = 'button';
+    closeBtn.addEventListener('click', onClick);
+    return closeBtn;
 }

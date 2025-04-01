@@ -34,9 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="../css/Log.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<div class="cloud" style="top: 20%; left: 10%;"></div>
-    <div class="cloud" style="top: 40%; right: 15%; animation-delay: 0s;"></div>
-    <div class="cloud" style="top: 60%; left: 20%; animation-delay: 0s;"></div>
     <div class="container">
         <h2>Se connecter</h2>
         <form action="" method="POST">
