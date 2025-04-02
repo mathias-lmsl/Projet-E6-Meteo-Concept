@@ -9,7 +9,7 @@ if(isset($_POST['serre_id'])) {
 
     echo '<option value="">-- Choisissez une chapelle --</option>';
     while ($donnees = $stmt->fetch()) {
-        echo '<option value="'.$donnees['IdChapelle'].'">'.$donnees['Nom'].'</option>';
+        echo '<option value="'.htmlspecialchars($donnees['IdChapelle']).'">'.htmlspecialchars($donnees['Nom']).'</option>';
     }
     $stmt->closeCursor();
 }

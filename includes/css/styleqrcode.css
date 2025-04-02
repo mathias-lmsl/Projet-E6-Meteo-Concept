@@ -123,8 +123,11 @@ body.darkmode #moon-icon {
 /* Boîte centrale pour les informations principales */
 .centerbox {
     flex: 1 0 calc(100%); /* Même comportement que .box */
-    width: 100%;
+    padding: 15px;
+    max-width: 100%;
     box-sizing: border-box;
+    overflow: hidden; /* Cache le contenu qui dépasse */
+    word-wrap: break-word; /* Permet de casser les mots longs */
 }
 
 /* Carte d'information */
@@ -202,10 +205,10 @@ button:hover {
     background-color: #0056b3;
 }
 
-/* Responsive design : ajustement pour les petits écrans */
+/******************** Responsive design : ajustement pour les petits écrans **********************/
 @media (max-width: 723px) {
     .container {
-        padding: 10px;
+        padding: 20px;
         
     }
     .box, .centerbox {
@@ -213,27 +216,17 @@ button:hover {
     }
 }
 
-/* Conteneur pour le bouton de déconnexion */
-.logout-container {
-    display: flex;
-    justify-content: center; /* Centre le bouton horizontalement */
-    width: 100%; /* Prend toute la largeur de son parent */
+
+/*********** bouton de déconnexion ************/
+.logout {
+    position: absolute;
+    top: 25px;
+    right: 22px;
+    cursor: pointer;
+    z-index: 10;
 }
 
-.logout-container a {
-    padding: 12px 24px; /* Taille du bouton */
-    background-color: #007BFF; /* Couleur du fond */
-    color: white; /* Couleur du texte */
-    border-radius: 5px; /* Coins arrondis */
-    text-decoration: none; /* Enlève le soulignement */
-    font-size: 16px; /* Taille du texte */
-}
-
-.logout-container a:hover {
-    background-color: #0056b3; /* Couleur du fond au survol */
-}
-
-/* Styles de la modal */
+/******************** Styles de la modal pour le commentaire ***********************/
 /* Modal */
 .modal {
     display: none; /* Cacher le modal par défaut */

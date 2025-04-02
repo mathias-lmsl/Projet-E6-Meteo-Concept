@@ -17,6 +17,11 @@ if (!isset($_SESSION['user'])) {
     function toggleDarkMode() {
         document.body.classList.toggle('darkmode');
     }
+
+    // Fonction pour se déconnecter
+    function logout() {
+        window.location.href = "logout.php?page=1";
+    }
 </script>
 
 <!DOCTYPE html>
@@ -37,6 +42,10 @@ if (!isset($_SESSION['user'])) {
             <img src="../includes/img/moon-darkmode.svg" id="moon-icon" alt="Mode clair" class="icon">
         </div>
 
+        <div class="logout" onclick="logout()">
+            <img src="../includes/img/logout-icon.svg" id="logout-icon" alt="Bouton logout" class="icon">
+        </div>
+
         <h1>Générateur de QR Code</h1>
 
         <label for="lstSerre">Sélectionnez une serre :</label>
@@ -46,7 +55,7 @@ if (!isset($_SESSION['user'])) {
             $stmt = $bdd->prepare('SELECT * FROM serre;');
             $stmt->execute();
             while ($donnees = $stmt->fetch()) {
-                echo '<option value="'.$donnees['IdSerre'].'">'.$donnees['Nom'].'</option>';
+                echo '<option value="'.htmlspecialchars($donnees['IdSerre']).'">'.htmlspecialchars($donnees['Nom']).'</option>';
             }
             $stmt->closeCursor();
             ?>
@@ -69,7 +78,6 @@ if (!isset($_SESSION['user'])) {
         
         <div id="Impression"></div> <!-- Emplacement du bouton imprimer -->
 
-        <a href="logout.php?page=1">Déconnexion</a>
     </div>
 
     <script>
@@ -130,12 +138,12 @@ if (!isset($_SESSION['user'])) {
             });
 
             generateQR.addEventListener("click", function () {
-                const carteId = lstCarte.value;
-                if (carteId) {
+                const DevEui = lstCarte.value;
+                if (DevEui) {
                     fetch("generate_qr.php", {
                         method: "POST",
                         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: "carte_id=" + carteId
+                        body: "DevEui=" + DevEui
                     })
                     .then(response => response.text())
                     .then(data => {

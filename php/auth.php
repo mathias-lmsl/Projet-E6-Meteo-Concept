@@ -29,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             if ($_SESSION['redirect_to']==='qrcode.php') { //Pour l'accès a la page de maintenance
                 if ($donnees && password_verify($mdp, $donnees['Mdp']) && ($donnees['Fonction']=='Technicien' || $donnees['Fonction']=='Administrateur')) {
-
                     $_SESSION['user'] = $login;
                     header('Location: '.$_SESSION['redirect_to'].'');     
                     exit;

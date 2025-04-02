@@ -2,16 +2,16 @@
 require "../config/databaseadmin.php";
 include_once('../phpqrcode/qrlib.php');
 
-if (!empty($_POST['carte_id'])) {
-    $carteId = $_POST['carte_id'];
+if (!empty($_POST['DevEui'])) {
+    $DevEui = $_POST['DevEui'];
     
     // Récupérer les informations de la carte
     $stmt = $bdd->prepare('SELECT * FROM carte WHERE DevEui = ?');
-    $stmt->execute([$carteId]);
+    $stmt->execute([$DevEui]);
     $donnees = $stmt->fetch();
     
     if ($donnees) {
-        $lien = "http://192.168.1.86/projettest/php/qrcode.php?id=" . $carteId;
+        $lien = "http://192.168.1.86/projettest/php/qrcode.php?DevEui=" . $DevEui;
         $file = "../qrcodes/dernierqrcodegenerer.png";
 
         // Assurer que le dossier qrcodes existe

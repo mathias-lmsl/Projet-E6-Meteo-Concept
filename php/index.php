@@ -1,8 +1,8 @@
 <?php
 require "../config/session.php";
-$_SESSION['user']=null;//On commemence par supprimer les variables de la session qui pourrai etre en cours
-
+unset($_SESSION['user']);//On commemence par supprimer les variables de la session qui pourrai etre en cours
 ?>
+
 <!--On ajoute les fichiers css-->
 <link rel="stylesheet" href="../includes/css/style.css" type="text/css" />
 <link rel="stylesheet" href="../includes/css/stylelog.css" type="text/css" />

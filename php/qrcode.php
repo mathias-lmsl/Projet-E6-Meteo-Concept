@@ -1,21 +1,23 @@
 <?php
 require "../config/session.php";
 require "../config/databasetech.php";
-if (!isset($_SESSION['id_consultable'])) {
-    $_SESSION['id_consultable'] = $_GET["id"]; //On stock le capteur a afficher
+if (!isset($_SESSION['id_consultable'])&&isset($_GET["DevEui"])) {
+    $_SESSION['id_consultable'] = $_GET["DevEui"]; //On stock le devEUI du capteur a afficher dans la session
     exit;
 }
-
-$_SESSION['redirect_to'] = 'qrcode.php'; //On redirige vers la page de maintenance
 
 //On vérifie si l'utilisateur est connecté
 if (!isset($_SESSION['user'])) {
-    header('Location: index.php');
+    $_SESSION['redirect_to'] = 'qrcode.php'; //On met dans les cookies la page a laquel on souhaite acceder pour la page de log
+    header('Location: index.php'); //On redirige vers la page de login
     exit;
 }
 
+
+
+//On stock dans une variable l'id(DevEui) de la carte a afficher
 $IDutilisable=$_SESSION['id_consultable'];
-//On verifie si la clé primaire de la carte est valide et existe
+//On verifie si le  de la carte est valide et existe
 $stmt = $bdd->prepare('SELECT Nom, EtatComposant FROM carte WHERE DevEui = :id');
 $stmt->execute(['id' => $IDutilisable]);
 $donnees = $stmt->fetch();
@@ -104,6 +106,11 @@ $stmt->closeCursor();
         setTimeout(500);
         window.location.href = window.location.href;
     }
+
+    // Fonction pour se déconnecter
+    function logout() {
+        window.location.href = "logout.php?id=<?php echo $_SESSION["id_consultable"]; ?>&page=2";
+    }
 </script>
 <?php
 //Fonction pour afficher la direction du vent
@@ -163,6 +170,9 @@ function directionVent($angle) {
         <div class="darkmode-toggle" onclick="toggleDarkMode()">
             <img src="../includes/img/sun-darkmode.svg" id="sun-icon" alt="Mode sombre" class="icon">
             <img src="../includes/img/moon-darkmode.svg" id="moon-icon" alt="Mode clair" class="icon">
+        </div>
+        <div class="logout" onclick="logout()">
+            <img src="../includes/img/logout-icon.svg" id="logout-icon" alt="Bouton logout" class="icon">
         </div>
 
         <!-- Contenu de la page -->
@@ -229,7 +239,7 @@ function directionVent($angle) {
                     echo '<div class="card">';
                         while ($donnees = $stmt->fetch()) {
                             if ($donnees['Valeur'] === NULL) {
-                                echo $donnees['Nom'] . ' : <span style="color:red;"><strong>Aucune Valeur</strong></span><br>';
+                                echo $donnees['Nom'] . ' : <span style="color:red;"><strong>Aucune valeur</strong></span><br>';
                             }else{
                                 if ($donnees['Unite'] == '°'){
                                     echo $donnees['Nom'] . ' : <strong>' . $donnees['Valeur'] . ' ' . $donnees['Unite'] . ' '.directionVent($donnees['Valeur']). '</strong><br>'; 
@@ -352,9 +362,7 @@ function directionVent($angle) {
             echo '<p style="color:red;">Le QR code scanné est sûrement incorrect, veuillez réessayer.</p>';
         }
         ?>
-        <div class="logout-container">
-            <a href="logout.php?id=<?php echo $_SESSION["id_consultable"]; ?>&page=2">Déconnexion</a>
-        </div>
+        
     </div>
 </body>
 </html>
