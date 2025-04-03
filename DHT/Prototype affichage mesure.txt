@@ -1,0 +1,23 @@
+function decodeUplink(input) {
+
+  var bytes = input.bytes;
+
+  // Extraire la température (par exemple, les 2 premiers octets pour la température)
+  var temperature = (bytes[0] << 8) | bytes[1]; // La température pourrait être un nombre entier sur 16 bits
+  
+  // Extraire l'humidité (les 2 derniers octets pour l'humidité)
+  var humidity = (bytes[2] << 8) | bytes[3]; // L'humidité pourrait être aussi un nombre entier sur 16 bits
+
+
+  var temperatureC = temperature / 100.0; // Diviser par 10 pour obtenir la température en °C
+  var humidityPct = humidity / 100.0; // Diviser par 10 pour obtenir l'humidité en %
+
+  return {
+    data: {
+      temperature: temperatureC, // Température en °C
+      humidity: humidityPct      // Humidité en %
+    },
+    warnings: [],
+    errors: []
+  };
+}
