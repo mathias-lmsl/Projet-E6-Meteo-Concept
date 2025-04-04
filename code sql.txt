@@ -62,6 +62,8 @@ CREATE TABLE carte(
    DevEui VARCHAR(16),
    Nom VARCHAR(100) NOT NULL,
    DateMiseEnService DATETIME NOT NULL,
+   AppEui VARCHAR(16) NOT NULL,
+   AppKey VARCHAR(32) NOT NULL,
    Marque VARCHAR(50),
    Reference VARCHAR(50),
    NumSerie VARCHAR(50),
@@ -96,7 +98,7 @@ CREATE TABLE capteur(
 -- Création de la table possede (relation entre capteur et carte)
 CREATE TABLE possede(
    IdCapteur SMALLINT NOT NULL,
-   DevEui SMALLINT NOT NULL,
+   DevEui VARCHAR(16) NOT NULL,
    PRIMARY KEY(IdCapteur),
    FOREIGN KEY(IdCapteur) REFERENCES capteur(IdCapteur),
    FOREIGN KEY(DevEui) REFERENCES carte(DevEui)
@@ -114,7 +116,7 @@ CREATE TABLE mesure(
 -- Création de la table intervient (intervention des utilisateurs sur les cartes)
 CREATE TABLE intervient(
    IdUtilisateur SMALLINT NOT NULL,
-   DevEui SMALLINT NOT NULL,
+   DevEui VARCHAR(16) NOT NULL,
    DateIntervention DATETIME NOT NULL,
    NatureIntervention VARCHAR(500) NOT NULL,
    PRIMARY KEY(IdUtilisateur, DevEui, DateIntervention),
