@@ -36,7 +36,7 @@ body {
 body.darkmode {
     background: linear-gradient(to bottom, #0b0231, #030116); /* Dégradé pour mode sombre */
     background-attachment: fixed; /* Empêche le dégradé de se réinitialiser lors du défilement */
-    color: #e0e0e0; /* Couleur de texte clair */
+    color: #c8c8c8; /* Couleur de texte clair */
 }
 
 /* Container principal (mode clair par défaut) */
@@ -59,7 +59,7 @@ body.darkmode {
 /* Mode sombre pour le container */
 body.darkmode .container {
     background: #090120; /* Fond plus sombre pour le container */
-    color: #e0e0e0; /* Couleur de texte claire pour le container */
+    color: #c8c8c8; /* Couleur de texte claire pour le container */
 }
 
 /* Bouton de changement de mode sombre/clair */

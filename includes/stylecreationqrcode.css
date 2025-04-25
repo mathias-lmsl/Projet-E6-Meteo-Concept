@@ -137,23 +137,23 @@ a:hover {
     #qrCodeTitle{
         position: absolute;
         justify-content: center;
-        top: -35px;
-        font-size: 13px;
+        top: -60px;
+        font-size: 14px;
         color: white;
         z-index: 1;
     }
 
     #qrCodeContainer {
         position: absolute;
-        left: 0;
-        top: 0;
-        width: 85px;
-        height: 100px;
+        left: 100px;
+        top: 100px;
+        width: 50px;
+        height: 90px;
         display: flex;
         justify-content: center;
         align-items: center;
         border-radius: 15px;
-        border: 2.5em solid rgb(0, 0, 0);
+        border: 8em solid rgb(0, 0, 0);
         background-color: black;
         z-index: -1;
     }
@@ -161,7 +161,7 @@ a:hover {
         width: 130px;
         height: 130px;
         border-radius: 15px;
-        margin-top: 30px;
+        margin-top: 40px;
         z-index: 2;
     }
 }

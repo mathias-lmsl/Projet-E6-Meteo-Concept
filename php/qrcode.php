@@ -61,7 +61,7 @@ $stmt->closeCursor();
         else if (type=='carte'){
             idCarteCommentaire = idComm; // Assigner l'id du capteur à la variable globale
             if (idCarteCommentaire) {
-            // Vous pouvez récupérer le commentaire du capteur ici via AJAX
+            // Récupérer le commentaire du capteur ici via AJAX
             fetch("get_comment.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -103,7 +103,7 @@ $stmt->closeCursor();
 
         // Fermer la modal après avoir enregistré
         closeModal();
-        setTimeout(500);
+        setTimeout(50);
         window.location.href = window.location.href;
     }
 

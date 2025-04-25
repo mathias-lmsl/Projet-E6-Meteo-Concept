@@ -11,7 +11,7 @@ if (!isset($_SESSION['user'])) {
 ?>
 <link rel="stylesheet" href="../includes/css/style.css" type="text/css" />
 <link rel="stylesheet" href="../includes/css/stylecreationqrcode.css" type="text/css" />
-
+<!--
 <script>
     // Fonction pour basculer entre le mode sombre et clair
     function toggleDarkMode() {
@@ -22,7 +22,7 @@ if (!isset($_SESSION['user'])) {
     function logout() {
         window.location.href = "logout.php?page=1";
     }
-</script>
+</script>-->
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -30,6 +30,7 @@ if (!isset($_SESSION['user'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Générateur de QR Code</title>
+    <script src="../javascript/creationqrcode.js" defer></script>
 </head>
 <body>
     <div class="cloud" style="top: 20%; left: 10%;"></div>
@@ -80,7 +81,7 @@ if (!isset($_SESSION['user'])) {
         <div id="Impression"></div> <!-- Emplacement du bouton imprimer -->
 
     </div>
-
+<!--   
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const lstSerre = document.getElementById("lstSerre");
@@ -158,6 +159,6 @@ if (!isset($_SESSION['user'])) {
                 }
             });
         });
-    </script>
+    </script>-->
 </body>
 </html>
