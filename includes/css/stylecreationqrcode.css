@@ -139,33 +139,10 @@ a:hover {
         background: linear-gradient(to bottom, #ffffff, #ffffff);
     }
 
-    #qrCodeContainer, #qrCodeTitle,  #qrCodeContainer * {
+    #qrCodeContainer img {
         visibility: visible;
     }
 
-    #qrCodeTitle{
-        position: absolute;
-        justify-content: center;
-        top: -60px;
-        font-size: 14px;
-        color: white;
-        z-index: 1;
-    }
-
-    #qrCodeContainer {
-        position: absolute;
-        left: 100px;
-        top: 100px;
-        width: 50px;
-        height: 90px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 15px;
-        border: 4em solid rgb(0, 0, 0);
-        background-color: black;
-        z-index: -1;
-    }
     #qrCodeContainer img {
         width: 130px;
         height: 130px;

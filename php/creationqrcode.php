@@ -9,8 +9,8 @@ if (!isset($_SESSION['user'])) {
 }
 
 ?>
-<link rel="stylesheet" href="../includes/css/style.css" type="text/css" />
-<link rel="stylesheet" href="../includes/css/stylecreationqrcode.css" type="text/css" />
+<link rel="stylesheet" href="../includes/css/style.css?v=1.2" type="text/css" />
+<link rel="stylesheet" href="../includes/css/stylecreationqrcode.css?v=1.2" type="text/css" />
 <!--
 <script>
     // Fonction pour basculer entre le mode sombre et clair
