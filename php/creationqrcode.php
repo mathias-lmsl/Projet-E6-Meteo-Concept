@@ -71,7 +71,8 @@ if (!isset($_SESSION['user'])) {
             <option value="">-- Sélectionnez une chapelle d'abord --</option>
         </select>
         <br><br>
-        <button id="generateQR" disabled>Générer le QR Code</button>
+        <button id="generateQR" disabled>Générer le QR Code</button> 
+        <!-- Bouton de génération de QR code, s'active après choix d'une station--> 
 
         
         <div id="qrCodeContainer"></div> <!-- Emplacement du QR code qui sera crée -->

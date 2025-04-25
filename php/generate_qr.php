@@ -6,12 +6,14 @@ if (!empty($_POST['DevEui'])) {
     $DevEui = $_POST['DevEui'];
     
     // Récupérer les informations de la carte
-    $stmt = $bdd->prepare('SELECT * FROM carte WHERE DevEui = ?');
+    $stmt = $bdd->prepare('SELECT Nom FROM carte WHERE DevEui = ?');
     $stmt->execute([$DevEui]);
     $donnees = $stmt->fetch();
     
     if ($donnees) {
+        // Lien contenu dans le QR code qui sera renvoyé lors de son scan
         $lien = "http://192.168.1.86/projettest/php/qrcode.php?DevEui=" . $DevEui;
+        // Chemin du stockage du QR code
         $file = "../qrcodes/dernierqrcodegenerer.png";
 
         // Assurer que le dossier qrcodes existe
@@ -20,18 +22,24 @@ if (!empty($_POST['DevEui'])) {
         // Voir si un fichier existe déjà, si oui on le supprime
         if (file_exists($file)) unlink($file);
 
-        // Générer le QR Code
+        // Générer le QR Code avec la librairie PHP QR CODE
+        // On appelle la classe QRcode qui va appeler une méthode static png
+        // à laquelle on va envoyé des paramètre pour la création du QR code
         QRcode::png($lien, $file, QR_ECLEVEL_L, 3);
         
-        
+        // Ajouter le nom de la carte a laquelle correspond le QR code
         echo '<div id="qrCodeTitle">'.$donnees['Nom'].'</div>';
+
         // Ajouter un paramètre unique à l'URL pour éviter le cache
         $uniqueParam = time(); // Utilise un timestamp unique
         echo '<img src="' . htmlspecialchars($file) . '?t=' . $uniqueParam . '" alt="QR Code" style="border-radius: 12px;">';
 
     } else {
-        echo "<p>Erreur : Carte non trouvée.</p>";
+        // Dans le cas ou le DevEui ne correspond à aucune carte
+        header('Location: error.php'); // On renvoie sur la page d'erreur
     }
 } else {
-    echo "<p>Erreur : Aucune carte sélectionnée.</p>";
+    // Dans le cas ou un utilisateur tente d'accéder a cette page par URL
+    header('Location: error.php'); // On renvoie sur la page d'erreur
 }
+?>
