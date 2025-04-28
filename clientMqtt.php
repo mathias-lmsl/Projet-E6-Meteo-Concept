@@ -31,7 +31,7 @@ $clientId = 'phpClient'; // ID unique du client MQTT
 $mqtt = new phpMQTT($brocker, $port, $clientId);
 
 if (!$mqtt->connect(true, NULL)) {
-    exit("Impossible de se connecter au serveur MQTT\n");
+    exit("Erreur");
 }
 
 //---------------------------------------------------CONFIGURATION SMTP------------------------------------------------
@@ -74,9 +74,9 @@ function donnee($topic, $message)
 
         // je stocke la valeur mesuree pour chaque capteur
         $temperature = (hex2SigDem(substr($decodeData, 0, 4))) / 10;
-        $humidite = (hex2SigDem(substr($decodeData, 8, 4))) / 10;
-        $vitVent = (hex2SigDem(substr($decodeData, 12, 4))) / 10;
-        $dirVent = (hex2SigDem(substr($decodeData, 16, 4))) / 10;
+        $humidite = (hex2SigDem(substr($decodeData, 4, 2)));
+        $vitVent = (hex2SigDem(substr($decodeData, 6, 4))) / 10;
+        $dirVent = (hex2SigDem(substr($decodeData, 10, 4)));
 
         // je récupère les id des capteurs
         $idCaptTemp = recupId('Temperature', $devEui);
