@@ -1,6 +1,7 @@
 <?php
-require "../config/databaseadmin.php";
-include_once('../phpqrcode/qrlib.php');
+require "../config/databaseadmin.php"; // Connexion à la base de données
+require "param.php"; // Fichier de paramètres modifiables
+include_once('../phpqrcode/qrlib.php'); // Inclusion de la librairie PHP QR Code
 
 if (!empty($_POST['DevEui'])) {
     $DevEui = $_POST['DevEui'];
@@ -12,7 +13,8 @@ if (!empty($_POST['DevEui'])) {
     
     if ($donnees) {
         // Lien contenu dans le QR code qui sera renvoyé lors de son scan
-        $lien = "http://192.168.1.86/projettest/php/qrcode.php?DevEui=" . $DevEui;
+        $lien = $cheminPage . "?DevEui=" . $DevEui;
+        
         // Chemin du stockage du QR code
         $file = "../qrcodes/dernierqrcodegenerer.png";
 

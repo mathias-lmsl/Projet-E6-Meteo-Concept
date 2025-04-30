@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const generateQR = document.getElementById("generateQR");
     const qrCodeContainer = document.getElementById("qrCodeContainer");
     const Impression = document.getElementById("Impression");
-    const gererQrCode = document.getElementById("gererQrCode");
 
 
     lstSerre.addEventListener("change", function () {

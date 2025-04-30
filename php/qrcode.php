@@ -1,9 +1,9 @@
 <?php
 require "../config/session.php";
 require "../config/databasetech.php";
-if (!isset($_SESSION['id_consultable'])&&isset($_GET["DevEui"])) {
-    $_SESSION['id_consultable'] = $_GET["DevEui"]; //On stock le devEUI du capteur a afficher dans la session
-    exit;
+
+if (!isset($_SESSION['id_consultable'])&&isset($_GET['DevEui'])) {
+    $_SESSION['id_consultable'] = $_GET['DevEui']; //On stock le devEUI du capteur a afficher dans la session
 }
 
 //On vérifie si l'utilisateur est connecté
@@ -13,100 +13,20 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-
-
 //On stock dans une variable l'id(DevEui) de la carte a afficher
 $IDutilisable=$_SESSION['id_consultable'];
-//On verifie si le  de la carte est valide et existe
+//On verifie si le deveui de la carte est valide et existe
 $stmt = $bdd->prepare('SELECT Nom, EtatComposant FROM carte WHERE DevEui = :id');
 $stmt->execute(['id' => $IDutilisable]);
 $donnees = $stmt->fetch();
 if (!$donnees) {
     header('Location: error.php');
-    exit();
+    exit;
 }
 $stmt->closeCursor();
 ?>
 
 <script>
-    // Variable globale pour stocker l'id du capteur
-    let idCapteurCommentaire = null;
-    let idCarteCommentaire = null;
-    let type = null;
-
-    // Fonction pour basculer entre le mode sombre et clair
-    function toggleDarkMode() {
-        document.body.classList.toggle('darkmode');
-    }
-
-    // Ouvrir la modal pour ajouter ou modifier un commentaire
-    // Fonction pour ouvrir le modal
-    function openModal(idComm = null, typeComm = null) {
-        type = typeComm;
-        if (type=='capteur'){
-            idCapteurCommentaire = idComm; // Assigner l'id du capteur à la variable globale
-            if (idCapteurCommentaire) {
-            // Vous pouvez récupérer le commentaire du capteur ici via AJAX
-            fetch("get_comment.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "Id=" + idCapteurCommentaire + "&Type=" + type
-            }).then(response => response.text()).then(data => {
-                document.getElementById('commentText').value = data;
-            });
-            } else {
-                document.getElementById('commentText').value = "";
-            }
-        }
-        else if (type=='carte'){
-            idCarteCommentaire = idComm; // Assigner l'id du capteur à la variable globale
-            if (idCarteCommentaire) {
-            // Récupérer le commentaire du capteur ici via AJAX
-            fetch("get_comment.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "Id=" + idCarteCommentaire + "&Type=" + type
-            }).then(response => response.text()).then(data => {
-                document.getElementById('commentText').value = data;
-            });
-            } else {
-                document.getElementById('commentText').value = "";
-            }
-        }
-        // Afficher le modal en modifiant son style display
-        document.getElementById('commentModal').style.display = 'block';
-    }
-
-    // Fonction pour fermer le modal
-    function closeModal() {
-        document.getElementById('commentModal').style.display = 'none';
-        
-    }
-
-    // Fonction pour enregistrer le commentaire
-    function saveComment() {
-        const comment = document.getElementById('commentText').value;
-
-        if (type == 'capteur') {
-            fetch("add-modify_comment.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "Id=" + idCapteurCommentaire + "&Commentaire=" + comment + "&Type=" + type
-            });
-        } else if (type == 'carte') {
-            fetch("add-modify_comment.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "Id=" + idCarteCommentaire + "&Commentaire=" + comment + "&Type=" + type
-            });
-        }
-
-        // Fermer la modal après avoir enregistré
-        closeModal();
-        setTimeout(50);
-        window.location.href = window.location.href;
-    }
-
     // Fonction pour se déconnecter
     function logout() {
         window.location.href = "logout.php?id=<?php echo $_SESSION["id_consultable"]; ?>&page=2";
@@ -161,7 +81,7 @@ function directionVent($angle) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page de maintenance</title>
-
+    <script src="../javascript/qrcode.js" defer></script>
 </head>
 <body>
     <div class="container">
@@ -252,6 +172,7 @@ function directionVent($angle) {
                 echo '</div>';
             }
             $stmt->closeCursor();
+            
             /*-------------------- Affiche Informations de la carte ------------------------*/
             echo '<div class="centerbox">';
                 echo '<strong>Informations essentielles sur la station :</strong><br><br>';
@@ -309,7 +230,7 @@ function directionVent($angle) {
                 echo '<div class="info-header">';
                     echo '<strong>Informations sur chaque capteur associé à la station :</strong><br><br>';
                 echo '</div>';
-                echo '<div class="infocard">';
+                echo '<div class="infocapteur">';
                     $stmt = $bdd->prepare('SELECT * FROM capteur WHERE IdCapteur IN (SELECT IdCapteur FROM possede WHERE DevEui = :id) ORDER BY EtatComposant ASC;');
                     $stmt->execute(['id' => $IDutilisable]);
                     while ($donnees = $stmt->fetch()) {
@@ -359,10 +280,10 @@ function directionVent($angle) {
             }
             $stmt->closeCursor();
         } else {
-            echo '<p style="color:red;">Le QR code scanné est sûrement incorrect, veuillez réessayer.</p>';
+            header('Location: error.php');
+            exit;
         }
         ?>
-        
     </div>
 </body>
 </html>

@@ -67,6 +67,10 @@ body.darkmode .container {
     display: none;
 }
 
+#logout-icon-darkmode {
+    display: none;
+}
+
 /* Afficher l'icône du soleil lorsque le mode sombre est activé */
 body.darkmode #sun-icon {
     display: inline-block;
@@ -74,6 +78,16 @@ body.darkmode #sun-icon {
 
 /* Afficher l'icône de la lune lorsque le mode clair est activé */
 body.darkmode #moon-icon {
+    display: none;
+}
+
+/* Afficher l'icône de logout blanc lorsque le mode sombre est activé */
+body.darkmode #logout-icon-darkmode {
+    display: inline-block;
+}
+
+/* Afficher l'icône noir de logout lorsque le mode clair est activé */
+body.darkmode #logout-icon {
     display: none;
 }
 
@@ -144,6 +158,10 @@ a:hover {
     }
 
     #qrCodeContainer img {
+        position: absolute; /* Positionnement absolu */
+        top: 20px; /* Distance depuis le haut */
+        left: 50%; /* Centrage horizontal */
+        transform: translateX(-50%); /* Ajustement pour centrer */
         width: 130px;
         height: 130px;
         border-radius: 15px;

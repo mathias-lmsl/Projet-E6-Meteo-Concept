@@ -1,12 +1,12 @@
 <?php
-// Paramètres de connexion
-$host = '192.168.1.205'; 
-$dbname = 'meteoconcept';
-$username = 'technicien';
-$password = 'Tech';
+// Paramètres de connexion à la base de données
+require "../php/param.php";
+
+
+
 
 try {
-    $bdd = new PDO("mysql:host=$host;dbname=$dbname;port=3306;charset=utf8", $username, $password, [
+    $bdd = new PDO("mysql:host=$IpDatabase;dbname=$dbname;port=3306;charset=utf8", $userTechnicien, $passwordTechnicien, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);

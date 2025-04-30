@@ -154,7 +154,7 @@ body.darkmode .card {
     background: rgb(11, 4, 48);
 }
 
-.infocard {
+.infocapteur {
     width: 100%;
     box-sizing: border-box;
     display: flex;
@@ -207,10 +207,6 @@ button:hover {
 
 /******************** Responsive design : ajustement pour les petits écrans **********************/
 @media (max-width: 723px) {
-    .container {
-        padding: 20px;
-        
-    }
     .box, .centerbox {
         flex: 1 1 100%; /* Les boîtes prennent toute la largeur sur les petits écrans */
     }
@@ -239,7 +235,6 @@ button:hover {
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.4); /* Arrière-plan semi-transparent */
     padding-top: 60px; /* Décalage pour le modal */
-
 }
 
 .modal-content {
@@ -253,8 +248,8 @@ button:hover {
     box-sizing: border-box;
 }
 body.darkmode .modal-content {
-    background-color: #090120; /* Fond plus sombre pour le modal */
-    color: #e0e0e0; /* Couleur de texte claire pour le modal */
+    background-color: #090120; /* Fond plus sombre pour le pop up */
+    color: #e0e0e0; /* Couleur de texte claire pour le pop up */
 }
 
 /* Le bouton de fermeture */
@@ -296,7 +291,7 @@ textarea {
     background-color: #0056b3;
 }
 
-/* Pour les petits écrans, on peut réduire le padding ou ajuster la taille du modal */
+/* Pour les petits écrans, on peut réduire le padding ou ajuster la taille de la pop up */
 @media (max-width: 600px) {
     .modal-content {
         width: 90%; /* Prendre plus de place sur mobile */
@@ -304,6 +299,6 @@ textarea {
 }
 
 #commentModal {
-    display: none; /* Modal cachée par défaut */
+    display: none; /* Pop up cachée par défaut */
 }
 
