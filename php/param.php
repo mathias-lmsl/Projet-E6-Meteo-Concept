@@ -18,6 +18,12 @@ $passwordLog = 'Log';
 $userAdmin = 'administrateur';
 $passwordAdmin = 'Admin';
 
+$options = [
+    PDO::MYSQL_ATTR_SSL_KEY  => 'etc/ssl/mariadb/client-key.pem',
+    PDO::MYSQL_ATTR_SSL_CERT => 'etc/ssl/mariadb/client-cert.pem',
+    PDO::MYSQL_ATTR_SSL_CA   => 'etc/ssl/mariadb/ca-cert.pem',
+];
+
 /* =========================== QRcode =========================== */
 $IpApache = $_SERVER['SERVER_ADDR']; // Récupérer l'adresse IP du serveur Apache
 

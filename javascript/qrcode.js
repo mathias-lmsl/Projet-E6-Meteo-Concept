@@ -6,7 +6,20 @@ let type = null;
 // Fonction pour basculer entre le mode sombre et clair
 function toggleDarkMode() {
     document.body.classList.toggle('darkmode');
+    const isDark = document.body.classList.contains('darkmode');
+    localStorage.setItem('darkmode', isDark ? '1' : '0');
 }
+
+// Fonction pour garder le mode sombre après le rechargement de la page
+window.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('darkmode') === '1') {
+        document.body.classList.add('darkmode');
+    }
+});
+
+
+
+
 
 // Ouvrir la modal pour ajouter ou modifier un commentaire
 // Fonction pour ouvrir le modal
@@ -76,3 +89,15 @@ function saveComment() {
         window.location.reload();
     }, 50);
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+        const [name, value] = cookie.trim().split('=');
+        acc[name] = value;
+        return acc;
+    }, {});
+
+    if (cookies.darkmode === '1') {
+        document.body.classList.add('darkmode');
+    }
+});

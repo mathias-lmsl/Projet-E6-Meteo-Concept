@@ -5,7 +5,7 @@ require "../php/param.php";
 
 
 try {
-    $bdd = new PDO("mysql:host=$IpDatabase;dbname=$dbname;port=3306;charset=utf8", $userLog, $passwordLog, [
+    $bdd = new PDO("mysql:host=$IpDatabase;dbname=$dbname;port=3306;charset=utf8", $userLog, $passwordLog,$options, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);

@@ -11,7 +11,7 @@ html, body {
     height: 100%; /* Modifier la hauteur à 100% */
     overflow-x: hidden; /* Masquer les barres de défilement horizontales */
     overflow-y: auto; /* Permet au corps de défiler verticalement si nécessaire */
-    font-family: Arial, sans-serif;
+    font-family: Calibri, sans-serif;
 }
 
 h1{
@@ -28,7 +28,7 @@ body {
     box-sizing: border-box;
     overflow-y: auto; /* Permet au corps de défiler verticalement si nécessaire */
     height: auto; /* Utilisation de height auto pour ajuster la hauteur du body */
-    font-family: Arial, sans-serif;
+    font-family: Calibri, sans-serif;
     color: #333; /* Couleur de texte par défaut (mode clair) */
 }
 
@@ -82,6 +82,21 @@ body.darkmode .container {
     display: none;
 }
 
+#sun-icon:hover {
+    transition: transform 0.4s ease; /* Transition pour la rotation */
+    transform: rotate(20deg); /* Rotation de l'icône du soleil au survol */
+}
+
+#moon-icon:hover {
+    transition: transform 0.4s ease; /* Transition pour la rotation */
+    transform: rotate(-20deg); /* Rotation de l'icône de la lune au survol */
+}
+
+/* On enlève le logo de logout de base sur la page, tant qu'il n'y a pas le mode nuit */
+#logout-icon-darkmode {
+    display: none;
+}
+
 /* Afficher l'icône du soleil lorsque le mode sombre est activé */
 body.darkmode #sun-icon {
     display: inline-block;
@@ -89,6 +104,16 @@ body.darkmode #sun-icon {
 
 /* Afficher l'icône de la lune lorsque le mode clair est activé */
 body.darkmode #moon-icon {
+    display: none;
+}
+
+/* Afficher l'icône de logout blanc lorsque le mode sombre est activé */
+body.darkmode #logout-icon-darkmode {
+    display: inline-block;
+}
+
+/* Afficher l'icône noir de logout lorsque le mode clair est activé */
+body.darkmode #logout-icon {
     display: none;
 }
 
@@ -275,6 +300,12 @@ textarea {
     margin: 5px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
+}
+
+body.darkmode textarea {
+    background-color: #3f3d47; /* Fond plus sombre pour la zone de texte */
+    color: #e0e0e0; /* Couleur de texte claire pour la zone de texte */
+    border: 1px solid #ccc; /* Bordure claire pour la zone de texte */
 }
 
 /* Bouton Enregistrer */

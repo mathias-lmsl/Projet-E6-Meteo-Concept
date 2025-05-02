@@ -65,7 +65,6 @@ if (!isset($_SESSION['user'])) {
         <button id="generateQR" disabled>Générer le QR Code</button> 
         <!-- Bouton de génération de QR code, s'active après choix d'une station--> 
 
-        
         <div id="qrCodeContainer"></div> <!-- Emplacement du QR code qui sera crée -->
         
         <div id="Impression"></div> <!-- Emplacement du bouton imprimer -->

@@ -56,7 +56,7 @@
     
     <div class="message">
         <h1>Oups ! Tempête en vue...</h1>
-        <p>Erreur 404 : Il semble que cette page se soit évaporée comme une goutte d'eau au soleil.</p>
+        <p>Erreur 404 : Il semble que cette page n'existe pas.</p>
     </div>
 </body>
 </html>

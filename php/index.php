@@ -1,6 +1,8 @@
 <?php
 require "../config/session.php";
 unset($_SESSION['user']);//On commemence par supprimer les variables de la session qui pourrai etre en cours
+
+
 ?>
 
 <!--On ajoute les fichiers css-->
@@ -12,8 +14,16 @@ unset($_SESSION['user']);//On commemence par supprimer les variables de la sessi
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Se connecter</title>
+    <script src="../javascript/log.js" defer></script>
 </head>
 <body>
+
+    <!-- Bouton pour basculer entre le mode sombre et clair -->
+    <div class="darkmode-toggle" onclick="toggleDarkMode()">
+        <img src="../includes/img/sun-darkmode.svg" id="sun-icon" alt="Mode sombre" class="icon">
+        <img src="../includes/img/moon-darkmode.svg" id="moon-icon" alt="Mode clair" class="icon">
+    </div>        
+    
     <!--On ajoute les nuages-->
     <div class="cloud" style="top: 20%; left: 10%;"></div>
     <div class="cloud" style="top: 40%; right: 15%;"></div>
