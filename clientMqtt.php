@@ -110,11 +110,11 @@ function traitementData($mesure, $capteurId)
     $UniteCapt = $infos['Unite'];
 
     //verification du depassment de seuil et envoi du mail
-    if ($mesure < $seuilMin || $mesure > $seuilMax) {
+    if ($mesure < $seuilMin && $seuilMin !== NULL || $mesure > $seuilMax && $seuilMax !== NULL) {
         if ($mesure < $seuilMin) {
             $messageAlerte = "Seuil minimum du capteur $capteurId ($NomCapt) dépassé !<br>Valeur du seuil : $seuilMin $UniteCapt<br>Valeur mesurée : $mesure $UniteCapt";
         } else {
-            $messageAlerte = "Seuil maximum du capteur $capteurId ($NomCapt) dépassé !<br>Valeur du seuil : $seuilMax $UniteCapt<br>Valeur mesurée : $mesure$UniteCapt";
+            $messageAlerte = "Seuil maximum du capteur $capteurId ($NomCapt) dépassé !<br>Valeur du seuil : $seuilMax $UniteCapt<br>Valeur mesurée : $mesure $UniteCapt";
         }
 
         try {
