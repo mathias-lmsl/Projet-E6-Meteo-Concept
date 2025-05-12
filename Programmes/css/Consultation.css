@@ -1,5 +1,5 @@
 /* ------------------------ RESET GÉNÉRAL ------------------------ */
-* {
+* { /* Réinitialise tous les éléments HTML */
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -8,14 +8,14 @@
     font-family: calibri;
 }
 
-body {
+body { /* Corps de la page */
     min-width: 100px;
     min-height: 100px;
     background: #ffffff;
 }
 
 /* ------------------------ NAVBAR ------------------------ */
-.navBar {
+.navBar { /* Barre de navigation principale */
     width: 100%;
     height: 10vh;
     min-height: 77px;
@@ -27,7 +27,7 @@ body {
     font-size: 15px;
 }
 
-.navBar #navTitre {
+.navBar #navTitre { /* Titre centré dans la barre */
     font-size: 50px !important;
     padding-left: 7%;
     text-align: center;
@@ -38,52 +38,44 @@ body {
 }
 
 .navBar #navAutre,
-.navBar #navDeconnexion {
+.navBar #navDeconnexion { /* Zones à gauche et droite de la nav */
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 5px;
 }
 
-#navAutre {
+#navAutre { /* Bouton réglage (à gauche) */
     width: 30px;
     height: 30px;
     background-color: #77B5FE;
     border-radius: 50%;
 }
 
-#navAutre img {
+#navAutre img { /* Image bouton réglage */
     width: 15px;
     margin: 1%;
     cursor: pointer;
     transition: transform 0.2s ease;
 }
 
-#navAutre img:hover {
-    transform: scale(1.3);
-}
+#navAutre img:hover { transform: scale(1.3); } /* Zoom au survol */
 
-#navDeconnexion a {
-    color: inherit;
-}
+#navDeconnexion a { color: inherit; } /* Liens même couleur */
 
-#navDeconnexion a:hover {
-    text-decoration: underline;
-}
+#navDeconnexion a:hover { text-decoration: underline; } /* Surlignage au survol */
 
 /* ------------------------ SELECTION + ACTIONS ------------------------ */
-#divSelect {
+#divSelect { /* Colonne gauche contenant les sélections */
     width: 20vw;
     height: 80vh;
     float: left;
     transform: translate(3vw, 5vh);
 }
 
-#divSelect h3 {
-    font-size: 15px;
-}
+#divSelect h3 { font-size: 15px; } /* Titres des selecteurs */
 
-#actionGraphique {
+#actionGraphique { /* Zone de titre du graphique + boutons */
     background-color: #F5F2F0;
     margin-bottom: 5px;
     padding: 2%;
@@ -93,32 +85,26 @@ body {
     border-radius: 5px;
 }
 
-#graphique h2 {
-    font-size: 18px;
-}
+#graphique h2 { font-size: 18px; } /* Titre du graphique */
 
-#actions {
+#actions { /* Zone des icônes + et - */
     width: 40px;
     display: flex;
     align-items: center;
 }
 
-#actions img {
+#actions img { /* Icônes ajout/suppression */
     width: 15px;
     cursor: pointer;
     transition: transform 0.2s ease;
 }
 
-#actions #ajoutCourbe {
-    margin-right: 10px;
-}
+#actions #ajoutCourbe { margin-right: 10px; } /* Espacement bouton + */
 
-#actions img:hover {
-    transform: scale(1.5);
-}
+#actions img:hover { transform: scale(1.5); } /* Zoom au survol */
 
 /* ------------------------ SELECTEURS GRAPHIQUE ------------------------ */
-#selectGraphique {
+#selectGraphique { /* Conteneur des listes déroulantes */
     height: 45%;
     margin-bottom: 10px;
     border-radius: 5px;
@@ -126,7 +112,7 @@ body {
     padding: 1% 0 0 10%;
 }
 
-#selectGraphique > div {
+#selectGraphique > div { /* Style commun aux blocs de sélection */
     width: 96%;
     height: 22%;
     margin: 2%;
@@ -145,7 +131,7 @@ body {
 }
 
 /* ------------------------ PLAGE TEMPORELLE + INFOS ------------------------ */
-#selectPlage {
+#selectPlage { /* Bloc bouton plage temporelle */
     width: 100%;
     height: 14%;
     margin-bottom: 10px;
@@ -157,7 +143,7 @@ body {
     align-items: center;
 }
 
-#selectPlage button {
+#selectPlage button { /* Bouton plage temporelle */
     width: 75%;
     height: 75%;
     border-radius: 25px;
@@ -167,15 +153,11 @@ body {
     transition: transform 0.2s ease;
 }
 
-#selectPlage button:hover {
-    transform: scale(1.05);
-}
+#selectPlage button:hover { transform: scale(1.05); }
 
-#selectPlage > button {
-    margin: 0 auto;
-}
+#selectPlage > button { margin: 0 auto; } /* Centrage */
 
-#infoGraphique {
+#infoGraphique { /* Zone d’information sous les selects */
     background-color: #F5F2F0;
     border-radius: 10px;
     padding: 2%;
@@ -186,7 +168,7 @@ body {
 }
 
 /* ------------------------ MODAL : Plage Temporelle ------------------------ */
-#model, .model {
+#model, .model { /* Modale générique */
     display: none;
     position: fixed;
     top: 50%;
@@ -200,7 +182,7 @@ body {
     z-index: 10001;
 }
 
-#model-content {
+#model-content { /* Contenu de la modale */
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -221,7 +203,7 @@ body {
 }
 
 /* ------------------------ MODALE AJOUT COURBE ------------------------ */
-#ajoutCourbeDiv {
+#ajoutCourbeDiv { /* Modale d’ajout d’un graphique */
     position: fixed;
     top: 50%;
     left: 50%;
@@ -241,13 +223,8 @@ body {
     overflow-y: auto;
 }
 
-/* Titres */
-#ajoutCourbeDiv h3 {
-    font-size: 15px;
-    margin-bottom: 5px;
-}
+#ajoutCourbeDiv h3 { font-size: 15px; margin-bottom: 5px; }
 
-/* Blocs de sélection */
 #ajoutCourbeDiv > div {
     width: 96%;
     display: flex;
@@ -256,7 +233,6 @@ body {
     align-items: center;
 }
 
-/* Selects */
 #ajoutCourbeDiv select {
     width: 80%;
     height: 40px;
@@ -269,7 +245,6 @@ body {
     text-align: center;
 }
 
-/* Boutons */
 #ajoutCourbeDiv button {
     width: 75%;
     height: 45px;
@@ -289,11 +264,8 @@ body {
     text-align: center;
 }
 
-#ajoutCourbeDiv button:hover {
-    transform: scale(1.05);
-}
+#ajoutCourbeDiv button:hover { transform: scale(1.05); }
 
-/* Bouton fermeture (croix) */
 #ajoutCourbeDiv .close {
     align-self: flex-end;
     cursor: pointer;
@@ -303,10 +275,9 @@ body {
     margin-bottom: 10px;
 }
 
-#ajoutCourbeDiv .close:hover {
-    color: black;
-}
+#ajoutCourbeDiv .close:hover { color: black; }
 
+/* Champs de plage temporelle */
 .selectPlage label {
     width: auto;
     min-width: 50px;
@@ -330,13 +301,8 @@ body {
     flex-direction: column;
     align-items: flex-start;
     padding: 2%;
-}
-
-#selectPlage {
     display: flex;
-    flex-direction: column;
     gap: 10px;
-    align-items: flex-start;
 }
 
 .lignePlage {
@@ -383,21 +349,20 @@ body {
 }
 
 #monGraphique {
-    flex: 1 1 100%;
-    width: 100%;
-    height: 100%;
+    display: block;
+    width: 95%;
+    height: 95%;
+    margin: 5px 0 0 5px;
+    max-width: 95%;
+    max-height: 95%;
 }
 
-.graphiquePlein {
-    flex: 1 1 100%;
-    max-width: 100%;
-}
+.graphiquePlein { flex: 1 1 100%; max-width: 100%; }
 
 .graphiqueMoitié {
     flex: 1 1 calc(50% - 10px);
     max-width: calc(50% - 10px);
 }
-
 
 .graphiqueBloc img {
     width: 15px;
@@ -407,9 +372,7 @@ body {
     transition: transform 0.2s ease;
 }
 
-.graphiqueBloc img:hover {
-    transform: scale(1.3);
-}
+.graphiqueBloc img:hover { transform: scale(1.3); }
 
 #telechargeCourbe {
     position: absolute;
@@ -420,18 +383,7 @@ body {
     transition: transform 0.2s ease;
 }
 
-#telechargeCourbe:hover {
-    transform: scale(1.3);
-}
-
-#monGraphique {
-    display: block;
-    width: 95%;
-    height: 95%;
-    margin: 5px 0 0 5px;
-    max-width: 95%;
-    max-height: 95%;
-}
+#telechargeCourbe:hover { transform: scale(1.3); }
 
 .graphiqueSecondaire {
     flex: 1 1 calc(50% - 10px);
@@ -444,9 +396,7 @@ body {
     justify-content: flex-start;
 }
 
-#divGraphiques .graphiqueSecondaire {
-    display: flex !important;
-}
+#divGraphiques .graphiqueSecondaire { display: flex !important; }
 
 /* ------------------------ DIVERS ------------------------ */
 .close {
@@ -469,9 +419,7 @@ button {
     transition: background-color 0.3s, color 0.3s;
 }
 
-button:hover {
-    background-color: #0056b3;
-}
+button:hover { background-color: #0056b3; }
 
 /* ------------------------ RESPONSIVE ------------------------ */
 @media (max-width: 900px) {
@@ -562,7 +510,7 @@ button:hover {
     }
 }
 
-/* Mode sombre global */
+/* ------------------------ MODE SOMBRE ------------------------ */
 body.dark-mode {
     background-color: #0f032e;
     color: #f0f0f0;
@@ -573,13 +521,9 @@ body.dark-mode .navBar {
     color: #f0f0f0;
 }
 
-body.dark-mode #navAutre {
-    background-color: #090120;
-}
+body.dark-mode #navAutre { background-color: #090120; }
 
-body.dark-mode #divSelect {
-    background-color: #0f032e;
-}
+body.dark-mode #divSelect { background-color: #0f032e; }
 
 body.dark-mode select,
 body.dark-mode input {
@@ -588,13 +532,9 @@ body.dark-mode input {
     border: 1px solid #555;
 }
 
-body.dark-mode button {
-    background-color: #007bff;
-}
+body.dark-mode button { background-color: #007bff; }
 
-body.dark-mode button:hover {
-    background-color: #0056b3;
-}
+body.dark-mode button:hover { background-color: #0056b3; }
 
 body.dark-mode #selectGraphique,
 body.dark-mode .graphiqueBloc,
@@ -603,12 +543,10 @@ body.dark-mode .model {
     background-color: #090120;
 }
 
-/* Inversion des images en blanc */
 body.dark-mode img {
     filter: invert(1) brightness(1.2);
 }
 
-/* Icône mode clair/sombre */
 #modeIcon {
     width: 20px;
     height: 20px;
@@ -617,9 +555,7 @@ body.dark-mode img {
     transition: transform 0.3s ease;
 }
 
-#modeIcon:hover {
-    transform: rotate(20deg);
-}
+#modeIcon:hover { transform: rotate(20deg); }
 
 body.dark-mode #actionGraphique,
 body.dark-mode #selectPlage {
@@ -653,10 +589,6 @@ body.dark-mode #selectPlage {
     background-color: #666;
 }
 
-.model {
-    z-index: 10001;
-}
+.model { z-index: 10001; }
 
-#suppressionCourbeDiv {
-    z-index: 11000;
-}
+#suppressionCourbeDiv { z-index: 11000; }

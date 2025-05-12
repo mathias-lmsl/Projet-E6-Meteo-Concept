@@ -1,35 +1,34 @@
 <?php
-require "connectDB.php";
+require "connectDB.php"; // Connexion à la base de données
 
 try {
-    $stmt = $bdd->query("SELECT DevEui FROM carte");
-    $cartes = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    $now = new DateTime();
-    $nbModifies = 0;
+    $stmt = $bdd->query("SELECT DevEui FROM carte"); // Récupère tous les identifiants de cartes
+    $cartes = $stmt->fetchAll(PDO::FETCH_COLUMN); // Tableau de DevEui
+    $now = new DateTime(); // Heure actuelle
+    $nbModifies = 0; // Compteur de mises à jour
 
     foreach ($cartes as $devEui) {
-        // Vérifie l’état actuel de la carte
+        // Récupère l’état actuel de la carte
         $stmtCheck = $bdd->prepare("SELECT EtatComposant FROM carte WHERE DevEui = ?");
         $stmtCheck->execute([$devEui]);
         $etatActuel = $stmtCheck->fetchColumn();
 
-        // Ne rien faire si la carte est en Veille
-        if ($etatActuel === 'Veille') {
-            continue;
-        }
+        if ($etatActuel === 'Veille') continue; // Ignore les cartes en veille
 
-        // Capteurs liés à cette carte via la table possede
+        // Récupère les capteurs associés à cette carte via la table `possede`
         $stmtCapteurs = $bdd->prepare("SELECT IdCapteur FROM possede WHERE DevEui = ?");
         $stmtCapteurs->execute([$devEui]);
         $capteurs = $stmtCapteurs->fetchAll(PDO::FETCH_COLUMN);
 
-        $latest = null;
+        $latest = null; // Pour stocker la mesure la plus récente
 
         foreach ($capteurs as $idCapteur) {
+            // Récupère la dernière mesure du capteur
             $stmtLast = $bdd->prepare("SELECT Horodatage FROM mesure WHERE IdCapteur = ? ORDER BY Horodatage DESC LIMIT 1");
             $stmtLast->execute([$idCapteur]);
             $last = $stmtLast->fetch(PDO::FETCH_ASSOC);
 
+            // Compare pour garder la plus récente
             if ($last && !empty($last['Horodatage'])) {
                 $lastDate = new DateTime($last['Horodatage']);
                 if (!$latest || $lastDate > $latest) {
@@ -38,24 +37,25 @@ try {
             }
         }
 
-        $etat = "OK";
+        $etat = "OK"; // État par défaut
 
         if ($latest) {
-            $diff = $now->getTimestamp() - $latest->getTimestamp();
-            if ($diff > 1800) $etat = "HS"; // inactif depuis +30 min
+            $diff = $now->getTimestamp() - $latest->getTimestamp(); // Différence en secondes
+            if ($diff > 1800) $etat = "HS"; // Si aucune donnée depuis plus de 30 min
         } else {
-            $etat = "HS"; // aucun capteur mesurant
+            $etat = "HS"; // Aucun capteur n'a de données
         }
 
+        // Met à jour l’état si nécessaire
         if ($etat !== $etatActuel) {
             $stmtUpdate = $bdd->prepare("UPDATE carte SET EtatComposant = ? WHERE DevEui = ?");
             $stmtUpdate->execute([$etat, $devEui]);
-            $nbModifies++;
+            $nbModifies++; // Incrémente le compteur
         }
     }
 
-    echo "Cartes mises à jour : $nbModifies";
+    echo "Cartes mises à jour : $nbModifies"; // Résultat final
 
 } catch (PDOException $e) {
-    echo "Erreur : " . $e->getMessage();
+    echo "Erreur : " . $e->getMessage(); // Affiche l’erreur SQL
 }

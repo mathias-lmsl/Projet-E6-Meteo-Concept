@@ -1,16 +1,21 @@
 <?php
+// Connexion à la base de données
 require "connectDB.php";
 
+// Vérifie que le nom de la table est passé en paramètre GET
 if (isset($_GET['table'])) {
     $tableName = $_GET['table'];
 
     try {
+        // Initialisation des variables
         $columns = [];
         $rows = [];
         $idField = null;
 
+        // Sélection des données selon la table demandée
         switch ($tableName) {
             case 'carte':
+                // Jointure avec la chapelle pour afficher son nom
                 $stmt = $bdd->prepare("
                     SELECT carte.DevEui, carte.Nom AS NomCarte, carte.DateMiseEnService, carte.AppKey, carte.AppEUI, carte.Marque, 
                            carte.Reference, carte.NumSerie, carte.Commentaire, chapelle.Nom AS NomChapelle, carte.EtatComposant
@@ -19,7 +24,7 @@ if (isset($_GET['table'])) {
                 ");
                 $stmt->execute();
                 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                $idField = 'DevEui';
+                $idField = 'DevEui'; // Champ identifiant
                 break;
 
             case 'capteur':
@@ -51,40 +56,45 @@ if (isset($_GET['table'])) {
                 break;
 
             default:
+                // Cas par défaut si la table est non reconnue
                 $stmt = $bdd->prepare("SELECT * FROM " . $tableName);
                 $stmt->execute();
                 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 $idField = null;
         }
 
-        // Colonnes disponibles (si des données existent)
+        // Récupère les noms de colonnes si des données existent
         if (!empty($rows)) {
             $columns = array_keys($rows[0]);
         }
 
-        // Ajouter la colonne "Actions" si nécessaire
+        // Ajoute un bouton d'action "Modifier" si la table est capteur ou carte
         if (in_array($tableName, ['capteur', 'carte']) && $idField !== null) {
             foreach ($rows as &$row) {
                 $row['Actions'] = '<button class="modifyImage" data-id="' . $row[$idField] . '">Modifier</button>';
             }
         }
 
-        // Construire la liste finale des colonnes
+        // Construction finale de la liste de colonnes à retourner
         $finalColumns = [];
 
+        // Place "Actions" en premier si elle existe
         if (isset($rows[0]['Actions'])) {
             $finalColumns[] = 'Actions';
         }
 
+        // Ajoute toutes les autres colonnes sauf la clé primaire et IdChapelle
         foreach ($columns as $col) {
             if ($col !== $idField && $col !== 'IdChapelle') {
                 $finalColumns[] = $col;
             }
         }
 
+        // Réponse au format JSON : colonnes + lignes
         echo json_encode(['columns' => $finalColumns, 'rows' => $rows]);
 
     } catch (PDOException $e) {
+        // En cas d'erreur SQL, retour d'un message JSON avec le détail
         echo json_encode(['error' => $e->getMessage()]);
     }
 }

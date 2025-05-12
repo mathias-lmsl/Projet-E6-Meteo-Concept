@@ -1,170 +1,167 @@
-export async function fetchSelectOptions() {
+export async function fetchSelectOptions() { // Récupère les options des champs select
     try {
-        const res = await fetch('getSelectOptions.php');
-        const options = await res.json();
+        const res = await fetch('getSelectOptions.php'); // Requête pour les options
+        const options = await res.json(); // Conversion JSON
         return {
-            EtatComposant: options.EtatComposant || [],
-            GrandeurCapt: options.GrandeurCapt || [],
-            Cartes: options.Cartes || [],
-            Unite: options.Unite || []
+            EtatComposant: options.EtatComposant || [], // États possibles
+            GrandeurCapt: options.GrandeurCapt || [], // Grandeurs
+            Cartes: options.Cartes || [], // Cartes
+            Unite: options.Unite || [] // Unités
         };
     } catch (e) {
-        console.error('Erreur chargement options select :', e);
-        return { EtatComposant: [], GrandeurCapt: [], Cartes: [], Unite: [] };
+        console.error('Erreur chargement options select :', e); // Log erreur
+        return { EtatComposant: [], GrandeurCapt: [], Cartes: [], Unite: [] }; // Valeurs par défaut
     }
 }
 
-export async function openAddModal(currentTable, updateTable) {
+export async function openAddModal(currentTable, updateTable) { // Ouvre modale d’ajout
     try {
-        const res = await fetch('getTableData.php?table=' + currentTable);
-        const data = await res.json();
-        const columns = data.columns.filter(c =>
+        const res = await fetch('getTableData.php?table=' + currentTable); // Structure de la table
+        const data = await res.json(); // JSON
+        const columns = data.columns.filter(c => // Filtre colonnes inutiles
             c !== 'Actions' && c !== 'IdCapteur' && c !== 'DateMiseEnService'
         );
-        const options = await fetchSelectOptions();
+        const options = await fetchSelectOptions(); // Charge options select
 
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        if (document.body.classList.contains('dark-mode')) {
-            modal.classList.add('dark-mode');
+        const modal = document.createElement('div'); // Création modale
+        modal.className = 'modal'; // Classe CSS
+        if (document.body.classList.contains('dark-mode')) { // Mode sombre ?
+            modal.classList.add('dark-mode'); // Applique style
         }
-        modal.appendChild(createCloseButton(() => modal.remove()));
+        modal.appendChild(createCloseButton(() => modal.remove())); // Bouton fermeture
 
-        const form = document.createElement('form');
-        form.className = 'modal-form';
+        const form = document.createElement('form'); // Formulaire HTML
+        form.className = 'modal-form'; // Classe CSS
 
-        const titleContainer = document.createElement('div');
-        titleContainer.className = 'modal-title-container';
+        const titleContainer = document.createElement('div'); // Conteneur titre
+        titleContainer.className = 'modal-title-container'; // Classe CSS
 
-        titleContainer.appendChild(createTitle(`Ajouter un ${currentTable}`));
-        titleContainer.appendChild(createCloseButton(() => modal.remove()));
-        form.appendChild(titleContainer);
+        titleContainer.appendChild(createTitle(`Ajouter un ${currentTable}`)); // Titre
+        titleContainer.appendChild(createCloseButton(() => modal.remove())); // Bouton fermeture
+        form.appendChild(titleContainer); // Ajoute au form
 
-        columns.forEach(col => {
-            const label = document.createElement('label');
-            label.textContent = getLabel(col);
-            label.setAttribute('for', col);
+        columns.forEach(col => { // Pour chaque champ
+            const label = document.createElement('label'); // Crée label
+            label.textContent = getLabel(col); // Texte lisible
+            label.setAttribute('for', col); // Associe au champ
 
             let input;
             if (col === 'EtatComposant') {
-                // Limite aux valeurs OK et Veille
-                input = createSelect(col, ['OK', 'Veille']);
+                input = createSelect(col, ['OK', 'Veille']); // Limite aux valeurs valides
             } else if (col === 'GrandeurCapt') {
-                input = createSelect(col, options.GrandeurCapt);
+                input = createSelect(col, options.GrandeurCapt); // Remplit grandeur
 
-                // Gestion dynamique des unités
-                input.addEventListener('change', async e => {
+                input.addEventListener('change', async e => { // Change grandeur
                     const selectedGrandeur = e.target.value;
-                    const uniteSelect = form.querySelector('#Unite');
+                    const uniteSelect = form.querySelector('#Unite'); // Select unité
 
-                    uniteSelect.innerHTML = ''; // Réinitialise
+                    uniteSelect.innerHTML = ''; // Réinitialise unité
 
                     try {
-                        const res = await fetch(`getUnitesParGrandeur.php?grandeur=${encodeURIComponent(selectedGrandeur)}`);
-                        const unites = await res.json();
+                        const res = await fetch(`getUnitesParGrandeur.php?grandeur=${encodeURIComponent(selectedGrandeur)}`); // Récupère unités
+                        const unites = await res.json(); // JSON
 
-                        unites.forEach(unite => {
+                        unites.forEach(unite => { // Ajoute options
                             const opt = document.createElement('option');
                             opt.value = unite;
                             opt.textContent = unite;
                             uniteSelect.appendChild(opt);
                         });
                     } catch (error) {
-                        console.error('Erreur lors de la récupération des unités :', error);
+                        console.error('Erreur lors de la récupération des unités :', error); // Log erreur
                     }
                 });
             } else if (col === 'Unite') {
-                input = document.createElement('select');
+                input = document.createElement('select'); // Champ vide
                 input.id = 'Unite';
                 input.name = 'Unite';
             } else {
-                input = document.createElement('input');
+                input = document.createElement('input'); // Champ texte générique
                 input.type = 'text';
                 input.name = col;
                 input.id = col;
             }
 
-            form.appendChild(label);
-            form.appendChild(input);
+            form.appendChild(label); // Ajoute label
+            form.appendChild(input); // Ajoute champ
         });
 
         if (currentTable === 'capteur') {
-            form.appendChild(createCarteSelect(options.Cartes));
+            form.appendChild(createCarteSelect(options.Cartes)); // Ajoute sélection carte
         }
 
-        form.appendChild(createButtonContainer('Ajouter', () => modal.remove()));
-        modal.appendChild(form);
-        document.body.appendChild(modal);
-        modal.style.display = 'flex';
+        form.appendChild(createButtonContainer('Ajouter', () => modal.remove())); // Boutons
+        modal.appendChild(form); // Ajoute form à modale
+        document.body.appendChild(modal); // Ajoute modale au DOM
+        modal.style.display = 'flex'; // Affiche modale
 
-        // Déclenche le changement de grandeur par défaut si sélectionnée
-        const grandeurSelect = form.querySelector('#GrandeurCapt');
-        if (grandeurSelect && grandeurSelect.value) {
+        const grandeurSelect = form.querySelector('#GrandeurCapt'); // Auto-déclenche changement
+        if (grandueurSelect && grandeurSelect.value) {
             grandeurSelect.dispatchEvent(new Event('change'));
         }
 
-        form.addEventListener('submit', async e => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            formData.append('table', currentTable);
+        form.addEventListener('submit', async e => { // Validation formulaire
+            e.preventDefault(); // Empêche rechargement
+            const formData = new FormData(form); // Récupère données
+            formData.append('table', currentTable); // Ajoute table
 
             const res = await fetch('insertRow.php', {
                 method: 'POST',
                 body: formData
             });
 
-            const result = await res.json();
+            const result = await res.json(); // Résultat serveur
             if (result.success) {
-                alert('Ajout réussi');
-                modal.remove();
-                updateTable(currentTable);
+                alert('Ajout réussi'); // Succès
+                modal.remove(); // Ferme modale
+                updateTable(currentTable); // MAJ table
             } else {
-                alert('Erreur : ' + result.error);
+                alert('Erreur : ' + result.error); // Affiche erreur
             }
         });
     } catch (error) {
-        console.error('Erreur modale ajout :', error);
+        console.error('Erreur modale ajout :', error); // Log erreur
     }
 }
 
-export async function openEditModal(rowData, currentTable, updateTable) {
+export async function openEditModal(rowData, currentTable, updateTable) { // Ouvre modale édition
     try {
-        const options = await fetchSelectOptions();
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.appendChild(createCloseButton(() => modal.remove()));
+        const options = await fetchSelectOptions(); // Récupère options
+        const modal = document.createElement('div'); // Crée modale
+        modal.className = 'modal'; // Classe CSS
+        modal.appendChild(createCloseButton(() => modal.remove())); // Bouton fermeture
 
-        const form = document.createElement('form');
-        form.className = 'modal-form';
+        const form = document.createElement('form'); // Crée formulaire
+        form.className = 'modal-form'; // Classe CSS
 
-        const titleContainer = document.createElement('div');
-        titleContainer.className = 'modal-title-container';
+        const titleContainer = document.createElement('div'); // Conteneur titre
+        titleContainer.className = 'modal-title-container'; // Classe CSS
 
-        titleContainer.appendChild(createTitle(`Modifier ${currentTable}`));
-        titleContainer.appendChild(createCloseButton(() => modal.remove()));
-        form.appendChild(titleContainer);
+        titleContainer.appendChild(createTitle(`Modifier ${currentTable}`)); // Titre
+        titleContainer.appendChild(createCloseButton(() => modal.remove())); // Fermeture
+        form.appendChild(titleContainer); // Ajoute au formulaire
 
-        const ignore = ['IdCapteur', 'DevEui', 'DateMiseEnService', 'Actions'];
+        const ignore = ['IdCapteur', 'DevEui', 'DateMiseEnService', 'Actions']; // Champs ignorés
 
-        Object.entries(rowData).forEach(([key, val]) => {
-            if (ignore.includes(key)) return;
+        Object.entries(rowData).forEach(([key, val]) => { // Pour chaque champ
+            if (ignore.includes(key)) return; // Ignore si nécessaire
 
-            const label = document.createElement('label');
-            label.textContent = getLabel(key);
-            label.setAttribute('for', key);
+            const label = document.createElement('label'); // Label champ
+            label.textContent = getLabel(key); // Texte lisible
+            label.setAttribute('for', key); // Liaison
 
             let input;
             if (key === 'EtatComposant') {
-                const allEtats = ['OK', 'Veille', 'HS'];
-                const etatsDisponibles = allEtats.filter(etat => etat !== val);
-                input = createSelect(key, etatsDisponibles);
+                const allEtats = ['OK', 'Veille', 'HS']; // Tous les états
+                const etatsDisponibles = allEtats.filter(etat => etat !== val); // Exclut état actuel
+                input = createSelect(key, etatsDisponibles); // Crée select
             } else if (key === 'GrandeurCapt') {
-                input = createSelect(key, options[key], val);
-                input.addEventListener('change', async (e) => {
+                input = createSelect(key, options[key], val); // Sélecteur grandeur
+
+                input.addEventListener('change', async (e) => { // MAJ unités
                     const selectedGrandeur = e.target.value;
                     const uniteSelect = form.querySelector('#Unite');
                     uniteSelect.innerHTML = '';
-
                     try {
                         const res = await fetch(`getUnitesParGrandeur.php?grandeur=${encodeURIComponent(selectedGrandeur)}`);
                         const unites = await res.json();
@@ -174,80 +171,77 @@ export async function openEditModal(rowData, currentTable, updateTable) {
                             opt.textContent = unite;
                             uniteSelect.appendChild(opt);
                         });
-
-                        // Si l’ancienne unité est toujours valide, la remettre
                         if (unites.includes(rowData.Unite)) {
-                            uniteSelect.value = rowData.Unite;
+                            uniteSelect.value = rowData.Unite; // Re-sélectionne l’unité d’origine si présente
                         }
                     } catch (error) {
-                        console.error("Erreur récupération unités :", error);
+                        console.error("Erreur récupération unités :", error); // Log
                     }
                 });
             } else if (key === 'Unite') {
-                input = document.createElement('select');
+                input = document.createElement('select'); // Select vide
                 input.name = 'Unite';
                 input.id = 'Unite';
             } else {
-                input = document.createElement('input');
+                input = document.createElement('input'); // Champ texte
                 input.type = 'text';
                 input.name = key;
                 input.id = key;
-                input.value = typeof val === 'number' ? parseFloat(val).toFixed(1) : val;
+                input.value = typeof val === 'number' ? parseFloat(val).toFixed(1) : val; // Affichage 1 décimale
             }
 
-            form.appendChild(label);
-            form.appendChild(input);
+            form.appendChild(label); // Ajoute label
+            form.appendChild(input); // Ajoute input
         });
 
         if (currentTable === 'capteur') {
-            form.appendChild(createCarteSelect(options.Cartes, rowData.DevEui));
+            form.appendChild(createCarteSelect(options.Cartes, rowData.DevEui)); // Sélecteur carte
         }
 
-        form.appendChild(createButtonContainer('Enregistrer', () => modal.remove()));
-        modal.appendChild(form);
-        document.body.appendChild(modal);
-        modal.style.display = 'flex';
+        form.appendChild(createButtonContainer('Enregistrer', () => modal.remove())); // Boutons
+        modal.appendChild(form); // Formulaire dans modale
+        document.body.appendChild(modal); // Ajoute modale au DOM
+        modal.style.display = 'flex'; // Affiche
 
-        // Déclencher l’event pour charger les unités si Grandeur existe déjà
-        const grandeurSelect = form.querySelector('#GrandeurCapt');
+        const grandeurSelect = form.querySelector('#GrandeurCapt'); // Déclenche MAJ unité
         if (grandeurSelect && grandeurSelect.value) {
-            grandeurSelect.dispatchEvent(new Event('change'));
+            grandeurSelect.dispatchEvent(new Event('change')); // Simule sélection
         }
 
-        form.addEventListener('submit', async e => {
+        form.addEventListener('submit', async e => { // Soumission
             e.preventDefault();
-            const formData = new FormData(form);
-            formData.append('table', currentTable);
+            const formData = new FormData(form); // Données form
+            formData.append('table', currentTable); // Nom table
 
-            const idKey = currentTable === 'capteur' ? 'IdCapteur' : 'DevEui';
-            formData.append('id', rowData[idKey]);
+            const idKey = currentTable === 'capteur' ? 'IdCapteur' : 'DevEui'; // ID à envoyer
+            formData.append('id', rowData[idKey]); // Ajoute ID
 
             const res = await fetch('updateRow.php', {
                 method: 'POST',
                 body: formData
             });
 
-            const result = await res.json();
+            const result = await res.json(); // Résultat
             if (result.success) {
-                alert('Modification réussie');
-                modal.remove();
-                updateTable(currentTable);
+                alert('Modification réussie'); // OK
+                modal.remove(); // Ferme modale
+                updateTable(currentTable); // MAJ tableau
             } else {
-                alert('Erreur : ' + result.error);
+                alert('Erreur : ' + result.error); // Erreur
             }
         });
     } catch (error) {
-        console.error('Erreur modale édition :', error);
+        console.error('Erreur modale édition :', error); // Log
     }
 }
 
-function createTitle(text) {
+function createTitle(text) { // Crée élément titre
     const title = document.createElement('h2');
     title.textContent = text;
     return title;
 }
 
-function getLabel(key) {
+function getLabel(key) { // Associe nom de champ à un libellé lisible
     return {
         EtatComposant: 'État du composant',
         GrandeurCapt: 'Grandeur du capteur',
@@ -256,7 +250,7 @@ function getLabel(key) {
     }[key] || key;
 }
 
-function createSelect(name, options, selected = '', exclude = []) {
+function createSelect(name, options, selected = '', exclude = []) { // Crée un <select>
     const select = document.createElement('select');
     select.name = name;
     select.id = name;
@@ -264,10 +258,7 @@ function createSelect(name, options, selected = '', exclude = []) {
     options.forEach(opt => {
         const val = opt.value ?? opt;
         const label = opt.label ?? opt;
-
-        // Si cette valeur est dans la liste des exclusions, on la saute
         if (exclude.includes(val)) return;
-
         const option = document.createElement('option');
         option.value = val;
         option.textContent = label;
@@ -278,7 +269,7 @@ function createSelect(name, options, selected = '', exclude = []) {
     return select;
 }
 
-function createCarteSelect(cartes, selected = '') {
+function createCarteSelect(cartes, selected = '') { // Crée bloc label + select pour cartes
     const label = document.createElement('label');
     label.textContent = 'Carte associée';
     label.setAttribute('for', 'DevEui');
@@ -301,7 +292,7 @@ function createCarteSelect(cartes, selected = '') {
     return container;
 }
 
-function createButtonContainer(confirmText, onCancel) {
+function createButtonContainer(confirmText, onCancel) { // Crée bouton submit + annuler
     const container = document.createElement('div');
     container.className = 'modal-buttons';
 
@@ -318,7 +309,7 @@ function createButtonContainer(confirmText, onCancel) {
     return container;
 }
 
-function createCloseButton(onClick) {
+function createCloseButton(onClick) { // Crée bouton croix pour fermer
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '&times;';
     closeBtn.className = 'modal-close';

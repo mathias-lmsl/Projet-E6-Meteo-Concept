@@ -2,42 +2,48 @@
 // Inclusion du fichier de connexion à la base de données
 require_once 'connectDB.php'; 
 
-// Vérifier que l'ID et la table sont bien passés via POST
+// Vérifie que les données nécessaires sont bien envoyées via POST
 if (isset($_POST['id']) && isset($_POST['table'])) {
-    $id = $_POST['id'];
-    $table = $_POST['table'];
+    $id = $_POST['id'];                 // Récupère l'ID de l'élément à supprimer
+    $table = $_POST['table'];           // Récupère le nom de la table concernée
 
-    // Vérifier que l'ID est valide
+    // Vérifie que l'ID est bien numérique
     if (is_numeric($id)) {
-        // Préparer la requête de suppression en fonction de la table
+
+        // Détermine la requête SQL selon la table
         if ($table === 'serre') {
-            $query = "DELETE FROM serres WHERE idSerre = :id";
+            $query = "DELETE FROM serre WHERE IdSerre = :id";
         } elseif ($table === 'carte') {
-            $query = "DELETE FROM cartes WHERE DevEui = :id";
+            $query = "DELETE FROM carte WHERE DevEui = :id";
         } else {
+            // Si la table demandée n'est pas prise en charge
             echo json_encode(['success' => false, 'error' => 'Table non supportée']);
             exit;
         }
 
         try {
-            // Préparer la requête avec la connexion à la base de données
-            $stmt = $pdo->prepare($query);
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt->execute();
+            // Prépare et exécute la requête
+            $stmt = $bdd->prepare($query);                       // Prépare la requête
+            $stmt->bindParam(':id', $id);                        // Lie l'ID (pas besoin de PDO::PARAM_INT si DevEui est une chaîne)
+            $stmt->execute();                                    // Exécute la requête
 
-            // Vérifier si une ligne a été supprimée
+            // Vérifie si une ligne a été supprimée
             if ($stmt->rowCount() > 0) {
-                echo json_encode(['success' => true]);
+                echo json_encode(['success' => true]);           // Suppression réussie
             } else {
                 echo json_encode(['success' => false, 'error' => 'Aucun élément trouvé avec cet ID']);
             }
+
         } catch (PDOException $e) {
+            // Gestion d'erreur SQL
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
+
     } else {
-        echo json_encode(['success' => false, 'error' => 'ID invalide']);
+        echo json_encode(['success' => false, 'error' => 'ID invalide']); // L’ID n’est pas numérique
     }
+
 } else {
-    echo json_encode(['success' => false, 'error' => 'Données manquantes']);
+    echo json_encode(['success' => false, 'error' => 'Données manquantes']); // POST incomplet
 }
 ?>

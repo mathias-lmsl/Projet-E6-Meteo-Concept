@@ -1,21 +1,22 @@
 <?php
-require "connectDB.php";
+require "connectDB.php"; // Connexion à la base de données
 
-header('Content-Type: application/json');
+header('Content-Type: application/json'); // Réponse en JSON
 
-$response = ['success' => false];
+$response = ['success' => false]; // Réponse par défaut
 
+// Vérifie que la requête est POST et contient bien les champs nécessaires
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table']) && isset($_POST['id'])) {
     $table = $_POST['table'];
     $id = $_POST['id'];
 
     try {
-        // On récupère la structure de la table
+        // Récupère les colonnes de la table
         $stmt = $bdd->prepare("DESCRIBE " . $table);
         $stmt->execute();
         $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        // Colonnes à ignorer selon la table
+        // Colonnes à ne pas modifier
         $ignore = ['DateMiseEnService'];
         if ($table === 'capteur') {
             $primaryKey = 'IdCapteur';
@@ -28,30 +29,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table']) && isset($_P
             exit;
         }
 
-        $setClause = [];
-        $params = [];
+        $setClause = []; // Liste des champs à mettre à jour
+        $params = [];    // Paramètres liés
 
+        // Pour chaque colonne, on crée les paires clé/valeur pour l'UPDATE
         foreach ($columns as $col) {
             if (!in_array($col, $ignore) && isset($_POST[$col])) {
-                $setClause[] = $col." = :".$col;
-                $params[":".$col] = $_POST[$col];
+                $setClause[] = "$col = :$col";
+                $params[":$col"] = $_POST[$col];
             }
         }
 
-        $params[":id"] = $id;
+        $params[":id"] = $id; // Clé primaire pour le WHERE
 
+        // Construction de la requête SQL finale
         $sql = "UPDATE $table SET " . implode(", ", $setClause) . " WHERE $primaryKey = :id";
         $stmt = $bdd->prepare($sql);
         $stmt->execute($params);
 
-        $response['success'] = true;
+        $response['success'] = true; // Mise à jour réussie
 
     } catch (PDOException $e) {
-        $response['error'] = $e->getMessage();
+        $response['error'] = $e->getMessage(); // Gestion des erreurs SQL
     }
 } else {
-    $response['error'] = "Requête invalide";
+    $response['error'] = "Requête invalide"; // Mauvais appel
 }
 
-echo json_encode($response);
+echo json_encode($response); // Envoie la réponse JSON
 ?>

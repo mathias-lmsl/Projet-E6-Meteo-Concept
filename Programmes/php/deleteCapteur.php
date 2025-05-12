@@ -2,34 +2,39 @@
 // Inclusion du fichier de connexion à la base de données
 require_once 'connectDB.php'; 
 
-// Vérifier que l'ID du capteur est passé via POST
+// Vérifie si l'ID du capteur est bien reçu en POST
 if (isset($_POST['id'])) {
     $id = $_POST['id'];
 
-    // Vérifier que l'ID est valide
+    // Vérifie que l'ID est bien un nombre
     if (is_numeric($id)) {
-        // Préparer la requête de suppression pour le capteur
-        $query = "DELETE FROM capteurs WHERE idCapteur = :id";
+
+        // Requête de suppression (attention au nom de la table : 'capteurs' ou 'capteur' ?)
+        $query = "DELETE FROM capteur WHERE IdCapteur = :id";
 
         try {
-            // Préparer la requête avec la connexion à la base de données
-            $stmt = $pdo->prepare($query);
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt->execute();
+            // Prépare la requête avec la connexion à la base
+            $stmt = $bdd->prepare($query);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT); // Lie l'ID en paramètre
+            $stmt->execute(); // Exécute la requête
 
-            // Vérifier si une ligne a été supprimée
+            // Vérifie si une ligne a bien été supprimée
             if ($stmt->rowCount() > 0) {
-                echo json_encode(['success' => true]);
+                echo json_encode(['success' => true]); // Succès
             } else {
                 echo json_encode(['success' => false, 'error' => 'Aucun capteur trouvé avec cet ID']);
             }
         } catch (PDOException $e) {
+            // Gère les erreurs SQL
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
+
     } else {
+        // Si l'ID n'est pas un nombre
         echo json_encode(['success' => false, 'error' => 'ID invalide']);
     }
+
 } else {
+    // Si l'ID n'est pas fourni
     echo json_encode(['success' => false, 'error' => 'Données manquantes']);
 }
-?>
