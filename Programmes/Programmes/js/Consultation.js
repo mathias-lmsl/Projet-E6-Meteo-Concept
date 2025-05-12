@@ -1,177 +1,3 @@
-// Fonction pour afficher le modèle (modal)
-function ouvertureModel() {
-    document.getElementById('model').style.display = 'block';
-}
-
-// Fonction pour masquer le modèle (modal)
-function fermetureModel() {
-    document.getElementById('model').style.display = 'none';
-}
-
-function updateChart(capteurId, canvas, startDate = null, startTime = null, endDate = null, endTime = null) {
-    if (!capteurId) {
-        console.warn("Aucun capteur sélectionné.");
-        return;
-    }
-
-    // Fonction générique pour récupérer les mesures
-    function getMesures(capteurId) {
-        let url = `getMesures.php?capteur_id=${capteurId}`;
-        if (startDate && startTime && endDate && endTime) {
-            url += `&startDate=${startDate}&startTime=${startTime}&endDate=${endDate}&endTime=${endTime}`;
-        }
-        return fetch(url).then(response => response.json());
-    }
-
-    // Récupérer les infos du capteur
-    fetch(`getCapteurInfo.php?capteur_id=${capteurId}`)
-        .then(response => response.json())
-        .then(capteurInfo => {
-            const grandeur = capteurInfo.GrandeurCapt;
-            const unite = capteurInfo.Unite;
-
-            // Récupérer les mesures
-            getMesures(capteurId).then(data => {
-                if (!Array.isArray(data.mesures)) {
-                    console.error("Données invalides :", data);
-                    return;
-                }
-
-                const labels = data.mesures.map(m => m.Horodatage);
-                const values = data.mesures.map(m => parseFloat(m.Valeur));
-
-                renderChart(canvas, labels, [{
-                    label: `${grandeur} (${unite})`,
-                    data: values,
-                    borderColor: 'rgb(231, 57, 57)',
-                    tension: 0.1
-                }], unite);
-
-                updateInfoGraphique(values, unite);
-            });
-        });
-}
-  
-// Fonction pour créer/mettre à jour un graphique sur un canvas
-function renderChart(canvas, labels, datasets, unite) {
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-
-    // Ajuster la résolution
-    canvas.style.height = '400px';
-    canvas.width = canvas.offsetWidth * dpr;
-    canvas.height = 400 * dpr;
-    ctx.scale(dpr, dpr);
-
-    // Détruire l'ancien graphique s'il existe
-    if (canvas.myChart) {
-        canvas.myChart.destroy();
-    }
-
-    // Créer un nouveau graphique
-    canvas.myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: datasets
-        },
-        options: {
-            responsive: false,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: unite
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        font: {
-                            family: 'Arial',
-                            size: 12
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-// Fonction pour mettre à jour les informations du graphique (actuelle, min, max, moyenne)
-function updateInfoGraphique(values, unite) {
-    if (values && values.length > 0) {
-        const actuelle = values[values.length - 1];
-        const min = Math.min(...values);
-        const max = Math.max(...values);
-        const moyenne = values.reduce((acc, val) => acc + val, 0) / values.length;
-
-        document.getElementById('infoGraphique').innerHTML = `
-        <span style="display: inline-block; width: 24%; text-align: center;">Actuelle : ${actuelle.toFixed(2)} ${unite}</span></br>
-        <span style="display: inline-block; width: 24%; text-align: center;">Minimum : ${min.toFixed(2)} ${unite}</span></br>
-        <span style="display: inline-block; width: 24%; text-align: center;">Maximum : ${max.toFixed(2)} ${unite}</span></br>
-        <span style="display: inline-block; width: 24%; text-align: center;">Moyenne : ${moyenne.toFixed(2)} ${unite}</span></br>`;
-    } else {
-        document.getElementById('infoGraphique').innerHTML = "Aucune donnée à afficher.";
-    }
-}
-
-// Fonction pour mettre à jour le graphique avec les filtres de temps sélectionnés
-function updateChartWithTimeRange() {
-    const test = null;
-    const capteurId = document.getElementById('lstCapteur').value;
-    const startDate = document.getElementById('startDate').value;
-    const startTime = document.getElementById('startTime').value;
-    const endDate = document.getElementById('endDate').value;
-    const endTime = document.getElementById('endTime').value;
-    
-    updateChart(capteurId, document.getElementById('monGraphique'), startDate, startTime, endDate, endTime);
-    fermetureModel();
-}
-
-function definirPlageTemporelleParDefaut() {
-    var maintenant = new Date();
-    var debut = new Date(maintenant);
-    debut.setDate(maintenant.getDate() - 1); // 24 heures avant
-
-    // Formater les dates et heures pour les champs de saisie
-    var dateDebut = debut.toISOString().slice(0, 10);
-    var heureDebut = debut.toTimeString().slice(0, 5);
-    var dateFin = maintenant.toISOString().slice(0, 10);
-    var heureFin = maintenant.toTimeString().slice(0, 5);
-
-    // Définir les valeurs dans les champs de saisie
-    document.getElementById('startDate').value = dateDebut;
-    document.getElementById('startTime').value = heureDebut;
-    document.getElementById('endDate').value = dateFin;
-    document.getElementById('endTime').value = heureFin;
-
-    // Mettre à jour le graphique avec la plage temporelle par défaut
-    updateChartWithTimeRange();
-}
-
-function gererSelectionSerreAjout(serreId, chapelleId, carteId, capteurId) {
-    document.getElementById(serreId).addEventListener('change', function () {
-        var serreValue = this.value;
-        if (serreValue) {
-            fetch('getChapelles.php?serre_id=' + serreValue)
-                .then(response => response.json())
-                .then(chapelles => {
-                    mettreAJourSelect(chapelleId, chapelles, 'IdChapelle', 'Nom');
-                    reinitialiserSelects([carteId, capteurId]);
-                    activerSelect(chapelleId);
-                    desactiverSelects([carteId, capteurId]);
-                });
-        } else {
-            reinitialiserSelects([chapelleId, carteId, capteurId]);
-            desactiverSelects([chapelleId, carteId, capteurId]);
-        }
-    });
-}
-
 // Gestionnaire d'événement pour le chargement du DOM
 document.addEventListener('DOMContentLoaded', function () {
     
@@ -280,6 +106,42 @@ document.addEventListener('DOMContentLoaded', function () {
         updateChart(capteurId, document.getElementById('monGraphique'), startDate, startTime, endDate, endTime);
     });
 
+    // Événement unique pour ouvrir la modale d'ajout de courbe
+    document.getElementById('ajoutCourbe').addEventListener('click', function () {
+        synchroniserPlageTemporelleAjout(); // Synchroniser la plage temporelle
+        document.getElementById('ajoutCourbeDiv').style.display = 'block'; // Ouvrir la modale
+    });
+
+    // Événement pour fermer la modale d'ajout de courbe
+    document.getElementById('closeAjoutCourbe').addEventListener('click', function () {
+        document.getElementById('ajoutCourbeDiv').style.display = 'none';
+        const backdrop = document.getElementById('ajoutCourbeBackdrop');
+        if (backdrop) backdrop.remove();
+    });
+
+    // Événement pour valider l'ajout de la courbe
+    document.getElementById('validerAjoutCourbe').addEventListener('click', function () {
+        if (document.getElementById('synchroPlageAjout').checked) {
+            synchroniserPlageTemporelleAjout();
+        }
+
+        var capteurId = document.getElementById('lstCapteurAjout').value;
+
+        // Récupération de la plage
+        const startDate = document.getElementById('startDateAjout').value;
+        const startTime = document.getElementById('startTimeAjout').value;
+        const endDate = document.getElementById('endDateAjout').value;
+        const endTime = document.getElementById('endTimeAjout').value;
+        const plage = `${startDate} ${startTime} -> ${endDate} ${endTime}`;
+
+        ajouterDonneesCourbe(capteurId);
+        document.getElementById('ajoutCourbeDiv').style.display = 'none';
+
+        document.getElementById('ajoutCourbeDiv').style.display = 'none';
+        const backdrop = document.getElementById('ajoutCourbeBackdrop');
+        if (backdrop) backdrop.remove();
+    });
+
     // Sélection des valeurs par défaut pour la plage temporelle
     definirPlageTemporelleParDefaut();
     
@@ -290,133 +152,118 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Sélection des valeurs par défaut
     selectionnerParDefaut('lstSerre', serreIdParDefaut, function () {
-        selectionnerParDefaut('lstChapelle', chapelleIdParDefaut, function () {
-            selectionnerParDefaut('lstCarte', carteDevEuiParDefaut, function () {
-                selectionnerParDefaut('lstCapteur', capteurIdParDefaut);
+        // Quand lstSerre est chargé et changé, on attend un peu le fetch de chapelles
+        setTimeout(function () {
+            selectionnerParDefaut('lstChapelle', chapelleIdParDefaut, function () {
+                setTimeout(function () {
+                    selectionnerParDefaut('lstCarte', carteDevEuiParDefaut, function () {
+                        setTimeout(function () {
+                            selectionnerParDefaut('lstCapteur', capteurIdParDefaut);
+                        }, 100);
+                    });
+                }, 100);
             });
-        });
+        }, 100);
     });
-
-    // Fonction pour sélectionner une valeur dans une liste déroulante et exécuter une fonction de rappel
-    function selectionnerParDefaut(selectId, valeur, callback) {
-        var select = document.getElementById(selectId);
-        select.value = valeur;
-        select.dispatchEvent(new Event('change')); // Déclenche l'événement 'change' pour mettre à jour les listes suivantes
-        if (callback) {
-            // Exécute la fonction de rappel après un court délai pour s'assurer que les listes sont mises à jour
-            setTimeout(callback, 100);
-        }
-        updateChartWithTimeRange();
-    }
 
     document.getElementById('supprimerCourbe').addEventListener('click', function () {
-        // Supprime la dernière courbe ajoutée au graphique.
-        supprimerCourbe();
-    });
-
-    function supprimerCourbe() {
-        // Vérifie si le graphique existe et a plus d'un dataset (courbe).
-        if (window.myLine && window.myLine.data.datasets.length > 1) {
-            // Supprime le dernier dataset ajouté.
-            window.myLine.data.datasets.pop();
-            // Met à jour le graphique.
-            window.myLine.update();
-        } else {
-            alert("Vous ne pouvez pas supprimer la courbe principale.");
+        if (graphiquesAjoutes.length < 1) {
+            alert("Il ne reste que le graphique principal. Vous ne pouvez pas le supprimer.");
+            return;
         }
-    }
+    
+        const liste = document.getElementById('listeGraphiquesASupprimer');
+        liste.innerHTML = '<option value="">-- Sélectionner un graphique --</option>';
+    
+        graphiquesAjoutes.forEach((graph, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = `Graphique ${index + 2} – Capteur ${graph.capteurId} (${graph.plage})`;
+            liste.appendChild(option);
+        });
+    
+        document.getElementById('suppressionCourbeDiv').style.display = 'block';
+    });
 
-    function ajouterDonneesCourbe(capteurId) {
-        // Récupère les mesures du capteur à partir du serveur.
-        fetch('getMesures.php?capteur_id=' + capteurId)
-            // Convertit la réponse en JSON.
-            .then(response => response.json())
-            // Traite les données des mesures.
-            .then(data => {
-                // Vérifie s'il y a une erreur dans les données.
-                if (data.error) {
-                    // Affiche l'erreur dans la console et sort de la fonction.
-                    console.error("Erreur lors de la récupération des mesures :", data.error);
-                    return;
+    document.getElementById('annulerSuppressionGraphique').addEventListener('click', function () {
+        document.getElementById('suppressionCourbeDiv').style.display = 'none';
+    });
+
+    document.getElementById('closeSuppressionCourbe').addEventListener('click', function () {
+        document.getElementById('suppressionCourbeDiv').style.display = 'none';
+    });
+
+    document.getElementById('confirmerSuppressionGraphique').addEventListener('click', function () {
+        const index = document.getElementById('listeGraphiquesASupprimer').value;
+        if (index === "") return;
+    
+        const graphique = graphiquesAjoutes[index];
+        const capteurId = graphique.capteurId;
+        const plage = graphique.plage;
+    
+        // Supprimer le bloc graphique
+        const blocs = document.querySelectorAll('.graphiqueSecondaire');
+        blocs.forEach(bloc => {
+            if (bloc.getAttribute('data-capteur-id') === capteurId && bloc.getAttribute('data-plage') === plage) {
+                const canvas = bloc.querySelector('canvas');
+                if (canvas && canvas.myChart) {
+                    canvas.myChart.destroy();
                 }
-
-                // Extrait les horodatages et les valeurs des mesures.
-                const labels = data.map(mesure => mesure.Horodatage);
-                const values = data.map(mesure => parseFloat(mesure.Valeur));
-
-                // Vérifie si les données sont valides.
-                if (labels && values && labels.length > 0 && values.length > 0) {
-                    // Récupère les informations du capteur (grandeur et unité).
-                    fetch('getCapteurInfo.php?capteur_id=' + capteurId)
-                        // Convertit la réponse en JSON.
-                        .then(response => response.json())
-                        // Traite les informations du capteur.
-                        .then(capteurInfo => {
-                            // Extrait la grandeur et l'unité du capteur.
-                            const grandeur = capteurInfo.GrandeurCapt;
-                            const unite = capteurInfo.Unite;
-
-                            // Ajoute un nouveau dataset au graphique existant.
-                            window.myLine.data.datasets.push({
-                                label: `${grandeur} (${unite})`,
-                                data: values,
-                                borderColor: getRandomColor(), // Génère une couleur aléatoire pour la courbe.
-                                tension: 0.1
-                            });
-
-                            // Met à jour le graphique avec le nouveau dataset.
-                            window.myLine.update();
-                        })
-                        // Gestion des erreurs lors de la récupération des informations du capteur.
-                        .catch(error => {
-                            console.error("Erreur lors de la récupération des informations du capteur :", error);
-                        });
-                } else {
-                    // Affiche une erreur si les données du graphique sont invalides ou vides.
-                    console.error("Données de graphique invalides ou vides.");
-                }
-            })
-            // Gestion des erreurs lors de la récupération des données.
-            .catch(error => {
-                console.error("Erreur lors de la récupération des données :", error);
-            });
-    }
-
-
-    function getRandomColor() {
-        // Génère une couleur hexadécimale aléatoire.
-        const letters = '0123456789ABCDEF';
-        let color = '#';
-        for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
+                bloc.remove();
+            }
+        });
+    
+        const numeroGraphique = parseInt(index) + 2;
+    
+        // Supprimer le bloc info correspondant
+        const blocInfo = document.getElementById(`blocGraphique${numeroGraphique}`);
+        if (blocInfo) blocInfo.remove();
+    
+        // Décaler les blocs info restants
+        let i = numeroGraphique + 1;
+        while (true) {
+            const suivant = document.getElementById(`blocGraphique${i}`);
+            if (!suivant) break;
+    
+            suivant.id = `blocGraphique${i - 1}`;
+            const titre = suivant.querySelector('strong');
+            if (titre) titre.textContent = `— Données Graphique ${i - 1} —`;
+            i++;
         }
-        return color;
+    
+        // Supprimer l'entrée du tableau
+        graphiquesAjoutes.splice(index, 1);
+    
+        // Fermer la modale
+        document.getElementById('suppressionCourbeDiv').style.display = 'none';
+    
+        // Adapter la taille du graphique principal si plus aucun secondaire
+        const encoreSecondaires = document.querySelectorAll('.graphiqueSecondaire');
+        if (encoreSecondaires.length === 0) {
+            const principal = document.getElementById('Graphique');
+            principal.classList.remove('graphiqueMoitié');
+            principal.classList.add('graphiquePlein');
+        }
+    });    
+
+    const synchroCheckbox = document.getElementById('synchroPlageAjout');
+    if (synchroCheckbox) {
+        synchroCheckbox.addEventListener('change', function () {
+            const disabled = this.checked;
+            document.getElementById('startDateAjout').disabled = disabled;
+            document.getElementById('startTimeAjout').disabled = disabled;
+            document.getElementById('endDateAjout').disabled = disabled;
+            document.getElementById('endTimeAjout').disabled = disabled;
+
+            if (disabled) synchroniserPlageTemporelleAjout();
+        });
     }
-
-    document.getElementById('ajoutCourbe').addEventListener('click', function () {
-        // Affiche la div pour ajouter une courbe et masque le menu d'ajout de courbe.
-        document.getElementById('ajoutCourbeDiv').style.display = 'block';
-    });
-
-    document.getElementById('closeAjoutCourbe').addEventListener('click', function () {
-        // Masque la div pour ajouter une courbe.
-        document.getElementById('ajoutCourbeDiv').style.display = 'none';
-    });
-
-    document.getElementById('validerAjoutCourbe').addEventListener('click', function () {
-        // Récupère l'ID du capteur sélectionné dans la liste déroulante.
-        var capteurId = document.getElementById('lstCapteurAjout').value;
-        // Ajoute la courbe au graphique.
-        ajouterDonneesCourbe(capteurId);
-        // Masque la div pour ajouter une courbe.
-        document.getElementById('ajoutCourbeDiv').style.display = 'none';
-    });
 
     // Gestionnaires d'événements pour les sélecteurs de capteurs dans ajoutCourbeDiv (Graphique n°1)
     gererSelectionSerreAjout('lstSerreAjout', 'lstChapelleAjout', 'lstCarteAjout', 'lstCapteurAjout');
 
-    document.getElementById('closePlage').addEventListener('click', function () {
-        // Masque le modèle (modal).
+    // Fermer la plage temporelle principale
+    document.getElementById('closePlageMain').addEventListener('click', function () {
         document.getElementById('model').style.display = 'none';
     });
 
@@ -528,98 +375,34 @@ document.addEventListener('DOMContentLoaded', function () {
         // (Note: Cette ligne ne fait rien d'autre que de stocker l'ID du capteur,
         //  il est probable qu'elle soit utilisée ailleurs dans le code.)
     });
+    
+    document.getElementById('telechargeCourbe').addEventListener('click', exportCSV);
 
-    function ouvertureModelAjout() {
-        // Affiche le modèle (modal).
-        document.getElementById('model').style.display = 'block';
+    // Gestion du mode sombre
+    const modeIcon = document.getElementById('modeIcon');
+    const body = document.body;
+
+    // Vérifie le mode stocké
+    if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+        modeIcon.src = '../img/soleil.svg';
+        modeIcon.title = 'Mode clair';
     }
 
-    document.getElementById('ajoutCourbe').addEventListener('click', function () {
-    // Crée un fond sombre derrière la modale
-    const backdrop = document.createElement('div');
-    backdrop.className = 'modal-backdrop';
-    backdrop.id = 'ajoutCourbeBackdrop';
-    document.body.appendChild(backdrop);
+    document.getElementById('modeIcon').addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+    
+        // Change l’icône lune/soleil
+        const modeIcon = document.getElementById('modeIcon');
+        const isDark = document.body.classList.contains('dark-mode');
+        modeIcon.src = isDark ? '../img/soleil.svg' : '../img/lune.svg';
+        modeIcon.title = isDark ? 'Mode clair' : 'Mode sombre';
+        modeIcon.alt = isDark ? 'Mode sombre' : 'Mode clair';
+    
+        // Rafraîchit les couleurs des graphiques
+        rafraichirCouleursGraphiques();
+    });
 
-    // Affiche la div modale
-    document.getElementById('ajoutCourbeDiv').style.display = 'block';
 });
 
-document.getElementById('closeAjoutCourbe').addEventListener('click', function () {
-    // Masque la modale
-    document.getElementById('ajoutCourbeDiv').style.display = 'none';
-    const backdrop = document.getElementById('ajoutCourbeBackdrop');
-    if (backdrop) backdrop.remove();
-});
-
-document.getElementById('validerAjoutCourbe').addEventListener('click', function () {
-    // Ajout courbe logique...
-    document.getElementById('ajoutCourbeDiv').style.display = 'none';
-    const backdrop = document.getElementById('ajoutCourbeBackdrop');
-    if (backdrop) backdrop.remove();
-});
-
-    function formaterHorodatage(horodatage) {
-        const date = new Date(horodatage);
-        const jour = String(date.getDate()).padStart(2, '0');
-        const mois = String(date.getMonth() + 1).padStart(2, '0');
-        const annee = date.getFullYear();
-        const heures = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const secondes = String(date.getSeconds()).padStart(2, '0');
-        return `${jour}/${mois}/${annee} ${heures}:${minutes}:${secondes}`;
-    }
-    
-    function telechargerCSV() {
-        const canvas = document.getElementById('monGraphique');
-        const chart = canvas.myChart;
-    
-        if (!chart || !chart.data.labels || chart.data.labels.length === 0) {
-            alert("Aucune donnée à télécharger.");
-            return;
-        }
-    
-        const labels = chart.data.labels;
-        const dataset = chart.data.datasets[0]; // 1ère courbe uniquement
-        const values = dataset.data;
-    
-        // Récupération des valeurs de plage temporelle
-        const startDate = document.getElementById('startDate').value;
-        const startTime = document.getElementById('startTime').value;
-        const endDate = document.getElementById('endDate').value;
-        const endTime = document.getElementById('endTime').value;
-    
-        // Format brut pour le nom du fichier
-        const formatNom = (str) => str.replaceAll(":", "-").replaceAll("/", "-").replaceAll(" ", "_");
-    
-        const debut = formatNom(`${startDate} ${startTime}`);
-        const fin = formatNom(`${endDate} ${endTime}`);
-    
-        // Nettoyage du nom du capteur pour un nom de fichier safe (sans unité)
-        const nomCapteur = dataset.label.split('(')[0].trim().replace(/\s+/g, '_');
-    
-        // Génération du contenu CSV
-        let csvContent = "Horodatage;Valeur\r\n";
-        for (let i = 0; i < labels.length; i++) {
-            const horodatage = formaterHorodatage(labels[i]);
-            const valeur = values[i];
-            csvContent += `"${horodatage}";${valeur}\r\n`;
-        }
-    
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-    
-        // Nom du fichier : Capteur_Température_2025-03-30_08-00_à_2025-03-31_08-00.csv
-        const fileName = `${nomCapteur}__${debut}__${fin}.csv`;
-    
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    }
-
-    document.getElementById('telechargeCourbe').addEventListener('click', telechargerCSV);
-});
+const graphiquesAjoutes = [];

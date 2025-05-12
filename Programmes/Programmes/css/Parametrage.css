@@ -4,6 +4,7 @@
     text-decoration: none;
     list-style: none;
     box-sizing: border-box;
+    font-family: calibri;
 }
 
 body {
@@ -432,4 +433,89 @@ body {
 
 #modalOverlay  {
     border: 20px solid black;
+}
+
+/* ------------------------ RESPONSIVE ------------------------ */
+@media (max-width: 900px) {
+    /* NavBar en colonne, comme sur Consultation */
+    .navBar {
+        flex-direction: column;
+        height: auto;
+        padding: 15px;
+        gap: 10px;
+        align-items: center;
+        text-align: center;
+    }
+
+    .navBar #navTitre {
+        font-size: 30px !important;
+        padding-left: 0;
+    }
+
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .container .selectionTable {
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
+        gap: 10px;
+    }
+
+    .container .selectionTable button {
+        width: 40%;
+        max-width: 200px;
+    }
+
+    .container .tabParametrage {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .container .tabParametrage .divTableau {
+        border-radius: 10px;
+        overflow-x: auto;
+    }
+
+    .modal-form {
+        width: 90vw;
+        max-width: none;
+        min-width: 0;
+        padding: 20px;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .navBar {
+        font-size: 12px;
+    }
+
+    .navBar #navTitre {
+        font-size: 24px !important;
+    }
+
+    .container .selectionTable button {
+        width: 80%;
+    }
+
+    .modal-form input[type="text"],
+    .modal-form select {
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .modal-close {
+        font-size: 24px;
+    }
 }

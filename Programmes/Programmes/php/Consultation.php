@@ -2,9 +2,9 @@
 session_start();
 require "connectDB.php";
 
-if (!isset($_SESSION['login'])) {
+if (!isset($_SESSION['login']) || $_SESSION['fonction'] !== 'Administrateur') {
     header('Location: Log.php');
-    exit;
+    exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Deconnexion'])) {
@@ -39,6 +39,9 @@ try {
     <link href="../css/Consultation.css" rel="stylesheet" type="text/css"> 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const utilisateurNomComplet = "<?php echo addslashes($prenom . ' ' . $nom); ?>";
+    </script>
 </head>
 <body>
     <header class="navBar">
@@ -53,6 +56,7 @@ try {
         <div id="navDeconnexion">
             <?php echo $prenom . ' ' . $nom . ' | '; ?>
             <a href="Log.php">Déconnexion</a>
+            <img id="modeIcon" src="../img/lune.svg" alt="Mode clair" title="Mode sombre">
         </div>
     </header>
 
@@ -102,12 +106,30 @@ try {
         </div>
 
         <div id="infoGraphique">
-            <span>Actuelle : ...</span></br>
-            <span>Minimum : ...</span></br>
-            <span>Maximum : ...</span></br>
-            <span>Moyenne : ...</span></br>
         </div>
     </div> 
+
+    <div id="divGraphiques">
+        <div id="Graphique" class="graphiqueBloc">
+            <img src="../img/download.svg" alt="Export" id="telechargeCourbe" title="Export CSV">
+            <canvas id="monGraphique"></canvas>
+        </div>
+    </div>
+
+    <div id="model">
+        <span class="close" id="closePlageMain">&times;</span>
+        <label for="startDate">Date de début :</label>
+        <input type="date" id="startDate">
+        <label for="startTime">Heure de début :</label>
+        <input type="time" id="startTime" required>
+        <br><br>
+        <label for="endDate">Date de fin :</label>
+        <input type="date" id="endDate">
+        <label for="endTime">Heure de fin :</label>
+        <input type="time" id="endTime" required>
+        <br><br>
+        <button onclick="updateChartWithTimeRange()">Valider</button>
+    </div>
 
     <div id="ajoutCourbeDiv" class="model" style="display: none;">
         <span class="close" id="closeAjoutCourbe">&times;</span>
@@ -140,36 +162,47 @@ try {
             </select>
         </div>
 
-        <div id="selectPlage">
-            <button onclick="ouvertureModel()">Plage temporelle</button>
+        <div id="plageTemporelleAjout">
+            <label>
+                <input type="checkbox" id="synchroPlageAjout" checked>
+                Utiliser la même plage que la courbe principale
+            </label>
         </div>
-
+        <div id="selectPlage">
+            <div class="lignePlage">
+                <label for="startDateAjout">Date début :</label>
+                <input type="date" id="startDateAjout" disabled>
+            </div>
+            <div class="lignePlage">
+                <label for="startTimeAjout">Heure début :</label>
+                <input type="time" id="startTimeAjout" required disabled>
+            </div>
+            <div class="lignePlage">
+                <label for="endDateAjout">Date fin :</label>
+                <input type="date" id="endDateAjout" disabled>
+            </div>
+            <div class="lignePlage">
+                <label for="endTimeAjout">Heure fin :</label>
+                <input type="time" id="endTimeAjout" required disabled>
+            </div>
+        </div>
         <button id="validerAjoutCourbe">Valider</button>
     </div>
 
-
-    <div id="model">
-        <span class="close" id="closePlage">&times;</span>
-        <label for="startDate">Date de début :</label>
-        <input type="date" id="startDate">
-        <label for="startTime">Heure de début :</label>
-        <input type="time" id="startTime" required>
+    <div id="suppressionCourbeDiv" class="model" style="display: none;">
+        <span class="close" id="closeSuppressionCourbe">&times;</span>
+        <h3>Supprimer un graphique</h3>
+        <select id="listeGraphiquesASupprimer">
+            <option value="">-- Sélectionner un graphique --</option>
+        </select>
         <br><br>
-        <label for="endDate">Date de fin :</label>
-        <input type="date" id="endDate">
-        <label for="endTime">Heure de fin :</label>
-        <input type="time" id="endTime" required>
-        <br><br>
-        <button onclick="updateChartWithTimeRange()">Valider</button>
-    </div>
-
-    <div id="divGraphiques">
-        <div id="Graphique">
-            <img src="../img/download.svg" alt="moins non trouvé" id="telechargeCourbe" title="Export CSV">
-            <canvas id="monGraphique"></canvas>
-            <canvas id="monGraphique2"></canvas>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+            <button id="confirmerSuppressionGraphique">Supprimer</button>
+            <button id="annulerSuppressionGraphique">Annuler</button>
         </div>
     </div>
+
+    <script src="../js/Fonctions.js"></script>
     <script src="../js/Consultation.js"></script>
 </body>
 </html>

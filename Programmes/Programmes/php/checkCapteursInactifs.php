@@ -1,11 +1,6 @@
 <?php
 require "connectDB.php";
 
-if (!isset($_SERVER['HTTP_REFERER']) || !str_contains($_SERVER['HTTP_REFERER'], 'Parametrage.php')) {
-    http_response_code(403);
-    exit("Accès non autorisé.");
-}
-
 try {
     // 1. Récupère tous les capteurs
     $stmt = $bdd->query("SELECT IdCapteur FROM capteur");

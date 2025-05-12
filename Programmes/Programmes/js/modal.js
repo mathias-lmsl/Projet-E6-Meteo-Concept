@@ -25,6 +25,9 @@ export async function openAddModal(currentTable, updateTable) {
 
         const modal = document.createElement('div');
         modal.className = 'modal';
+        if (document.body.classList.contains('dark-mode')) {
+            modal.classList.add('dark-mode');
+        }
         modal.appendChild(createCloseButton(() => modal.remove()));
 
         const form = document.createElement('form');
@@ -189,7 +192,7 @@ export async function openEditModal(rowData, currentTable, updateTable) {
                 input.type = 'text';
                 input.name = key;
                 input.id = key;
-                input.value = val;
+                input.value = typeof val === 'number' ? parseFloat(val).toFixed(1) : val;
             }
 
             form.appendChild(label);
@@ -249,7 +252,6 @@ function getLabel(key) {
         EtatComposant: 'État du composant',
         GrandeurCapt: 'Grandeur du capteur',
         Unite: 'Unité',
-        DevEui: 'Carte associée',
         DevEui: 'Carte associée'
     }[key] || key;
 }

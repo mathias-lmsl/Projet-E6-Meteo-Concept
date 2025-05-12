@@ -2,6 +2,11 @@
 session_start();
 require "connectDB.php";
 
+if (!isset($_SESSION['login']) || $_SESSION['fonction'] !== 'Administrateur') {
+    header('Location: Log.php');
+    exit();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Deconnexion'])) {
     session_destroy();
     header('Location: Log.php');
