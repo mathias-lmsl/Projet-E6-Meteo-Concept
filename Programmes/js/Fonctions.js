@@ -456,9 +456,13 @@ function ajouterDonneesCourbe(capteurId) {
                 const divGraphiques = document.getElementById('divGraphiques');
 
                 const graphiquePrincipalBloc = document.getElementById('Graphique');
-                if (graphiquePrincipalBloc && !graphiquePrincipalBloc.classList.contains('graphiqueMoitié')) {
+                if (graphiquePrincipalBloc) {
                     graphiquePrincipalBloc.classList.remove('graphiquePlein');
                     graphiquePrincipalBloc.classList.add('graphiqueMoitié');
+                    graphiquePrincipalBloc.classList.remove('graphiqueSecondaire');
+                    graphiquePrincipalBloc.classList.add('graphiqueSecondaire');
+                    graphiquePrincipalBloc.style.flex = '1 1 calc(50% - 10px)';
+                    graphiquePrincipalBloc.style.maxWidth = 'calc(50% - 10px)';
                 }
 
                 const newBloc = document.createElement('div');
@@ -468,20 +472,14 @@ function ajouterDonneesCourbe(capteurId) {
                 newBloc.setAttribute('data-plage', plage);
 
                 const newCanvas = document.createElement('canvas');
-                newCanvas.width = 400;
-                newCanvas.height = 300;
                 newBloc.appendChild(newCanvas);
 
                 const boutonExport = document.createElement('img');
                 boutonExport.src = '../img/download.svg';
                 boutonExport.alt = 'Export';
                 boutonExport.title = 'Export CSV';
-                boutonExport.style.width = '15px';
-                boutonExport.style.cursor = 'pointer';
-                boutonExport.style.position = 'absolute';
-                boutonExport.style.top = '10px';
-                boutonExport.style.right = '10px';
-                boutonExport.addEventListener('click', () => exportCSVDepuisCanvas(newCanvas)); // Export CSV
+                boutonExport.className = 'img-export';
+                boutonExport.addEventListener('click', function () { exportCSVDepuisCanvas(newCanvas); });
 
                 newBloc.appendChild(boutonExport);
                 divGraphiques.appendChild(newBloc);
@@ -504,35 +502,59 @@ function ajouterDonneesCourbe(capteurId) {
 function exportCSVDepuisCanvas(canvas) {
     const chart = canvas.myChart;
     if (!chart || !chart.data.labels?.length) {
-        alert("Aucune donnée à exporter."); // Vérifie s'il y a des données
+        alert("Aucune donnée à exporter."); // Alerte si aucune donnée n’est présente
         return;
     }
 
-    const labels = chart.data.labels;
-    const dataset = chart.data.datasets[0];
-    const values = dataset.data;
+    const labels = chart.data.labels; // Récupère les horodatages
+    const dataset = chart.data.datasets[0]; // Récupère le dataset unique du graphique
+    const values = dataset.data; // Récupère les valeurs
 
-    const formatNom = str => str.replaceAll(":", "-").replaceAll("/", "-").replaceAll(" ", "_");
-    const debut = formatNom(labels[0]); // Format début
-    const fin = formatNom(labels.at(-1)); // Format fin
-    const nomCapteurLisible = dataset.label.trim(); // Nom propre
+    const bloc = canvas.parentElement; // Accède au conteneur du graphique
+    const capteurId = bloc.getAttribute('data-capteur-id'); // ID du capteur
+    const plage = bloc.getAttribute('data-plage'); // Plage temporelle affichée
 
-    let csvContent = "Horodatage;Valeur\r\n";
-    for (let i = 0; i < labels.length; i++) {
-        csvContent += `${formaterHorodatage(labels[i])};${parseFloat(values[i]).toFixed(1)}\r\n`; // Ajout ligne
-    }
+    const [startDateTime, endDateTime] = plage.split('->').map(str => str.trim()); // Découpe la plage
+    const [startDate, startTime] = startDateTime.split(' '); // Sépare date et heure de début
+    const [endDate, endTime] = endDateTime.split(' '); // Sépare date et heure de fin
 
-    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' }); // Encodage UTF-8 avec BOM
-    const url = URL.createObjectURL(blob);
-    const fileName = `Capteur ${nomCapteurLisible}__${debut}_a_${fin}.csv`;
+    fetch(`getCapteurInfo.php?capteur_id=${capteurId}`) // Récupère les infos du capteur
+        .then(res => res.json())
+        .then(capteurInfo => {
+            const grandeur = capteurInfo.GrandeurCapt; // Grandeur mesurée
+            const unite = capteurInfo.Unite; // Unité de mesure
+            const nomCapteur = capteurInfo.Nom || `Capteur ${capteurId}`; // Nom du capteur ou valeur par défaut
 
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", fileName);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url); // Nettoie
+            const formatNom = str => str.replaceAll(":", "-").replaceAll("/", "-").replaceAll(" ", "_"); // Formatage nom de fichier
+            const debut = formatNom(labels[0]); // Première date pour nom fichier
+            const fin = formatNom(labels.at(-1)); // Dernière date
+
+            const now = new Date(); // Date actuelle pour l’export
+            const exportDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            let csvContent = `Export réalisé par : ${utilisateurNomComplet}\r\n`;
+            csvContent += `Date d'export : ${exportDate}\r\n`;
+            csvContent += `Nom du capteur : ${nomCapteur}\r\n`;
+            csvContent += `Grandeur mesurée : ${dataset.label}\r\n`;
+            csvContent += `Plage de mesure : ${startDateTime} -> ${endDateTime}\r\n\r\n`;
+            csvContent += "Horodatage;Valeur\r\n";
+
+            for (let i = 0; i < labels.length; i++) {
+                csvContent += `${formaterHorodatage(labels[i])};${parseFloat(values[i]).toFixed(1)}\r\n`; // Ligne de données formatée
+            }
+
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' }); // Création du fichier avec BOM
+            const url = URL.createObjectURL(blob); // Génère l’URL temporaire
+            const fileName = `Capteur_${formatNom(nomCapteur)}__${debut}_a_${fin}.csv`; // Nom de fichier final
+
+            const link = document.createElement("a"); // Création du lien
+            link.setAttribute("href", url);
+            link.setAttribute("download", fileName);
+            document.body.appendChild(link); // Ajout au DOM
+            link.click(); // Déclenche le téléchargement
+            document.body.removeChild(link); // Nettoyage
+            URL.revokeObjectURL(url); // Libère l’URL
+        });
 }
 
 function rafraichirCouleursGraphiques() {
