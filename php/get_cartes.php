@@ -1,6 +1,7 @@
 <?php
 require "../config/databaseadmin.php";
 
+// On arrive sur cette page par une requete AJAX, elle sert à afficher les cartes d'une chapelle selectionnée
 if (!empty($_POST['chapelle_id'])) {
     $chapelleId = $_POST['chapelle_id'];
     

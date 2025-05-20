@@ -5,6 +5,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Cette page sert à afficher une erreur 404 lorsque l'utilisateur accède à une page qui n'existe pas. -->
+
     <title>Erreur 404 - Page Introuvable</title>
     <style>
         body {

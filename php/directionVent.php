@@ -1,5 +1,6 @@
 <?php
 //Fonction pour afficher la direction du vent
+// Elle couvre les 360° en 16 directions car la valeurs de l'angle est uniquement entre 0 et 360°
 function directionVent($angle) {
     switch (true) {
         case ($angle >= 348 || $angle < 12.25):
@@ -32,7 +33,7 @@ function directionVent($angle) {
             return "OUEST-NORD-OUEST";
         case ($angle >= 304.75 && $angle < 327.25):
             return "NORD-OUEST";
-        default:
+        case ($angle >= 327.25 && $angle < 348):
             return "NORD-NORD-OUEST";
     }
 }

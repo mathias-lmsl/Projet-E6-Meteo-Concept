@@ -22,6 +22,8 @@ $options = [
     PDO::MYSQL_ATTR_SSL_KEY  => 'etc/ssl/mariadb/client-key.pem',
     PDO::MYSQL_ATTR_SSL_CERT => 'etc/ssl/mariadb/client-cert.pem',
     PDO::MYSQL_ATTR_SSL_CA   => 'etc/ssl/mariadb/ca-cert.pem',
+    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+    PDO::ATTR_ERRMODE        =>  PDO::ERRMODE_EXCEPTION,
 ];
 
 /* =========================== QRcode =========================== */

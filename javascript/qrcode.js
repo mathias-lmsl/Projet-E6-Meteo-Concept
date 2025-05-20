@@ -90,6 +90,7 @@ function saveComment() {
     }, 50);
 }
 
+// Permet de laisser le darkmode après le rechargement de la page si il était activé
 window.addEventListener('DOMContentLoaded', () => {
     const cookies = document.cookie.split(';').reduce((acc, cookie) => {
         const [name, value] = cookie.trim().split('=');

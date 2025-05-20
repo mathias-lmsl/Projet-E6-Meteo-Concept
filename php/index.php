@@ -31,6 +31,7 @@ unset($_SESSION['user']);//On commemence par supprimer les variables de la sessi
     <div class="container">
         <h2>Se connecter</h2>
         <?php
+                    // On affiche le formulaire de connexion
                     echo '<form action="auth.php" method="POST">';
                     echo '<input type="text" id="login" name="login" placeholder="Nom d\'utilisateur" required> <br>';
                     echo '<input type="password" id="mdp" name="mdp" placeholder="Mot de passe" required> <br>';

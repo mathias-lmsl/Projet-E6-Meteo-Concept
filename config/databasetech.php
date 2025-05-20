@@ -5,12 +5,9 @@ require "../php/param.php";
 
 
 
-try {
-    $bdd = new PDO("mysql:host=$IpDatabase;dbname=$dbname;port=3306;charset=utf8", $userTechnicien, $passwordTechnicien,$options, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-} catch (PDOException $e) {
+try { // Connexion à la base de données avec les identifiants de l'utilisateur technicien
+    $bdd = new PDO("mysql:host=$IpDatabase;dbname=$dbname;port=3306;charset=utf8", $userTechnicien, $passwordTechnicien);
+} catch (PDOException $e) { // Si la connexion échoue, afficher un message d'erreur
     die("Erreur de connexion à la base de données : " . $e->getMessage());
 }
 ?>

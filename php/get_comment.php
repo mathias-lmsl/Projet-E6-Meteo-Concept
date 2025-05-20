@@ -1,7 +1,7 @@
 <?php
 require "../config/databasetech.php";
 
-
+// On arrive sur cette page par une requete AJAX, elle sert à afficher le commentaire d'un capteur ou d'une carte selectionnée
 if(isset($_POST['Id'])) {
     $type=$_POST['Type'];
     $id = $_POST['Id'];

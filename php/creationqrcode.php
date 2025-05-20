@@ -2,6 +2,7 @@
 require "../config/session.php";
 require "../config/databaseadmin.php";
 
+// Vérification de la session utilisateur
 if (!isset($_SESSION['user'])) {
     $_SESSION['redirect_to'] = 'creationqrcode.php';
     header('Location: index.php');
@@ -39,6 +40,7 @@ if (!isset($_SESSION['user'])) {
 
         <h1>Générateur de QR Code</h1>
 
+        <!-- On crée la liste deroulante de séléction d'une serre et on y ajoute toutes les serres -->
         <label for="lstSerre">Sélectionnez une serre :</label>
         <select name="lstSerre" id="lstSerre">
             <option value="">-- Choisissez une serre --</option>
@@ -46,17 +48,19 @@ if (!isset($_SESSION['user'])) {
             $stmt = $bdd->prepare('SELECT * FROM serre;');
             $stmt->execute();
             while ($donnees = $stmt->fetch()) {
-                echo '<option value="'.htmlspecialchars($donnees['IdSerre']).'">'.htmlspecialchars($donnees['Nom']).'</option>';
+                echo '<option value="'.$donnees['IdSerre'].'">'.$donnees['Nom'].'</option>';
             }
             $stmt->closeCursor();
             ?>
         </select>
         <br><br>
+        <!-- On crée la liste deroulante de séléction d'une chapelle sans ajouter de chapelles car l'utilisateur doit choisir une serre -->
         <label for="lstChapelle">Sélectionnez une chapelle :</label>
         <select name="lstChapelle" id="lstChapelle" disabled>
             <option value="">-- Sélectionnez une serre d'abord --</option>
         </select>
         <br><br>
+        <!-- On crée la liste deroulante de séléction d'une carte sans ajouter de cartes car l'utilisateur doit choisir une chapelle -->
         <label for="lstCarte">Sélectionnez une carte :</label>
         <select name="lstCarte" id="lstCarte" disabled>
             <option value="">-- Sélectionnez une chapelle d'abord --</option>

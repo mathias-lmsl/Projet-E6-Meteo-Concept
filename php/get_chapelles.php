@@ -1,6 +1,7 @@
 <?php
 require "../config/databaseadmin.php";
 
+// On arrive sur cette page par une requete AJAX, elle sert à afficher les chapelles d'une serre selectionnée
 if(isset($_POST['serre_id'])) {
     $serre_id = $_POST['serre_id'];
 

@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const qrCodeContainer = document.getElementById("qrCodeContainer");
     const Impression = document.getElementById("Impression");
 
-
+    // Initialisation des listes déroulantes lors du choix de la serre
     lstSerre.addEventListener("change", function () {
         const serreId = this.value;
         lstChapelle.innerHTML = '<option value="">-- Sélectionnez une serre d\'abord --</option>';
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
     });
-
+    // Initialisation des listes déroulantes lors du choix de la chapelle
     lstChapelle.addEventListener("change", function () {
         const chapelleId = this.value;
         lstCarte.innerHTML = '<option value="">-- Sélectionnez une chapelle d\'abord --</option>';
@@ -68,13 +68,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Activation du bouton de génération de QR code lorsque la carte est sélectionnée
     lstCarte.addEventListener("change", function () {
         generateQR.disabled = this.value === "";
     });
 
+    // Fonction pour générer le QR code quand le bouton est actionné
     generateQR.addEventListener("click", function () {
         const DevEui = lstCarte.value;
         if (DevEui) {
+            // On envoie une requête pour générer le QR code en Ajax
             fetch("generate_qr.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -82,6 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(response => response.text())
             .then(data => {
+                // On affiche le QR code dans le conteneur et on ajoute le bouton d'impression
                 qrCodeContainer.innerHTML = data;
                 Impression.innerHTML = '<button id="imprimer">Imprimer</button>';
                 const imprimer = document.getElementById("imprimer");
