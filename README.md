@@ -4,15 +4,10 @@
 
 Ce projet a été réalisé dans le cadre du **BTS CIEL IR** (Cybersecurite, Informatique et reseaux, ELectronique Informatique et Reseaux), pour le compte de l'entreprise **METEO CONCEPT**.
 
-Le but de ce projet est de .
 
 ## Contexte
 
 Dans le cadre de notre formation en **BTS CIEL IR**, ce projet s'inscrit dans un environnement professionnel réel avec une collaboration avec **METEO CONCEPT**, une entreprise spécialisée dans les services de prévisions météorologiques. Le but est de répondre à un besoin spécifique de l'entreprise en utilisant des technologies modernes et adaptées.
-
-## Objectifs
-
-- 
 
 ## Technologies utilisées
 
@@ -21,6 +16,4 @@ Dans le cadre de notre formation en **BTS CIEL IR**, ce projet s'inscrit dans un
 - **MariaDB** : Pour la gestion de la base de données.
 - ...
 
-## Installation
 
--
