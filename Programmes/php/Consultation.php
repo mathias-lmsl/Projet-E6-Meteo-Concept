@@ -1,60 +1,81 @@
-<?php
+<?php 
 session_start(); // Démarre la session PHP
-require "connectDB.php"; // Inclusion de la connexion à la base de données
+require "connectDB.php"; // Connexion à la base de données
 
+// Vérifie si l'utilisateur est connecté et s'il est administrateur
 if (!isset($_SESSION['login']) || $_SESSION['fonction'] !== 'Administrateur') {
-    header('Location: Log.php'); // Redirection si l'utilisateur n'est pas connecté ou non admin
+    header('Location: Log.php'); // Redirige vers la page de connexion si non autorisé
     exit();
 }
 
+// Génération du token CSRF s'il n'existe pas encore
+if (!isset($_SESSION['_csrf_token'])) {
+    $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Gestion de la déconnexion avec vérification du token CSRF
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Deconnexion'])) {
-    session_destroy(); // Destruction de la session si demande de déconnexion
-    header('Location: Log.php'); // Redirection vers la page de login
-    exit;
+    if (isset($_POST['_csrf_token']) && hash_equals($_SESSION['_csrf_token'], $_POST['_csrf_token'])) {
+        session_destroy(); // Détruit la session
+        header('Location: Log.php'); // Redirige vers la connexion
+        exit;
+    } else {
+        die("Tentative de CSRF détectée.");
+    }
+}
+
+// Fonction pour obtenir les noms de colonnes d'une table
+function getColumnNames($bdd, $tableName) {
+    $stmt = $bdd->prepare("DESCRIBE " . $tableName); // Prépare la requête DESCRIBE
+    $stmt->execute(); // Exécute la requête
+    return $stmt->fetchAll(PDO::FETCH_COLUMN); // Retourne les noms de colonnes
 }
 
 try {
-    $req = $bdd->prepare("SELECT Prenom, Nom FROM utilisateur WHERE Login = :username"); // Préparation de la requête utilisateur
-    $req->execute([':username' => $_SESSION['login']]); // Exécution avec paramètre de session
-    $user = $req->fetch(PDO::FETCH_ASSOC); // Récupération des données utilisateur
+    $req = $bdd->prepare("SELECT Prenom, Nom FROM utilisateur WHERE Login = :username"); // Requête pour récupérer prénom et nom
+    $req->execute([':username' => $_SESSION['login']]); // Paramètre sécurisé
+    $user = $req->fetch(PDO::FETCH_ASSOC); // Récupère les données utilisateur
 
     if ($user) {
-        $prenom = $user['Prenom']; // Assignation du prénom
-        $nom = $user['Nom']; // Assignation du nom
+        $prenom = $user['Prenom']; // Stocke le prénom
+        $nom = $user['Nom']; // Stocke le nom
     } else {
         error_log("Utilisateur non trouvé : " . $_SESSION['login']); // Log si utilisateur introuvable
     }
 } catch (PDOException $e) {
-    die("Erreur lors de la récupération des informations utilisateur : " . $e->getMessage()); // Gestion d'erreur
+    die("Erreur lors de la récupération des informations utilisateur : " . $e->getMessage()); // Gestion erreur BDD
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8"> <!-- Encodage UTF-8 -->
+    <meta charset="UTF-8">
     <title>Consultation des Mesures</title> 
-    <link href="../css/Consultation.css" rel="stylesheet" type="text/css"> <!-- Feuille de style -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Librairie Chart.js -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery -->
+    <link href="../css/Consultation.css" rel="stylesheet" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        const utilisateurNomComplet = "<?php echo addslashes($prenom . ' ' . $nom); ?>"; // Variable JS avec le nom complet
+        const utilisateurNomComplet = "<?php echo htmlspecialchars(addslashes($prenom . ' ' . $nom)); ?>";
     </script>
 </head>
 <body>
-    <header class="navBar"> <!-- Barre de navigation -->
+    <header class="navBar">
         <div id="navAutre">
             <a href="Parametrage.php">
-                <img src="../img/reglage.svg" alt="plus non trouvé" id="reglage" title="Parametrage du système"> <!-- Lien vers la page de paramétrage -->
+                <img src="../img/reglage.svg" alt="plus non trouvé" id="reglage" title="Paramétrage du système">
             </a>
         </div>
         <div id="navTitre">
-            Consultation des mesures <!-- Titre principal -->
+            Consultation des mesures
         </div>
         <div id="navDeconnexion">
-            <?php echo $prenom . ' ' . $nom . ' | '; ?> <!-- Affichage du nom -->
-            <a href="Log.php">Déconnexion</a> <!-- Lien de déconnexion -->
-            <img id="modeIcon" src="../img/lune.svg" alt="Mode clair" title="Mode sombre"> <!-- Icône mode sombre -->
+            <?php echo htmlspecialchars($prenom . ' ' . $nom) . ' | '; ?>
+            <form method="POST" style="display:inline;">
+                <input type="hidden" name="_csrf_token" value="<?php echo htmlspecialchars($_SESSION['_csrf_token']); ?>">
+                <button type="submit" name="Deconnexion" class="btnDeconnexion">Déconnexion</button>
+            </form>
+            <img id="modeIcon" src="../img/lune.svg" alt="Mode clair" title="Mode sombre">
         </div>
     </header>
 

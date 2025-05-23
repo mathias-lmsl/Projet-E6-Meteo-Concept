@@ -96,7 +96,7 @@ export async function openAddModal(currentTable, updateTable) { // Ouvre modale 
         modal.style.display = 'flex'; // Affiche modale
 
         const grandeurSelect = form.querySelector('#GrandeurCapt'); // Auto-déclenche changement
-        if (grandueurSelect && grandeurSelect.value) {
+        if (grandeurSelect && grandeurSelect.value) {
             grandeurSelect.dispatchEvent(new Event('change'));
         }
 
@@ -215,6 +215,12 @@ export async function openEditModal(rowData, currentTable, updateTable) { // Ouv
 
             const idKey = currentTable === 'capteur' ? 'IdCapteur' : 'DevEui'; // ID à envoyer
             formData.append('id', rowData[idKey]); // Ajoute ID
+
+            for (let [key, value] of formData.entries()) {
+                if (value.trim() === '') {  
+                    formData.set(key, ''); // ou 'NULL' si tu veux une chaîne
+                }
+            }
 
             const res = await fetch('updateRow.php', {
                 method: 'POST',

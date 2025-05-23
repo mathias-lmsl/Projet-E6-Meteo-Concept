@@ -8,11 +8,20 @@ if (!isset($_SESSION['login']) || $_SESSION['fonction'] !== 'Administrateur') {
     exit();
 }
 
-// Gère la déconnexion via formulaire
+// Génération du token CSRF s'il n'existe pas encore
+if (!isset($_SESSION['_csrf_token'])) {
+    $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Gestion de la déconnexion avec vérification du token CSRF
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['Deconnexion'])) {
-    session_destroy(); // Détruit la session
-    header('Location: Log.php'); // Redirige vers la connexion
-    exit;
+    if (isset($_POST['_csrf_token']) && hash_equals($_SESSION['_csrf_token'], $_POST['_csrf_token'])) {
+        session_destroy(); // Détruit la session
+        header('Location: Log.php'); // Redirige vers la connexion
+        exit;
+    } else {
+        die("Tentative de CSRF détectée.");
+    }
 }
 
 // Fonction pour obtenir les noms de colonnes d'une table
@@ -55,7 +64,12 @@ try {
         </div>
         <div id="navTitre">Paramétrage du système</div> <!-- Titre centré -->
         <div id="navDeconnexion"> <!-- Nom + Déconnexion -->
-            <?= htmlspecialchars($prenom . ' ' . $nom) ?> | <a href="Log.php">Déconnexion</a>
+            <?php echo htmlspecialchars($prenom . ' ' . $nom) . ' | '; ?>
+            <form method="POST" style="display:inline;">
+                <input type="hidden" name="_csrf_token" value="<?php echo htmlspecialchars($_SESSION['_csrf_token']); ?>">
+                <button type="submit" name="Deconnexion" class="btnDeconnexion">Déconnexion</button>
+            </form>
+            <!-- <img id="modeIcon" src="../img/lune.svg" alt="Mode clair" title="Mode sombre"> -->
         </div>
     </header>
 
@@ -102,7 +116,7 @@ try {
         </form>
     </div>
 
-    <script type="module" src="../js/modals.js"></script> <!-- Script modale -->
+    <script type="module" src="../js/modal.js"></script> <!-- Script modale -->
     <script type="module" src="../js/Parametrage.js"></script> <!-- Script principal -->
 </body>
 </html>

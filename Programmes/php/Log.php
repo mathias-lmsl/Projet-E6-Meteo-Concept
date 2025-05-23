@@ -1,5 +1,6 @@
 <?php
 session_start(); // Démarre la session pour stocker les informations de l'utilisateur
+session_regenerate_id(true); // Regénère l'ID pour éviter les attaques de fixation de session
 require "connectLog.php"; // Connexion à la base de données
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
