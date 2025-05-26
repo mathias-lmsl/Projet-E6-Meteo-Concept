@@ -136,5 +136,5 @@ void loop() {
     sendPingUplink();
   }
 
-  delay(60000); // Attendre 5 minutes avant prochain cycle
+  delay(1800000); // Attendre 5 minutes avant prochain cycle
 }
