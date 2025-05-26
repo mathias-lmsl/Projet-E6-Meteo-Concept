@@ -47,29 +47,40 @@ void sendDataToTTN() {
   // Lire les valeurs des potentiomètres
   int potValue1 = analogRead(potPin1);
   int potValue2 = analogRead(potPin2);
-
+  int temp = 150;
+  int humidity = 130;// = 0x00C8;
+  
   // Convertir les valeurs analogiques en voltage (0V à 5V)
   float voltage1 = potValue1 * (5.0 / 1023.0);
   float voltage2 = potValue2 * (5.0 / 1023.0);
+ // Changer les valeurs aléatoirement pour simulation
+  temp += random(-10,10);
+  humidity += random(-30,30);
+
 
   // Afficher les valeurs des potentiomètres et leur conversion en volts dans le moniteur série
   debugSerial.println("");
   debugSerial.print("Valeur du Potentiomètre 1: ");
-  debugSerial.println(potValue1);
+  debugSerial.println();
   debugSerial.print("Tension du Potentiomètre 1: ");
   debugSerial.println(voltage1, 3);  // Afficher avec 3 décimales
   
   debugSerial.print("Valeur du Potentiomètre 2: ");
-  debugSerial.println(potValue2);code 
+  debugSerial.println(potValue2);
   debugSerial.print("Tension du Potentiomètre 2: ");
   debugSerial.println(voltage2, 3);  // Afficher avec 3 décimales
 
 
   // Convertir les valeurs analogiques en un format adapté pour l'envoi
-  byte payload[] = { 
-    (byte)(potValue1 >> 8), (byte)(potValue1 & 0xFF),  // Valeur du potentiomètre 1 (2 octets)
-    (byte)(potValue2 >> 8), (byte)(potValue2 & 0xFF)   // Valeur du potentiomètre 2 (2 octets)
-  };
+   byte payload[8];
+  payload[0] = highByte(temp);
+  payload[1] = lowByte(temp);
+  payload[2] = (byte)humidity;
+  payload[3] = lowByte(potValue1);
+  payload[4] = highByte(potValue1);
+  payload[5] = lowByte(potValue2);
+  payload[6] = highByte(potValue2);
+  payload[7] = 0x01;
 
   const port_t dataPort = 1;
 
@@ -81,7 +92,7 @@ void sendDataToTTN() {
 
 // Envoi du ping wakeup (0xAA) sur fPort 2
 void sendPingUplink() {
-  byte pingPayload[] = { 0xAA };
+  byte pingPayload[] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
   const port_t pingPort = 2;
   debugSerial.println();
   int result = ttn.sendBytes(pingPayload, sizeof(pingPayload), pingPort);
@@ -125,5 +136,5 @@ void loop() {
     sendPingUplink();
   }
 
-  delay(60000); // Attendre 10 secondes avant prochain cycle
+  delay(60000); // Attendre 5 minutes avant prochain cycle
 }
