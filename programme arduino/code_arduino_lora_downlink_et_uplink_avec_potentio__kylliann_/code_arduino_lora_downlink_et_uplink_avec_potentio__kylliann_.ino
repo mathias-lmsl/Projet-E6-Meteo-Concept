@@ -52,7 +52,7 @@ void sendDataToTTN() {
   
   // Convertir les valeurs analogiques en voltage (0V à 5V)
   float voltage1 = potValue1 * (5.0 / 1023.0);
-  float voltage2 = potValue2 * (5.0 / 1023.0);
+  float voltage2 = potValue2 * (360.0 / 1023.0);
  // Changer les valeurs aléatoirement pour simulation
   temp += random(-10,10);
   humidity += random(-30,30);
@@ -61,7 +61,7 @@ void sendDataToTTN() {
   // Afficher les valeurs des potentiomètres et leur conversion en volts dans le moniteur série
   debugSerial.println("");
   debugSerial.print("Valeur du Potentiomètre 1: ");
-  debugSerial.println();
+  debugSerial.println(potValue1);
   debugSerial.print("Tension du Potentiomètre 1: ");
   debugSerial.println(voltage1, 3);  // Afficher avec 3 décimales
   
@@ -76,10 +76,10 @@ void sendDataToTTN() {
   payload[0] = highByte(temp);
   payload[1] = lowByte(temp);
   payload[2] = (byte)humidity;
-  payload[3] = lowByte(potValue1);
-  payload[4] = highByte(potValue1);
-  payload[5] = lowByte(potValue2);
-  payload[6] = highByte(potValue2);
+  payload[3] = highByte(potValue1);
+  payload[4] = lowByte(potValue1);
+  payload[5] = highByte(potValue2);
+  payload[6] = lowByte(potValue2);
   payload[7] = 0x01;
 
   const port_t dataPort = 1;
@@ -92,7 +92,7 @@ void sendDataToTTN() {
 
 // Envoi du ping wakeup (0xAA) sur fPort 2
 void sendPingUplink() {
-  byte pingPayload[] = { 0x00, 0x00, 0x00, 0x00, 0x00 };
+  byte pingPayload[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   const port_t pingPort = 2;
   debugSerial.println();
   int result = ttn.sendBytes(pingPayload, sizeof(pingPayload), pingPort);
@@ -136,5 +136,5 @@ void loop() {
     sendPingUplink();
   }
 
-  delay(1800000); // Attendre 5 minutes avant prochain cycle
+  delay(60000); // Attendre 1 minute avant prochain cycle
 }
