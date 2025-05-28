@@ -1,0 +1,112 @@
+#include <TheThingsNetwork.h>
+#include <Arduino.h>
+
+// Définition des identifiants TTN
+const char *appEui = "0004A30B00216C4C";
+const char *appKey = "bf767f6bdd1ed0b4d0e68822be9b4d2d";
+
+#define loraSerial Serial1
+#define debugSerial Serial
+#define freqPlan TTN_FP_EU868
+
+TheThingsNetwork ttn(loraSerial, debugSerial, freqPlan);
+bool dataSent = false;
+bool actif = 1;  // représente l'état de la carte
+                 // 0 => carte considérée comme inactive, les mesures seront ignorées
+                 // 1 => carte considérée comme active, mesures enregistrées
+
+// Pins des potentiomètres
+const int potPin1 = A0;  // Potentiomètre 1
+const int potPin2 = A5;  // Potentiomètre 2
+
+// Downlink callback
+void messageCallback(const uint8_t *payload, size_t size, port_t port) {
+  debugSerial.print("Callback activé sur fPort ");
+  debugSerial.println(port);
+
+  if (size > 0) {
+    debugSerial.print("Payload reçu: ");
+    debugSerial.println(payload[0], HEX);
+    
+    if (payload[0] == 0x01) {
+      actif = payload[0];
+      debugSerial.println("Carte activé !");
+    } else if (payload[0] == 0x00) {
+      actif = payload[0];
+      debugSerial.println("Carte désactivée !");
+    } else {
+      debugSerial.println("Commande inconnue reçue, pas d'action.");
+    }
+  }
+}
+
+// Envoi du payload avec les valeurs des potentiomètres
+void sendDataToTTN() {
+  // Lire les valeurs des potentiomètres
+  int potValue1 = analogRead(potPin1);
+  int potValue2 = analogRead(potPin2);
+  int temp = 150;
+  int humidity = 130;// = 0x00C8;
+  
+  // Convertir les valeurs analogiques en voltage (0V à 5V)
+  float voltage1 = potValue1 * (5.0 / 1023.0);
+  float voltage2 = potValue2 * (5.0 / 1023.0);
+ // Changer les valeurs aléatoirement pour simulation
+  temp += random(-10,10);
+  humidity += random(-30,30);
+
+  // Afficher les valeurs des potentiomètres et leur conversion en volts dans le moniteur série
+  debugSerial.println("");
+  debugSerial.print("Valeur du Potentiomètre 1: ");
+  debugSerial.println(potValue1);
+  debugSerial.print("Tension du Potentiomètre 1: ");
+  debugSerial.println(voltage1, 3);  // Afficher avec 3 décimales
+  
+  debugSerial.print("Valeur du Potentiomètre 2: ");
+  debugSerial.println(potValue2);
+  debugSerial.print("Tension du Potentiomètre 2: ");
+  debugSerial.println(voltage2, 3);  // Afficher avec 3 décimales
+
+  // Convertir les valeurs analogiques en un format adapté pour l'envoi
+  byte payload[8];
+  payload[0] = highByte(temp);
+  payload[1] = lowByte(temp);
+  payload[2] = (byte)humidity;
+  payload[3] = highByte(potValue1);
+  payload[4] = lowByte(potValue1);
+  payload[5] = highByte(potValue2);
+  payload[6] = lowByte(potValue2);
+  payload[7] = actif;
+
+  const port_t dataPort = 1;
+
+  // Envoyer le payload avec les valeurs des potentiomètres
+  int result = ttn.sendBytes(payload, sizeof(payload), dataPort);
+  
+}
+
+void setup() {
+  loraSerial.begin(57600);
+  debugSerial.begin(9600);
+
+  unsigned long startTime = millis();
+  while (!debugSerial && millis() - startTime < 10000);
+
+  debugSerial.println("-- STATUS");
+  ttn.showStatus();
+
+  debugSerial.println("-- JOIN");
+  if (!ttn.join(appEui, appKey)) {
+    debugSerial.println("Échec de la connexion TTN !");
+  } else {
+    debugSerial.println("Connecté à TTN !");
+  }
+  ttn.onMessage(messageCallback);
+}
+
+void loop() {
+
+    sendDataToTTN();
+
+  delay(60000); // Attendre 1 minute avant prochain cycle
+}
