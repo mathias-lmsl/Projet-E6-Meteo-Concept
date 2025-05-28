@@ -1,281 +1,265 @@
+#include <math.h>
 #include <TheThingsNetwork.h>
-#include <Arduino.h>
 #include <DHT.h>
 #include <OneWire.h>
 
 // ==================== CONFIGURATION TTN (LoRa) ====================
+// Identifiants pour connecter le module à The Things Network (TTN)
 const char *appEui = "0004A30B001E6712";  
 const char *appKey = "3BE8C099BA7541CD3F2B90443FE2BA20";
+// Identifiants pour connecter le module à Chipstark
+//const char *appEui = "0004A30B001E6712";
+//const char *appKey = "f6ede1ce4a6d607d1e7c774d224e573f";
 
+// Ports série pour la communication LoRa
 #define loraSerial Serial1
 #define debugSerial Serial
 #define freqPlan TTN_FP_EU868
 TheThingsNetwork ttn(loraSerial, debugSerial, freqPlan);
 
+// ==================== CONFIGURATION Downlink ====================
+bool dataSent = false;
+bool actif = 1;  // représente l'état de la carte
+                 // 0 => carte considérée comme inactive, les mesures seront ignorées
+                 // 1 => carte considérée comme active, mesures enregistrées
+
+
 // ==================== CONFIGURATION DHT22 ====================
-#define DHTPIN 4      
-#define DHTTYPE DHT22 
+// Capteur de température et d'humidité
+#define DHTPIN 4      // Broche du DHT22
+#define DHTTYPE DHT22 // Type du capteur
 DHT dht(DHTPIN, DHTTYPE);
 
-// ==================== SONDE HYGROMÉTRIQUE ====================
-#define NUM_OF_READ 1          
-const int Rx = 10000;          
-const float cFactor = 1.1;     
+// ==================== CONFIGURATION SONDE HYGROMÉTRIQUE ====================
+#define NUM_OF_READ 1          // Nombre de lectures pour la moyenne
+const int Rx = 10000;          // Résistance de référence en ohms
+const float cFactor = 1.1;     // Facteur de calibration
+const long OPEN_RESISTANCE = 35000, SHORT_RESISTANCE = 200;
+const int SUPPLY_V = 5;        // Tension d'alimentation en volts
+float default_TempC;           // Température mesurée
+int WM1_CB = 0;           // Capacité en eau du sol
 const long short_resistance = 200;
 const long open_resistance = 35000;
-const int SUPPLY_V = 5;        
-float WM_Resistance;
-int WM1_CB = 0;
+const long short_CB = 240, open_CB = 255 ;
+double WM_Resistance;
+//int Vres;
 
-// ==================== SONDE TEMPÉRATURE DS18S20 ====================
-#define DS18S20_Pin 6
+// ==================== CONFIGURATION SONDE TEMPÉRATURE DS18S20 ====================
+#define DS18S20_Pin 6 // Broche du capteur de température DS18S20
 OneWire ds(DS18S20_Pin);
 
-// ==================== ANÉMOMÈTRE ====================
+// ==================== CONFIGURATION ANÉMOMÈTRE ====================
+// Broches pour l'anémomètre
 #define WIND_SPEED_PIN 2
 #define WIND_DIR_PIN 3
-#define DEBOUNCE 10000ul
-#define TIMEOUT 1500000ul
+#define DEBOUNCE 10000ul       // Anti-rebond en microsecondes
+#define TIMEOUT 1500000ul      // Temps d'attente avant timeout
+const float FILTER_GAIN = 0.25;
 volatile unsigned long speedPulse = 0ul, dirPulse = 0ul;
 volatile unsigned long speedTime = 0ul, directionTime = 0ul;
 volatile boolean newData = false;
-uint16_t dirOut = 0, kmh = 0;
+uint16_t dirOut = 0, kmh = 0; // Vitesse et direction du vent
 float RPS;
 
-// ==================== BROCHES POUR SONDE HYGROMÉTRIQUE ====================
-#define HygroPin A1 // je suppose A1, à adapter si nécessaire
-#define RelayPin1 5
-#define RelayPin2 11
+// ==================== CONFIGURATION INITIALE ====================
+void setup() {
+    Serial.begin(9600);
+    loraSerial.begin(57600);
+    debugSerial.begin(9600);
+    while (!debugSerial && millis() < 10000); // Attente pour la connexion série
 
-// Variables globales
-bool sendData = true;
-bool oldSendData = false;
+    debugSerial.println("-- STATUS");
+    ttn.showStatus();
+    debugSerial.println("-- JOIN");
+    ttn.join(appEui, appKey); // Connexion à TTN
+    
+    ttn.onMessage(messageCallback);
+    
+    dht.begin();
 
-// =========== FONCTIONS ===========
+    // Configuration des broches pour la sonde d'humidité
+    pinMode(5, OUTPUT);
+    pinMode(11, OUTPUT);
+    digitalWrite(5, LOW);
+    digitalWrite(11, LOW);
 
-// Conversion résistance -> CB
-int myCBvalue(int res, float TC) {
-  int WM_CB = 0;
+    // Configuration des interruptions pour l'anémomètre
+    pinMode(WIND_SPEED_PIN, INPUT);
+    attachInterrupt(digitalPinToInterrupt(WIND_SPEED_PIN), readWindSpeed, FALLING);
+    pinMode(WIND_DIR_PIN, INPUT);
+    attachInterrupt(digitalPinToInterrupt(WIND_DIR_PIN), readWindDir, FALLING);
+    interrupts();
+}
+
+// ==================== BOUCLE PRINCIPALE ====================
+void loop() {
+    if (newData) {
+        calcWindSpeedAndDir();
+        newData = false;
+    }
+
+    // Création du tableau de données à envoyer
+    byte payload[8];
+
+    // Lecture des capteurs
+    default_TempC = getTemp();
+    WM1_CB = abs(myCBvalue(readWMsensor(), default_TempC));
+
+    // Lecture de la température de l'air et conversion en centièmes de degré
+    uint16_t temperature = dht.readTemperature(false) * 10;
+
+    // Remplissage du tableau de données
+    payload[0] = highByte(temperature);
+    payload[1] = lowByte(temperature);
+    payload[2] = WM1_CB;
+    payload[3] = highByte(kmh);
+    payload[4] = lowByte(kmh);
+    payload[5] = highByte(dirOut);
+    payload[6] = lowByte(dirOut);
+    payload[7] = actif;
+
+    // Affichage des valeurs pour debug
+    debugSerial.print("Température air(°c): "); debugSerial.println(temperature / 10.0); /// 100.0);
+    debugSerial.print("Température sol(°c): "); debugSerial.println(default_TempC);
+    debugSerial.print("Hygrométrie du sol(Cb)= "); debugSerial.println(WM1_CB); /// 1000.0);
+    debugSerial.print("Valeur résistance: "); debugSerial.println(WM_Resistance);//Vres);
+    debugSerial.print("Vent: "); debugSerial.print(kmh); debugSerial.print(" km/h, Dir: "); debugSerial.println(dirOut);
+    debugSerial.print("Vitesse en RPM: "); debugSerial.println(RPS* 60);
+    // Envoi des données à TTN
+    ttn.sendBytes(payload, sizeof(payload));
+    delay(1000); // Pause avant la prochaine lecture
+}
+
+// ==================== CONVERSION RÉSISTANCE -> CB ====================
+int myCBvalue(int res, float TC) {   //conversion of ohms to CB
+  int WM_CB;
   float resK = res / 1000.0;
   float tempD = 1.00 + 0.018 * (TC - 24.00);
 
-  if (res > 550.00) {
-    if (res > 8000.00) {
+  if (res > 550.00) { //if in the normal calibration range
+    if (res > 8000.00) { //above 8k
       WM_CB = (-2.246 - 5.239 * resK * (1 + .018 * (TC - 24.00)) - .06756 * resK * resK * (tempD * tempD));
-    } else if (res > 1000.00) {
+    } else if (res > 1000.00) { //between 1k and 8k
       WM_CB = (-3.213 * resK - 4.093) / (1 - 0.009733 * resK - 0.01205 * (TC));
-    } else {
+    } else { //below 1k
       WM_CB = (resK * 23.156 - 12.736) * tempD;
     }
-  } else {
-    if (res > 300.00) {
-      WM_CB = 0;
+  } else { //below normal range but above short (new, unconditioned sensors)
+    if (res > 300.00)  {
+      WM_CB = 0.00;
     }
-    if (res < 300.00 && res >= short_resistance) {
-      WM_CB = 240; // court-circuit
-      debugSerial.println("Sensor Short WM");
+    if (res < 300.00 && res >= short_resistance) { //wire short
+      WM_CB = short_CB; //240 is a fault code for sensor terminal short
+      Serial.print("Sensor Short WM \n");
     }
   }
-  if (res >= open_resistance || res == 0) {
-    WM_CB = 255; // circuit ouvert
+  if (res >= open_resistance || res==0) {
+
+    WM_CB = open_CB; //255 is a fault code for open circuit or sensor not present
+
   }
   return WM_CB;
 }
 
-// Lecture sonde hygrométrique
+// ==================== LECTURE SONDE HYGROMÉTRIQUE ====================
 float readWMsensor() {
-  float ARead_A1 = 0, ARead_A2 = 0;
+    float ARead_A1 = 0, ARead_A2 = 0;
 
-  for (int i = 0; i < NUM_OF_READ; i++) {
-    digitalWrite(RelayPin1, HIGH);
-    delayMicroseconds(90);
-    ARead_A1 += analogRead(HygroPin);
-    digitalWrite(RelayPin1, LOW);
-    delay(100);
+    for (int i = 0; i < NUM_OF_READ; i++) {
+        digitalWrite(5, HIGH);
+        delayMicroseconds(90);
+        ARead_A1 += analogRead(A1);
+        digitalWrite(5, LOW);
+        delay(100);
 
-    digitalWrite(RelayPin2, HIGH);
-    delayMicroseconds(90);
-    ARead_A2 += analogRead(HygroPin);
-    digitalWrite(RelayPin2, LOW);
-  }
+        digitalWrite(11, HIGH);
+        delayMicroseconds(90);
+        ARead_A2 += analogRead(A1);
+        digitalWrite(11, LOW);
+    }
 
-  float SenVWM1 = (ARead_A1 / 1024.0) * SUPPLY_V / NUM_OF_READ;
-  float SenVWM2 = (ARead_A2 / 1024.0) * SUPPLY_V / NUM_OF_READ;
-
-  double WM_ResistanceA = (Rx * (SUPPLY_V - SenVWM1) / SenVWM1);
-  double WM_ResistanceB = Rx * SenVWM2 / (SUPPLY_V - SenVWM2);
-  WM_Resistance = (WM_ResistanceA + WM_ResistanceB) / 2;
-  return WM_Resistance;
+    // Conversion en tension et calcul de la résistance
+    float SenVWM1 = (ARead_A1 / 1024.0) * SUPPLY_V / NUM_OF_READ;
+    float SenVWM2 = (ARead_A2 / 1024.0) * SUPPLY_V / NUM_OF_READ;
+    
+    double WM_ResistanceA = (Rx * (SUPPLY_V - SenVWM1) / SenVWM1);
+    double WM_ResistanceB = Rx * SenVWM2 / (SUPPLY_V - SenVWM2);  
+    WM_Resistance = ((WM_ResistanceA + WM_ResistanceB) / 2);
+    //Vres = (Rx * SenVWM1 / (SUPPLY_V - SenVWM1) + Rx * (SUPPLY_V - SenVWM2) / SenVWM2) / 2;
+    //return Vres;
+    return WM_Resistance;
 }
 
-// Lecture température DS18S20
+// ==================== LECTURE TEMPÉRATURE DS18S20 ====================
 float getTemp() {
-  byte data[12], addr[8];
-  if (!ds.search(addr)) return -1000;
+    byte data[12], addr[8];
+    if (!ds.search(addr)) return -1000;
 
-  ds.reset(); ds.select(addr); ds.write(0x44, 1);
-  ds.reset(); ds.select(addr); ds.write(0xBE);
+    ds.reset(); ds.select(addr); ds.write(0x44, 1);
+    ds.reset(); ds.select(addr); ds.write(0xBE);
 
-  for (int i = 0; i < 9; i++) data[i] = ds.read();
-  ds.reset_search();
+    for (int i = 0; i < 9; i++) data[i] = ds.read();
+    ds.reset_search();
 
-  return ((data[1] << 8) | data[0]) / 16.0;
+    return ((data[1] << 8) | data[0]) / 16.0;
 }
 
-// Interruptions anémomètre
+// ==================== ANÉMOMÈTRE ====================
 void readWindSpeed() {
-  if ((micros() - speedPulse) > DEBOUNCE && digitalRead(WIND_SPEED_PIN) == LOW) {
-    speedTime = micros() - speedPulse;
-    if (dirPulse > speedPulse) directionTime = dirPulse - speedPulse;
-    newData = true;
-    speedPulse = micros();
-  }
+    if ((micros() - speedPulse) > DEBOUNCE && digitalRead(WIND_SPEED_PIN) == LOW) {
+        speedTime = micros() - speedPulse;
+        if (dirPulse > speedPulse) directionTime = dirPulse - speedPulse;
+        newData = true;
+        speedPulse = micros();
+    }
 }
 
 void readWindDir() {
-  if ((micros() - dirPulse) > DEBOUNCE && digitalRead(WIND_DIR_PIN) == LOW)
-    dirPulse = micros();
+    if ((micros() - dirPulse) > DEBOUNCE && digitalRead(WIND_DIR_PIN) == LOW) dirPulse = micros();
 }
 
 void calcWindSpeedAndDir() {
-  if (micros() - speedPulse > TIMEOUT) speedTime = 0;
+    if (micros() - speedPulse > TIMEOUT) speedTime = 0;
 
-  RPS = (speedTime > 0) ? 1.0 / (speedTime * 1e-6) : 0.0; // tours par seconde
-  float mph = 0.0;
+    RPS = (speedTime > 0) ? 1.0 / (speedTime * 1e-6) : 0.0; // rotation par seconde
+    float mph = 0.0;
 
-  if (RPS > 0.010 && RPS <= 3.229) {
-    mph = -0.1095 * RPS * RPS + 2.9318 * RPS - 0.1412;
-  } else if (RPS > 3.230 && RPS <= 54.362) {
-    mph = 0.0052 * RPS * RPS + 2.1980 * RPS + 1.1091;
-  } else if (RPS > 54.363 && RPS <= 66.332) {
-    mph = 0.1104 * RPS * RPS - 9.5685 * RPS + 329.87;
-  } else {
-    mph = 0.0;
-  }
-
-  kmh = round(mph * 1.6094); // km/h arrondi
-
-  if (directionTime < speedTime && speedTime > 0) {
-    dirOut = (directionTime * 360 / speedTime) % 360;
-  }
-}
-
-// Callback réception downlink
-void messageCallback(const uint8_t *payload, size_t size, port_t port) {
-  debugSerial.print("Downlink reçu sur fPort ");
-  debugSerial.println(port);
-  if (size > 0) {
-    debugSerial.print("Payload: ");
-    debugSerial.println(payload[0], HEX);
-
-    if (payload[0] == 0x01) {
-      sendData = true;
-      debugSerial.println("Activation envoi des données");
-    } else if (payload[0] == 0x00) {
-      sendData = false;
-      debugSerial.println("Désactivation envoi des données");
+    if (RPS > 0.010 && RPS <= 3.229) {
+        mph = -0.1095 * RPS * RPS + 2.9318 * RPS - 0.1412;
+    } else if (RPS > 3.230 && RPS <= 54.362) {
+        mph = 0.0052 * RPS * RPS + 2.1980 * RPS + 1.1091;
+    } else if (RPS > 54.363 && RPS <= 66.332) {
+        mph = 0.1104 * RPS * RPS - 9.5685 * RPS + 329.87;
     } else {
-      debugSerial.println("Commande inconnue");
+        mph = 0.0;
     }
 
-    debugSerial.print("sendData = ");
-    debugSerial.println(sendData ? "true" : "false");
+    kmh = round(mph * 1.6094); // Conversion en km/h, arrondi à l'entier
+
+    if (directionTime < speedTime && speedTime > 0) {
+        dirOut = (directionTime * 360 / speedTime) % 360;
+    }
+}
+
+// ==================== Reçoit les données ====================
+void messageCallback(const uint8_t *payload, size_t size, port_t port) {
+  debugSerial.print("Callback activé sur fPort ");
+  debugSerial.println(port);
+
+  if (size > 0) {
+    debugSerial.print("Payload reçu: ");
+    debugSerial.println(payload[0], HEX);
+    
+    if (payload[0] == 0x01) {
+      actif = payload[0];
+      debugSerial.println("Carte activé !");
+    } else if (payload[0] == 0x00) {
+      actif = payload[0];
+      debugSerial.println("Carte désactivée !");
+    } else {
+      debugSerial.println("Commande inconnue reçue, pas d'action.");
+    }
   }
 }
 
-// Envoi des données à TTN
-void sendDataToTTN() {
-  // Lire capteurs
-  float airTemp = dht.readTemperature(false);
-  float soilTemp = getTemp();
-  WM1_CB = abs(myCBvalue(readWMsensor(), soilTemp));
-  calcWindSpeedAndDir();
 
-  // Convertir température air en uint16_t *10 (pour un chiffre après la virgule)
-  uint16_t airTempInt = (uint16_t)(airTemp * 10);
-
-  byte payload[8];
-  payload[0] = highByte(airTempInt);
-  payload[1] = lowByte(airTempInt);
-  payload[2] = WM1_CB;
-  payload[3] = highByte(kmh);
-  payload[4] = lowByte(kmh);
-  payload[5] = highByte(dirOut);
-  payload[6] = lowByte(dirOut);
-  payload[7] = 0x01;
-
-  int result = ttn.sendBytes(payload, sizeof(payload), 1);
-
-  debugSerial.print("Données envoyées: Temp air=");
-  debugSerial.print(airTemp);
-  debugSerial.print("°C, Temp sol=");
-  debugSerial.print(soilTemp);
-  debugSerial.print("°C, Humidité sol=");
-  debugSerial.print(WM1_CB);
-  debugSerial.print(", Vent=");
-  debugSerial.print(kmh);
-  debugSerial.print(" km/h, Dir=");
-  debugSerial.println(dirOut);
-}
-
-// Envoi ping sur fPort 2
-void sendPingUplink() {
-  byte pingPayload[8] = {0,0,0,0,0,0,0,0};
-  ttn.sendBytes(pingPayload, sizeof(pingPayload), 2);
-  debugSerial.println("Ping envoyé");
-}
-
-// Setup
-void setup() {
-  debugSerial.begin(9600);
-  loraSerial.begin(57600);
-
-  unsigned long startTime = millis();
-  while (!debugSerial && millis() - startTime < 10000);
-
-  debugSerial.println("-- STATUS");
-  ttn.showStatus();
-
-  debugSerial.println("-- JOIN");
-  if (!ttn.join(appEui, appKey)) {
-    debugSerial.println("Échec de connexion TTN !");
-  } else {
-    debugSerial.println("Connecté à TTN !");
-  }
-
-  ttn.onMessage(messageCallback);
-
-  dht.begin();
-
-  pinMode(RelayPin1, OUTPUT);
-  pinMode(RelayPin2, OUTPUT);
-  digitalWrite(RelayPin1, LOW);
-  digitalWrite(RelayPin2, LOW);
-
-  pinMode(WIND_SPEED_PIN, INPUT);
-  attachInterrupt(digitalPinToInterrupt(WIND_SPEED_PIN), readWindSpeed, FALLING);
-
-  pinMode(WIND_DIR_PIN, INPUT);
-  attachInterrupt(digitalPinToInterrupt(WIND_DIR_PIN), readWindDir, FALLING);
-
-  interrupts();
-
-  sendData = true;
-}
-
-// Loop
-void loop() {
-  if (oldSendData != sendData) {
-    debugSerial.print("sendData = ");
-    debugSerial.println(sendData ? "true" : "false");
-    oldSendData = sendData;
-  }
-
-  if (sendData) {
-    sendDataToTTN();
-  } else {
-    sendPingUplink();
-  }
-
-  delay(180000);
-}
