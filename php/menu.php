@@ -7,7 +7,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu de navigation</title>
-    <script src="../javascript/menu.js" defer></script>
+    <script src="../js/menu.js" defer></script>
+    <link rel="icon" href="../includes/img/siteicon.ico" type="image/x-icon">
 </head>
 <body>
     <div class="cloud" style="top: 20%; left: 10%;"></div>

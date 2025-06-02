@@ -27,8 +27,8 @@ $options = [
 ];
 
 /* =========================== QRcode =========================== */
-$IpApache = $_SERVER['SERVER_ADDR']; // Récupérer l'adresse IP du serveur Apache
+$IpApache = '192.168.1.57'; // Adresse IP du serveur Apache
 
-$cheminPage = "http://".$IpApache."/projettest/php/qrcode.php"; // Chemin de la page qrcode.php
+$cheminPage = "https://".$IpApache."/php/qrcode.php"; // Chemin de la page qrcode.php
 
 ?>

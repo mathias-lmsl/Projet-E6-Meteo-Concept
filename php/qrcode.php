@@ -3,7 +3,7 @@ require "../config/session.php";
 require "../config/databasetech.php";
 include "directionVent.php"; //On inclut le fichier de la fonction qui permet de savoir la direction du vent
  
-if (!isset($_SESSION['id_consultable'])&&isset($_GET['DevEui'])) {
+if (!isset($_SESSION['id_consultable'])&&isset($_GET['DevEui'])||isset($_SESSION['id_consultable'])&&isset($_GET['DevEui'])) {
     $_SESSION['id_consultable'] = $_GET['DevEui']; //On stock le devEUI du capteur a afficher dans la session
 }
 
@@ -39,12 +39,13 @@ $stmt->closeCursor();
 <!--On importe les fichiers css de la page-->
 <link rel="stylesheet" href="../includes/css/style.css" type="text/css" />
 <link rel="stylesheet" href="../includes/css/styleqrcode.css" type="text/css" />
+<link rel="icon" href="../includes/img/siteicon.ico" type="image/x-icon">
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page de maintenance</title>
-    <script src="../javascript/qrcode.js" defer></script>
+    <script src="../js/qrcode.js" defer></script>
 </head>
 <body>
     <div class="container">
@@ -158,7 +159,7 @@ $stmt->closeCursor();
                     }
                     echo '<div class="card" style="'.$style.'">';
                         echo 'Nom de la station : <strong>' . $donnees['Nom'] . '</strong><br>';
-                        echo 'Date de mise en service : <strong>' . $donnees['DateMiseEnService'] . '</strong><br>';
+                        if ($donnees['DateMiseEnService']) echo 'Date de mise en service : <strong>' . $donnees['DateMiseEnService'] . '</strong><br>';
                         echo 'AppKey : <strong>' . $donnees['AppKey'] . '</strong><br>';
                         echo 'AppEui : <strong>' . $donnees['AppEui'] . '</strong><br>';
                         echo 'DevEui : <strong><span class="eui">' . $donnees['DevEui'] . '</span></strong><br>';
@@ -220,8 +221,8 @@ $stmt->closeCursor();
                                 if ($donnees['Reference']) echo 'Référence : <strong>' . $donnees['Reference'] . '</strong><br>';
                                 if ($donnees['NumSerie']) echo 'Numéro de série : <strong>' . $donnees['NumSerie'] . '</strong><br>';
                                 echo 'Date de mise en service : <strong>' . $donnees['DateMiseEnService'] . '</strong><br>';
-                                if ($donnees['SeuilMax']) echo 'Seuil Minimum : <strong>' . $donnees['SeuilMin'].' '. $donnees['Unite']  . '</strong><br>';
-                                if ($donnees['SeuilMin']) echo 'Seuil Maximum : <strong>' . $donnees['SeuilMax'].' '. $donnees['Unite']  . '</strong><br>';
+                                if ($donnees['SeuilMax']) echo 'Seuil Maximum : <strong>' . $donnees['SeuilMax'].' '. $donnees['Unite']  . '</strong><br>';
+                                if ($donnees['SeuilMin']) echo 'Seuil Minimum : <strong>' . $donnees['SeuilMin'].' '. $donnees['Unite']  . '</strong><br>';
                                 if ($donnees['Commentaire']){
                                     echo 'Commentaire : <strong>' . $donnees['Commentaire'] . '</strong><br>';
                                     echo '<button id="boutonCommentaire" onclick="openModal(\''.$donnees['IdCapteur'].'\',\'capteur\')">Modifier le commentaire</button>';

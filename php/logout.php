@@ -2,7 +2,9 @@
 require "../config/session.php";
 
 // On réinitialise la session pour déconnecter l'utilisateur
+
 session_unset();
+
 
 if ($_GET['page'] == 1) { //Si l'utilisateur viens d'une page de création de qr code
     // On retourne sur la page de connexion en indiquant qu'on vient de la page de création de qr code

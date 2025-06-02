@@ -8,13 +8,14 @@ unset($_SESSION['user']);//On commemence par supprimer les variables de la sessi
 <!--On ajoute les fichiers css-->
 <link rel="stylesheet" href="../includes/css/style.css" type="text/css" />
 <link rel="stylesheet" href="../includes/css/stylelog.css" type="text/css" />
+<link rel="icon" href="../includes/img/siteicon.ico" type="image/x-icon">
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Se connecter</title>
-    <script src="../javascript/log.js" defer></script>
+    <script src="../js/log.js" defer></script>
 </head>
 <body>
 

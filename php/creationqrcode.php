@@ -12,14 +12,14 @@ if (!isset($_SESSION['user'])) {
 ?>
 <link rel="stylesheet" href="../includes/css/style.css?v=1.2" type="text/css" />
 <link rel="stylesheet" href="../includes/css/stylecreationqrcode.css?v=1.2" type="text/css" />
-
+<link rel="icon" href="../includes/img/siteicon.ico" type="image/x-icon">
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Générateur de QR Code</title>
-    <script src="../javascript/creationqrcode.js" defer></script>
+    <script src="../js/creationqrcode.js" defer></script>
 </head>
 <body>
     <div class="cloud" style="top: 20%; left: 10%;"></div>
