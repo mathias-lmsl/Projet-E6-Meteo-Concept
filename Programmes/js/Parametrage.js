@@ -44,6 +44,26 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Mode sombre
+    const modeIcon = document.getElementById('modeIcon'); // Icône
+    const body = document.body; // Corps
+
+    if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode'); // Applique thème sombre
+        modeIcon.src = '../img/soleil.svg'; // Change icône
+        modeIcon.title = 'Mode clair'; // Change tooltip
+    }
+
+    document.getElementById('modeIcon').addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode'); // Alterne le thème
+        const modeIcon = document.getElementById('modeIcon'); // Récupère icône
+        const isDark = document.body.classList.contains('dark-mode'); // Vérifie mode
+        modeIcon.src = isDark ? '../img/soleil.svg' : '../img/lune.svg'; // Icône
+        modeIcon.title = isDark ? 'Mode clair' : 'Mode sombre'; // Tooltip
+        modeIcon.alt = isDark ? 'Mode sombre' : 'Mode clair'; // Alt
+        rafraichirCouleursGraphiques(); // MAJ couleurs
+    });
+
     // Met à jour l’affichage d’une table
     async function updateTable(tableName) {
         currentTable = tableName; // Met à jour la table courante

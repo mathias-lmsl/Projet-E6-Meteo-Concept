@@ -1,5 +1,6 @@
 /* ------------------------ RESET GÉNÉRAL ------------------------ */
-* { /* Réinitialise tous les éléments HTML */
+
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -8,14 +9,41 @@
     font-family: calibri;
 }
 
-body { /* Corps de la page */
+body {
     min-width: 100px;
     min-height: 100px;
     background: #ffffff;
 }
 
+img {
+    width: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    vertical-align: middle;
+}
+
+img:hover { transform: scale(1.3); }
+
+/* Style général pour TOUS les boutons HTML */
+button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: calibri;
+    font-size: inherit;
+}
+
+button:hover{
+    background-color: #0056b3;
+}
+
 /* ------------------------ NAVBAR ------------------------ */
-.navBar { /* Barre de navigation principale */
+
+.navBar {
     width: 100%;
     height: 10vh;
     min-height: 77px;
@@ -27,7 +55,22 @@ body { /* Corps de la page */
     font-size: 15px;
 }
 
-.navBar #navTitre { /* Titre centré dans la barre */
+#navAutre {
+    width: 30px;
+    height: 30px;
+    background-color: #77B5FE;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#navAutre img {
+    margin-left: 0;
+    width: 16px;
+}
+
+.navBar #navTitre {
     font-size: 50px !important;
     padding-left: 7%;
     text-align: center;
@@ -37,59 +80,43 @@ body { /* Corps de la page */
     border-radius: 5px;
 }
 
-.navBar #navAutre,
-.navBar #navDeconnexion { /* Zones à gauche et droite de la nav */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-}
-
-#navAutre { /* Bouton réglage (à gauche) */
-    width: 30px;
-    height: 30px;
-    background-color: #77B5FE;
-    border-radius: 50%;
-}
-
 .navBar #navDeconnexion .btnDeconnexion{
-    background-color: #007bff;
-    color: white; 
     border-radius: 4px;
-    cursor: pointer;
-    border: none;
     padding: 5px 10px;
-    transition: transform 0.2s ease;
+    border: none; /* Assuré ici aussi */
+    background-color: #007bff; /* Couleur de base pour le mode clair */
+    color: white;
 }
 
 .navBar #navDeconnexion .btnDeconnexion:hover{
     transform: scale(1.1);
+    background-color: #0056b3; /* Couleur au survol */
 }
 
-#navAutre img { /* Image bouton réglage */
-    width: 15px;
-    margin: 1%;
-    cursor: pointer;
-    transition: transform 0.2s ease;
+.navBar #navDeconnexion img#modeIcon { /* Cible spécifique pour l'icône de mode */
+    margin-left: 10px;
+    width: 16px;
 }
 
-#navAutre img:hover { transform: scale(1.3); }
-
-#navDeconnexion a { color: inherit; }
-
-#navDeconnexion a:hover { text-decoration: underline; }
+.navBar #navAutre, .navBar #navDeconnexion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* border-radius: 5px; /* Peut être enlevé si pas nécessaire pour le conteneur */
+}
 
 /* ------------------------ SELECTION + ACTIONS ------------------------ */
-#divSelect { /* Colonne gauche contenant les sélections */
+
+#divSelect {
     width: 20vw;
     height: 80vh;
     float: left;
     transform: translate(3vw, 5vh);
 }
 
-#divSelect h3 { font-size: 15px; } /* Titres des selecteurs */
+#divSelect h3 { font-size: 15px; }
 
-#actionGraphique { /* Zone de titre du graphique + boutons */
+#actionGraphique {
     background-color: #F5F2F0;
     margin-bottom: 5px;
     padding: 2%;
@@ -99,26 +126,22 @@ body { /* Corps de la page */
     border-radius: 5px;
 }
 
-#graphique h2 { font-size: 18px; } /* Titre du graphique */
+#graphique h2 { font-size: 18px; }
 
-#actions { /* Zone des icônes + et - */
-    width: 40px;
+#actions {
+    width: auto; /* Ajusté pour s'adapter au contenu */
     display: flex;
     align-items: center;
+    gap: 10px; /* Espace entre les icônes + et - */
+}
+#actions img {
+    width: 16px;
 }
 
-#actions img { /* Icônes ajout/suppression */
-    width: 15px;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-#actions #ajoutCourbe { margin-right: 10px; } /* Espacement bouton + */
-
-#actions img:hover { transform: scale(1.5); } /* Zoom au survol */
+/* #actions #ajoutCourbe { margin-right: 10px; } /* Plus nécessaire si on utilise gap */
 
 /* ------------------------ SELECTEURS GRAPHIQUE ------------------------ */
-#selectGraphique { /* Conteneur des listes déroulantes */
+#selectGraphique {
     height: 45%;
     margin-bottom: 10px;
     border-radius: 5px;
@@ -126,15 +149,13 @@ body { /* Corps de la page */
     padding: 1% 0 0 10%;
 }
 
-#selectGraphique > div { /* Style commun aux blocs de sélection */
+#selectGraphique > div {
     width: 96%;
     height: 22%;
     margin: 2%;
-    font-size: 20px;
+    font-size: 20px; /* Devrait peut-être être plus petit ou appliqué aux enfants */
     border-radius: 5px;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+    /* appearance et -webkit-appearance ne s'appliquent pas aux div */
 }
 
 #selectGraphique select {
@@ -142,10 +163,12 @@ body { /* Corps de la page */
     height: 50%;
     border-radius: 5px;
     cursor: pointer;
+    padding: 5px; /* Ajout de padding */
+    border: 1px solid #ccc; /* Garder une bordure pour les selects pour la clarté */
 }
 
 /* ------------------------ PLAGE TEMPORELLE + INFOS ------------------------ */
-#selectPlage { /* Bloc bouton plage temporelle */
+#selectPlage {
     width: 100%;
     height: 14%;
     margin-bottom: 10px;
@@ -162,16 +185,13 @@ body { /* Corps de la page */
     height: 75%;
     border-radius: 25px;
     font-size: 18px;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease;
+    border: none; /* Déjà sans bordure */
 }
 
-#selectPlage button:hover { transform: scale(1.05); }
+/* #selectPlage button:hover { transform: scale(1.05); } /* Déjà dans la règle générale button */
+/* #selectPlage > button { margin: 0 auto; } /* Déjà centré par flex */
 
-#selectPlage > button { margin: 0 auto; } /* Centrage */
-
-#infoGraphique { /* Zone d’information sous les selects */
+#infoGraphique {
     background-color: #F5F2F0;
     border-radius: 10px;
     padding: 2%;
@@ -190,34 +210,34 @@ body { /* Corps de la page */
     transform: translate(-50%, -50%);
     background: white;
     padding: 20px;
-    border: 1px solid black;
+    border: 1px solid black; /* Garder cette bordure pour la modale elle-même ? Ou la retirer ? */
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     z-index: 10001;
 }
 
-#model-content { /* Contenu de la modale */
+#model-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-#model input {
+#model input[type="date"],
+#model input[type="time"] { /* Spécifique aux inputs dans la modale plage temporelle */
     padding: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid #ccc; /* Garder bordure pour inputs */
     border-radius: 4px;
 }
 
 #model button,
-.model button {
+.model button { /* Style pour les boutons dans les modales */
     padding: 8px 12px;
-    border: none;
     border-radius: 4px;
-    cursor: pointer;
+    border: none; /* Assuré ici */
 }
 
 /* ------------------------ MODALE AJOUT COURBE ------------------------ */
-#ajoutCourbeDiv { /* Modale d’ajout d’un graphique */
+#ajoutCourbeDiv {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -232,14 +252,15 @@ body { /* Corps de la page */
     justify-content: flex-start;
     align-items: center;
     gap: 15px;
-    z-index: 9999;
+    z-index: 9999; /* Attention au z-index par rapport à #model */
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
     overflow-y: auto;
+    border: 1px solid #ccc; /* Optionnel: pour délimiter la modale */
 }
 
 #ajoutCourbeDiv h3 { font-size: 15px; margin-bottom: 5px; }
 
-#ajoutCourbeDiv > div {
+#ajoutCourbeDiv > div { /* Conteneurs des selects, labels, etc. */
     width: 96%;
     display: flex;
     flex-direction: column;
@@ -251,7 +272,7 @@ body { /* Corps de la page */
     width: 80%;
     height: 40px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid #ccc; /* Garder bordure pour selects */
     cursor: pointer;
     font-size: 14px;
     padding: 5px;
@@ -259,26 +280,32 @@ body { /* Corps de la page */
     text-align: center;
 }
 
-#ajoutCourbeDiv button {
+#ajoutCourbeDiv button { /* Bouton valider dans modale ajout courbe */
     width: 75%;
     height: 45px;
     font-size: 18px;
     border-radius: 25px;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease;
     align-self: center;
     text-align: center;
     justify-content: center;
+    border: none; /* Assuré ici */
 }
 
-#ajoutCourbeDiv input,
+#ajoutCourbeDiv input[type="checkbox"], /* Style pour la checkbox */
 #ajoutCourbeDiv label {
     align-self: center;
     text-align: center;
 }
+#ajoutCourbeDiv input[type="date"], /* Inputs de date/heure dans cette modale */
+#ajoutCourbeDiv input[type="time"] {
+    padding: 5px;
+    border: 1px solid #ccc; /* Garder bordure pour inputs */
+    border-radius: 4px;
+    text-align: center;
+}
 
-#ajoutCourbeDiv button:hover { transform: scale(1.05); }
+
+/* #ajoutCourbeDiv button:hover { transform: scale(1.05); } /* Couvert par la règle générale button */
 
 #ajoutCourbeDiv .close {
     align-self: flex-end;
@@ -287,56 +314,45 @@ body { /* Corps de la page */
     font-weight: bold;
     color: #aaa;
     margin-bottom: 10px;
+    background: none; /* Assurer pas de fond de bouton */
+    border: none; /* Assurer pas de bordure de bouton */
+    padding: 0; /* Enlever padding si c'est un bouton */
 }
 
-#ajoutCourbeDiv .close:hover { color: black; }
-
-/* Champs de plage temporelle */
-.selectPlage label {
-    width: auto;
-    min-width: 50px;
-    font-size: 14px;
+#ajoutCourbeDiv .close:hover {
+    color: black;
+    background: none; /* Pas de changement de fond au survol */
 }
 
-.selectPlage input {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-#selectPlage > label,
-#selectPlage > input {
-    display: inline-block;
-    margin-bottom: 10px;
-    vertical-align: middle;
-}
-
-#selectPlage {
+/* Champs de plage temporelle dans #ajoutCourbeDiv */
+#ajoutCourbeDiv #selectPlage { /* Cible la div #selectPlage à l'intérieur de #ajoutCourbeDiv */
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch; /* Pour que les .lignePlage prennent toute la largeur */
     padding: 2%;
     display: flex;
     gap: 10px;
+    background-color: transparent; /* Enlever le fond hérité si besoin */
 }
 
-.lignePlage {
+#ajoutCourbeDiv .lignePlage { /* S'applique aux .lignePlage dans #ajoutCourbeDiv */
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between; /* Pour mieux espacer label et input */
     gap: 10px;
 }
 
-.lignePlage label {
-    min-width: 90px;
+#ajoutCourbeDiv .lignePlage label {
+    min-width: auto; /* Ajuster pour ne pas forcer une largeur */
+    flex-basis: 40%; /* Donner une base de largeur au label */
     font-size: 14px;
-    text-align: right;
+    text-align: left;
 }
 
-.lignePlage input {
-    flex: 1;
-    min-width: 150px;
+#ajoutCourbeDiv .lignePlage input {
+    flex-basis: 55%; /* Donner une base de largeur à l'input */
+    min-width: 0; /* Permettre de rétrécir */
     padding: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid #ccc; /* Garder bordure pour inputs */
     border-radius: 4px;
     text-align: center;
 }
@@ -350,98 +366,65 @@ body { /* Corps de la page */
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    align-items: stretch;
+    align-items: stretch; /* Important pour que les graphiques remplissent la hauteur si possible */
 }
 
 .graphiqueBloc {
-    flex: 1 1 100%;
+    flex: 1 1 100%; /* Par défaut prend toute la largeur */
     max-width: 100%;
-    height: auto;
+    min-height: 300px; /* Hauteur minimale pour la visibilité */
     background-color: #F5F2F0;
     border-radius: 10px;
     transition: all 0.3s ease-in-out;
     position: relative;
+    padding: 10px; /* Un peu d'espace intérieur */
+    display: flex; /* Pour mieux gérer le canvas à l'intérieur */
+    flex-direction: column;
 }
 
-#monGraphique {
+#monGraphique, .graphiqueSecondaire canvas { /* Style commun pour les canvas */
     display: block;
-    width: 95%;
-    height: 95%;
-    margin: 5px 0 0 5px;
-    max-width: 95%;
-    max-height: 95%;
+    width: 100% !important; /* Forcer le canvas à prendre la largeur du parent */
+    height: 100% !important; /* Forcer le canvas à prendre la hauteur du parent */
+    max-width: 100%;
+    max-height: calc(100% - 20px); /* Laisser de la place pour les icônes d'export */
+    /* margin: 5px 0 0 5px; /* Ajusté par le padding du parent */
 }
 
 .graphiquePlein { flex: 1 1 100%; max-width: 100%; }
 
 .graphiqueMoitié {
-    flex: 1 1 calc(50% - 10px);
+    flex: 1 1 calc(50% - 10px); /* 10px pour la moitié du gap */
     max-width: calc(50% - 10px);
 }
 
-.graphiqueBloc img {
-    width: 15px;
-    float: right;
-    margin: 1%;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.graphiqueBloc img:hover { transform: scale(1.3); }
-
-.img-export {
-    width: 15px;
-    cursor: pointer;
-    transition: transform 0.2s ease;
+.graphiqueBloc img.img-export,
+.graphiqueBloc img#telechargeCourbe {
     position: absolute;
     top: 10px;
     right: 10px;
+    width: 16px;
 }
 
-.img-export:hover { transform: scale(1.3); }
 
-#telechargeCourbe {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 15px;
-    cursor: pointer;
-    transition: transform 0.2s ease;
+.graphiqueSecondaire { /* S'applique aux blocs de graphiques ajoutés */
+    /* flex et max-width déjà gérés par .graphiqueMoitié */
+    aspect-ratio: 4 / 3; /* Peut être retiré si min-height suffit */
+    /* background-color, border-radius, padding, display hérités de .graphiqueBloc */
 }
 
-#telechargeCourbe:hover { transform: scale(1.3); }
-
-.graphiqueSecondaire {
-    flex: 1 1 calc(50% - 10px);
-    max-width: calc(50% - 10px);
-    aspect-ratio: 4 / 3;
-    background-color: #F5F2F0;
-    border-radius: 10px;
-    padding: 1%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    position: relative;
-}
-
-.graphiqueSecondaire canvas {
-    width: 95% !important;
-    height: 95% !important;
-    max-width: 95%;
-    max-height: 95%;
-    margin: 5px 0 0 5px;
-    display: block;
-}
-
-#divGraphiques .graphiqueSecondaire { display: flex !important; }
+/* #divGraphiques .graphiqueSecondaire { display: flex !important; } /* Déjà flex via .graphiqueBloc */
 
 /* ------------------------ DIVERS ------------------------ */
-.close {
+.close { /* Style pour les boutons de fermeture 'x' des modales */
     color: #aaa;
-    float: right;
+    float: right; /* Les garde à droite */
     font-size: 28px;
     font-weight: bold;
+    background: none; /* Pas de fond de bouton */
+    border: none; /* Pas de bordure de bouton */
+    padding: 0; /* Pas de padding de bouton */
+    line-height: 1; /* Ajuster la hauteur de ligne pour un meilleur placement */
 }
 
 .close:hover,
@@ -449,15 +432,9 @@ body { /* Corps de la page */
     color: black;
     text-decoration: none;
     cursor: pointer;
+    background: none; /* Pas de changement de fond au survol */
 }
 
-button {
-    background-color: #007bff;
-    color: #ffffff;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-button:hover { background-color: #0056b3; }
 
 /* ------------------------ RESPONSIVE ------------------------ */
 @media (max-width: 900px) {
@@ -470,12 +447,16 @@ button:hover { background-color: #0056b3; }
         flex-wrap: wrap;
         justify-content: center;
         align-items: flex-start;
+        padding: 10px; /* Ajout de padding */
     }
 
-    #divSelect > div {
+    #divSelect > div { /* Blocs de sélection en mode mobile */
         width: 90%;
         margin-bottom: 15px;
     }
+    #selectGraphique { padding: 10px; } /* Ajuster padding */
+    #selectGraphique select { width: 100%; }
+
 
     #actionGraphique {
         flex-direction: row;
@@ -484,7 +465,7 @@ button:hover { background-color: #0056b3; }
 
     #actions {
         flex-direction: row;
-        gap: 5px;
+        gap: 10px; /* Espace cohérent */
     }
 
     #divGraphiques {
@@ -493,12 +474,15 @@ button:hover { background-color: #0056b3; }
         transform: none;
         padding: 10px;
         justify-content: center;
+        height: auto; /* Permettre la hauteur auto pour les graphiques */
     }
 
-    #Graphique {
-        width: 95%;
-        height: auto;
+    .graphiqueBloc, #Graphique.graphiqueMoitié { /* Tous les graphiques prennent toute la largeur */
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 20px; /* Espace entre les graphiques empilés */
     }
+
 
     .navBar {
         flex-direction: column;
@@ -507,24 +491,30 @@ button:hover { background-color: #0056b3; }
         gap: 10px;
     }
 
-    #navTitre {
+    .navBar #navTitre {
         font-size: 30px !important;
         padding-left: 0;
     }
 
     #ajoutCourbeDiv,
     #model,
-    .model {
+    .model { /* Modales en mode mobile */
         width: 90vw;
         height: auto;
         max-height: 90vh;
         overflow-y: auto;
     }
-
-    #Graphique.graphiqueMoitié {
-        flex: 1 1 100% !important;
-        max-width: 100% !important;
+    #ajoutCourbeDiv .lignePlage label,
+    #ajoutCourbeDiv .lignePlage input {
+        flex-basis: auto; /* Laisser le flex gérer */
+        width: 100%; /* Prendre toute la largeur disponible sur la ligne */
+        text-align: left;
     }
+    #ajoutCourbeDiv .lignePlage {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
 }
 
 @media (max-width: 600px) {
@@ -534,21 +524,22 @@ button:hover { background-color: #0056b3; }
     }
 
     select,
-    button {
+    button { /* Taille de police générale pour selects et boutons */
         font-size: 14px;
-        width: 100%;
+        /* width: 100%; /* Peut être trop restrictif, dépend du contexte */
     }
+    #selectGraphique select { width: 100%; } /* Assurer que les selects prennent la largeur */
+
 
     .navBar {
         font-size: 12px;
     }
+    .navBar #navTitre { font-size: 24px !important; }
 
-    #telechargeCourbe {
-        width: 20px;
-    }
 
-    .img-export {
-        width: 15px;
+    .graphiqueBloc img.img-export,
+    .graphiqueBloc img#telechargeCourbe {
+        width: 13px;
     }
 }
 
@@ -557,6 +548,10 @@ body.dark-mode {
     background-color: #0f032e;
     color: #f0f0f0;
 }
+
+body.dark-mode img { filter: invert(1) brightness(1.2); }
+
+
 
 body.dark-mode .navBar {
     background-color: #090120;
@@ -567,108 +562,87 @@ body.dark-mode #navAutre {
     background-color: #090120;
 }
 
-body.dark-mode #navDeconnexion .btnDeconnexion {
-    background-color: transparent;
-    color: #f0f0f0;
+body.dark-mode .navBar #navDeconnexion .btnDeconnexion {
+    background-color: #007bff;
+    color: white;
     border: none;
 }
+body.dark-mode .navBar #navDeconnexion .btnDeconnexion:hover {
+    background-color: #0056b3;
+}
+
 
 body.dark-mode #actionGraphique,
 body.dark-mode #selectGraphique,
 body.dark-mode #selectPlage,
 body.dark-mode #infoGraphique,
-body.dark-mode .graphiqueBloc { /* Concerne #Graphique et .graphiqueSecondaire */
+body.dark-mode .graphiqueBloc {
     background-color: #090120;
 }
 
 body.dark-mode #selectGraphique select,
-body.dark-mode #selectGraphique input[type="text"], /* Si vous avez des inputs ici */
-body.dark-mode #selectGraphique input[type="checkbox"] { /* Pour la checkbox de synchro par exemple */
+body.dark-mode #selectGraphique input[type="text"],
+body.dark-mode #selectGraphique input[type="checkbox"] {
     background-color: #2a2a2a;
     color: #f0f0f0;
     border: 1px solid #555;
 }
-body.dark-mode #selectGraphique label { /* Pour les labels près des checkbox */
+body.dark-mode #selectGraphique label {
     color: #f0f0f0;
 }
 
-
-body.dark-mode #selectPlage button { /* Bouton "Plage temporelle" */
+body.dark-mode #selectPlage button {
     background-color: #007bff;
     color: white;
-    border: 1px solid #0056b3;
+    border: none;
 }
-
 body.dark-mode #selectPlage button:hover {
     background-color: #0056b3;
 }
+
 
 body.dark-mode #infoGraphique .blocInfoGraphique strong,
 body.dark-mode #infoGraphique .blocInfoGraphique span {
     color: #f0f0f0;
 }
 
-/* Style pour la modale de plage temporelle principale (#model) */
-body.dark-mode #model {
-    background-color: #090120;
-    color: #f0f0f0;
-    border: 1px solid #555;
-    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
-}
-
-/* Style pour les modales utilisant la classe .model (comme suppressionCourbeDiv) */
+/* Style pour TOUTES les modales en mode sombre */
+body.dark-mode #model,
 body.dark-mode .model {
-    background-color: #090120;
+    background-color: #090120 !important;
     color: #f0f0f0;
     border: 1px solid #555;
     box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
 }
 
-/* CORRECTION SPÉCIFIQUE pour #ajoutCourbeDiv pour surcharger son fond de base */
-body.dark-mode #ajoutCourbeDiv {
-    background-color: #090120 !important; /* !important pour forcer la priorité sur la règle d'ID de base */
-    /* Les autres styles (color, border, box-shadow) peuvent être hérités de .model si la classe est toujours présente,
-       sinon, ajoutez-les ici aussi. Pour être sûr : */
-    color: #f0f0f0;
-    border: 1px solid #555;
-    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
-}
-
-
-/* Styles pour les éléments textuels à l'intérieur de TOUTES les modales de Consultation.php */
+/* Éléments textuels dans TOUTES les modales */
 body.dark-mode #model h3,
 body.dark-mode #model label,
 body.dark-mode #model span,
 body.dark-mode #model .close,
-body.dark-mode .model h3,  /* Inclut #ajoutCourbeDiv si elle a la classe .model */
+body.dark-mode .model h3,
 body.dark-mode .model label,
 body.dark-mode .model span,
-body.dark-mode .model .close,
-body.dark-mode #ajoutCourbeDiv h3, /* Spécifique pour s'assurer */
-body.dark-mode #ajoutCourbeDiv label,
-body.dark-mode #ajoutCourbeDiv span,
-body.dark-mode #ajoutCourbeDiv .close {
+body.dark-mode .model .close {
     color: #f0f0f0;
+    background: none;
+    border: none;
 }
 
 body.dark-mode #model .close:hover,
-body.dark-mode .model .close:hover, /* Inclut #ajoutCourbeDiv .close */
-body.dark-mode #ajoutCourbeDiv .close:hover {
+body.dark-mode .model .close:hover {
     color: #fff;
+    background: none;
 }
 
-/* Styles pour les champs de formulaire dans TOUTES les modales de Consultation.php */
+/* Champs de formulaire dans TOUTES les modales */
 body.dark-mode #model input[type="date"],
 body.dark-mode #model input[type="time"],
 body.dark-mode #model select,
-body.dark-mode .model input[type="date"], /* Inclut #ajoutCourbeDiv si .model */
+body.dark-mode .model input[type="date"],
 body.dark-mode .model input[type="time"],
 body.dark-mode .model input[type="checkbox"],
-body.dark-mode .model select,
-body.dark-mode #ajoutCourbeDiv input[type="date"], /* Spécifique pour s'assurer */
-body.dark-mode #ajoutCourbeDiv input[type="time"],
-body.dark-mode #ajoutCourbeDiv input[type="checkbox"],
-body.dark-mode #ajoutCourbeDiv select {
+body.dark-mode .model select {
     background-color: #2a2a2a;
     color: #f0f0f0;
     border: 1px solid #555;
@@ -677,47 +651,30 @@ body.dark-mode #ajoutCourbeDiv select {
     color-scheme: dark;
 }
 
-/* Styles pour les boutons dans TOUTES les modales de Consultation.php */
+/* Icônes internes des inputs date/time pour Webkit */
+body.dark-mode #model input[type="date"]::-webkit-calendar-picker-indicator,
+body.dark-mode #model input[type="time"]::-webkit-clear-button,
+body.dark-mode #model input[type="time"]::-webkit-inner-spin-button,
+body.dark-mode .model input[type="date"]::-webkit-calendar-picker-indicator,
+body.dark-mode .model input[type="time"]::-webkit-clear-button,
+body.dark-mode .model input[type="time"]::-webkit-inner-spin-button {
+    filter: invert(1) brightness(1.5);
+}
+
+/* Boutons dans TOUTES les modales */
 body.dark-mode #model button,
-body.dark-mode .model button, /* Inclut #ajoutCourbeDiv si .model */
-body.dark-mode #ajoutCourbeDiv button { /* Spécifique pour s'assurer */
+body.dark-mode .model button {
     background-color: #007bff;
     color: white;
-    border: 1px solid #0056b3;
+    border: none;
     padding: 8px 12px;
-    border-radius: 4px; /* Cohérence du radius */
+    border-radius: 4px;
 }
 
 body.dark-mode #model button:hover,
-body.dark-mode .model button:hover, /* Inclut #ajoutCourbeDiv si .model */
-body.dark-mode #ajoutCourbeDiv button:hover {
+body.dark-mode .model button:hover {
     background-color: #0056b3;
 }
 
-body.dark-mode .navBar #navAutre img,
-body.dark-mode .navBar #navDeconnexion #modeIcon {
-    filter: invert(1) brightness(1.2);
-}
-
-#modeIcon {
-    width: 15px;
-    height: 15px;
-    margin-left: 10px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    vertical-align: middle;
-}
-
-#modeIcon:hover {
-    transform: scale(1.2);
-}
-
-body.dark-mode #suppressionCourbeDiv select { /* Spécifique pour le select dans la modale de suppression */
-    background-color: #2a2a2a;
-    color: #f0f0f0;
-    border: 1px solid #555;
-}
-
-.model { z-index: 10001; }
-
-#suppressionCourbeDiv { z-index: 11000; }
+#suppressionCourbeDiv.model { z-index: 10002; }
+#ajoutCourbeDiv.model { z-index: 10002; }

@@ -1,17 +1,44 @@
-/* Réinitialisation de base pour tous les éléments */
+/* ------------------------ RESET GÉNÉRAL ------------------------ */
+
 * {
-    margin: 0; /* Supprime les marges */
-    padding: 0; /* Supprime les paddings */
-    text-decoration: none; /* Supprime les soulignements */
-    list-style: none; /* Supprime les puces des listes */
-    box-sizing: border-box; /* Inclut padding et border dans la taille */
-    font-family: calibri; /* Police par défaut */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    list-style: none;
+    font-family: calibri;
 }
 
 body {
-    min-width: 100px; /* Largeur minimale */
-    min-height: 100px; /* Hauteur minimale */
-    background: #ffffff; /* Fond blanc */
+    min-width: 100px;
+    min-height: 100px;
+    background: #ffffff;
+}
+
+img {
+    width: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    vertical-align: middle;
+}
+
+img:hover { transform: scale(1.3); }
+
+/* Style général pour TOUS les boutons HTML */
+button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: calibri;
+    font-size: inherit;
+}
+
+button:hover{
+    background-color: #0056b3;
 }
 
 /*-------------------------------- NAVBAR --------------------------------*/
@@ -35,27 +62,15 @@ body {
     border-radius: 50%; /* Rond */
     width: 30px;
     height: 30px;
-    background-color: #77B5FE; /* Même couleur que la barre */
-}
-
-.navBar #navAutre img{
-    transition: transform 0.2s ease; /* Animation zoom */
-}
-
-.navBar #navAutre img:hover{
-    transform: scale(1.3); /* Zoom au survol */
 }
 
 .navBar #navAutre a {
     text-decoration: none;
-    color: inherit; /* Hérite de la couleur de texte */
+    color: inherit;
 }
 
 .navBar #navAutre img{
     margin: 1% 1% 0;
-    width: 15px;
-    height: 15px;
-    cursor: pointer;
     float: left;
 }
 
@@ -453,9 +468,19 @@ body {
     }
 }
 
+/*-------------------------------- MODE SOMBRE --------------------------------*/
+
 body.dark-mode {
     background-color: #0f032e;
     color: #f0f0f0;
+}
+
+body.dark-mode img {
+    filter: invert(1) brightness(1.2);
+}
+
+body.dark-mode img:hover {
+    transform: scale(1.3);
 }
 
 body.dark-mode .navBar {
@@ -463,22 +488,8 @@ body.dark-mode .navBar {
     color: #f0f0f0;
 }
 
-body.dark-mode .navBar #navAutre img,
-body.dark-mode .navBar #navDeconnexion #modeIcon {
-    filter: invert(1) brightness(1.2);
-}
-
 #modeIcon {
-    width: 15px;
-    height: 15px;
     margin-left: 10px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    vertical-align: middle;
-}
-
-#modeIcon:hover {
-    transform: scale(1.2);
 }
 
 body.dark-mode .navBar .btnDeconnexion {
@@ -518,10 +529,6 @@ body.dark-mode .container .tabParametrage .divTableau #enteteTab h2 {
 body.dark-mode .container .tabParametrage .divTableau #enteteTab #recherche {
     background-color: #2a2a2a;
     border: 1px solid #555;
-}
-
-body.dark-mode .container .tabParametrage .divTableau #enteteTab #recherche #imgRecherche {
-    filter: invert(1) brightness(1.2);
 }
 
 body.dark-mode .container .tabParametrage .divTableau #enteteTab #recherche #searchInput {

@@ -28,7 +28,6 @@ export async function openAddModal(currentTable, updateTable) { // Ouvre modale 
         if (document.body.classList.contains('dark-mode')) { // Mode sombre ?
             modal.classList.add('dark-mode'); // Applique style
         }
-        modal.appendChild(createCloseButton(() => modal.remove())); // Bouton fermeture
 
         const form = document.createElement('form'); // Formulaire HTML
         form.className = 'modal-form'; // Classe CSS
@@ -37,7 +36,6 @@ export async function openAddModal(currentTable, updateTable) { // Ouvre modale 
         titleContainer.className = 'modal-title-container'; // Classe CSS
 
         titleContainer.appendChild(createTitle(`Ajouter un ${currentTable}`)); // Titre
-        titleContainer.appendChild(createCloseButton(() => modal.remove())); // Bouton fermeture
         form.appendChild(titleContainer); // Ajoute au form
 
         columns.forEach(col => { // Pour chaque champ
@@ -129,7 +127,6 @@ export async function openEditModal(rowData, currentTable, updateTable) { // Ouv
         const options = await fetchSelectOptions(); // Récupère options
         const modal = document.createElement('div'); // Crée modale
         modal.className = 'modal'; // Classe CSS
-        modal.appendChild(createCloseButton(() => modal.remove())); // Bouton fermeture
 
         const form = document.createElement('form'); // Crée formulaire
         form.className = 'modal-form'; // Classe CSS
@@ -138,7 +135,6 @@ export async function openEditModal(rowData, currentTable, updateTable) { // Ouv
         titleContainer.className = 'modal-title-container'; // Classe CSS
 
         titleContainer.appendChild(createTitle(`Modifier ${currentTable}`)); // Titre
-        titleContainer.appendChild(createCloseButton(() => modal.remove())); // Fermeture
         form.appendChild(titleContainer); // Ajoute au formulaire
 
         const ignore = ['IdCapteur', 'DevEui', 'DateMiseEnService', 'Actions']; // Champs ignorés
@@ -313,13 +309,4 @@ function createButtonContainer(confirmText, onCancel) { // Crée bouton submit +
 
     container.append(submit, cancel);
     return container;
-}
-
-function createCloseButton(onClick) { // Crée bouton croix pour fermer
-    const closeBtn = document.createElement('button');
-    closeBtn.innerHTML = '&times;';
-    closeBtn.className = 'modal-close';
-    closeBtn.type = 'button';
-    closeBtn.addEventListener('click', onClick);
-    return closeBtn;
 }

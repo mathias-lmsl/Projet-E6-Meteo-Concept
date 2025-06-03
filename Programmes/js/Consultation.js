@@ -235,20 +235,6 @@ document.addEventListener('DOMContentLoaded', function () {
         rafraichirCouleursGraphiques(); // MAJ couleurs
     });
 
-    // Ajout du bouton CSV au graphique principal
-    if (!document.getElementById('exportPrincipal')) {
-        const blocPrincipal = document.getElementById('Graphique');
-        const boutonExportPrincipal = document.createElement('img');
-        boutonExportPrincipal.src = '../img/download.svg';
-        boutonExportPrincipal.alt = 'Export';
-        boutonExportPrincipal.title = 'Export CSV';
-        boutonExportPrincipal.className = 'img-export';
-        boutonExportPrincipal.id = 'exportPrincipal';
-        boutonExportPrincipal.addEventListener('click', exportCSV);
-
-        blocPrincipal.style.position = 'relative';
-        blocPrincipal.appendChild(boutonExportPrincipal);
-    }
 });
 
 const graphiquesAjoutes = []; // Tableau des courbes secondaires
