@@ -52,6 +52,20 @@ body { /* Corps de la page */
     border-radius: 50%;
 }
 
+.navBar #navDeconnexion .btnDeconnexion{
+    background-color: #007bff;
+    color: white; 
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    padding: 5px 10px;
+    transition: transform 0.2s ease;
+}
+
+.navBar #navDeconnexion .btnDeconnexion:hover{
+    transform: scale(1.1);
+}
+
 #navAutre img { /* Image bouton réglage */
     width: 15px;
     margin: 1%;
@@ -59,11 +73,11 @@ body { /* Corps de la page */
     transition: transform 0.2s ease;
 }
 
-#navAutre img:hover { transform: scale(1.3); } /* Zoom au survol */
+#navAutre img:hover { transform: scale(1.3); }
 
-#navDeconnexion a { color: inherit; } /* Liens même couleur */
+#navDeconnexion a { color: inherit; }
 
-#navDeconnexion a:hover { text-decoration: underline; } /* Surlignage au survol */
+#navDeconnexion a:hover { text-decoration: underline; }
 
 /* ------------------------ SELECTION + ACTIONS ------------------------ */
 #divSelect { /* Colonne gauche contenant les sélections */
@@ -549,72 +563,159 @@ body.dark-mode .navBar {
     color: #f0f0f0;
 }
 
-body.dark-mode #navAutre { background-color: #090120; }
-
-body.dark-mode #divSelect { background-color: #0f032e; }
-
-body.dark-mode select,
-body.dark-mode input {
+body.dark-mode #navAutre {
     background-color: #090120;
+}
+
+body.dark-mode #navDeconnexion .btnDeconnexion {
+    background-color: transparent;
+    color: #f0f0f0;
+    border: none;
+}
+
+body.dark-mode #actionGraphique,
+body.dark-mode #selectGraphique,
+body.dark-mode #selectPlage,
+body.dark-mode #infoGraphique,
+body.dark-mode .graphiqueBloc { /* Concerne #Graphique et .graphiqueSecondaire */
+    background-color: #090120;
+}
+
+body.dark-mode #selectGraphique select,
+body.dark-mode #selectGraphique input[type="text"], /* Si vous avez des inputs ici */
+body.dark-mode #selectGraphique input[type="checkbox"] { /* Pour la checkbox de synchro par exemple */
+    background-color: #2a2a2a;
     color: #f0f0f0;
     border: 1px solid #555;
 }
-
-body.dark-mode button { background-color: #007bff; }
-
-body.dark-mode button:hover { background-color: #0056b3; }
-
-body.dark-mode #selectGraphique,
-body.dark-mode .graphiqueBloc,
-body.dark-mode #infoGraphique,
-body.dark-mode .model {
-    background-color: #090120;
+body.dark-mode #selectGraphique label { /* Pour les labels près des checkbox */
+    color: #f0f0f0;
 }
 
-body.dark-mode img {
+
+body.dark-mode #selectPlage button { /* Bouton "Plage temporelle" */
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #0056b3;
+}
+
+body.dark-mode #selectPlage button:hover {
+    background-color: #0056b3;
+}
+
+body.dark-mode #infoGraphique .blocInfoGraphique strong,
+body.dark-mode #infoGraphique .blocInfoGraphique span {
+    color: #f0f0f0;
+}
+
+/* Style pour la modale de plage temporelle principale (#model) */
+body.dark-mode #model {
+    background-color: #090120;
+    color: #f0f0f0;
+    border: 1px solid #555;
+    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
+}
+
+/* Style pour les modales utilisant la classe .model (comme suppressionCourbeDiv) */
+body.dark-mode .model {
+    background-color: #090120;
+    color: #f0f0f0;
+    border: 1px solid #555;
+    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
+}
+
+/* CORRECTION SPÉCIFIQUE pour #ajoutCourbeDiv pour surcharger son fond de base */
+body.dark-mode #ajoutCourbeDiv {
+    background-color: #090120 !important; /* !important pour forcer la priorité sur la règle d'ID de base */
+    /* Les autres styles (color, border, box-shadow) peuvent être hérités de .model si la classe est toujours présente,
+       sinon, ajoutez-les ici aussi. Pour être sûr : */
+    color: #f0f0f0;
+    border: 1px solid #555;
+    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
+}
+
+
+/* Styles pour les éléments textuels à l'intérieur de TOUTES les modales de Consultation.php */
+body.dark-mode #model h3,
+body.dark-mode #model label,
+body.dark-mode #model span,
+body.dark-mode #model .close,
+body.dark-mode .model h3,  /* Inclut #ajoutCourbeDiv si elle a la classe .model */
+body.dark-mode .model label,
+body.dark-mode .model span,
+body.dark-mode .model .close,
+body.dark-mode #ajoutCourbeDiv h3, /* Spécifique pour s'assurer */
+body.dark-mode #ajoutCourbeDiv label,
+body.dark-mode #ajoutCourbeDiv span,
+body.dark-mode #ajoutCourbeDiv .close {
+    color: #f0f0f0;
+}
+
+body.dark-mode #model .close:hover,
+body.dark-mode .model .close:hover, /* Inclut #ajoutCourbeDiv .close */
+body.dark-mode #ajoutCourbeDiv .close:hover {
+    color: #fff;
+}
+
+/* Styles pour les champs de formulaire dans TOUTES les modales de Consultation.php */
+body.dark-mode #model input[type="date"],
+body.dark-mode #model input[type="time"],
+body.dark-mode #model select,
+body.dark-mode .model input[type="date"], /* Inclut #ajoutCourbeDiv si .model */
+body.dark-mode .model input[type="time"],
+body.dark-mode .model input[type="checkbox"],
+body.dark-mode .model select,
+body.dark-mode #ajoutCourbeDiv input[type="date"], /* Spécifique pour s'assurer */
+body.dark-mode #ajoutCourbeDiv input[type="time"],
+body.dark-mode #ajoutCourbeDiv input[type="checkbox"],
+body.dark-mode #ajoutCourbeDiv select {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+    border: 1px solid #555;
+    padding: 5px;
+    border-radius: 4px;
+    color-scheme: dark;
+}
+
+/* Styles pour les boutons dans TOUTES les modales de Consultation.php */
+body.dark-mode #model button,
+body.dark-mode .model button, /* Inclut #ajoutCourbeDiv si .model */
+body.dark-mode #ajoutCourbeDiv button { /* Spécifique pour s'assurer */
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #0056b3;
+    padding: 8px 12px;
+    border-radius: 4px; /* Cohérence du radius */
+}
+
+body.dark-mode #model button:hover,
+body.dark-mode .model button:hover, /* Inclut #ajoutCourbeDiv si .model */
+body.dark-mode #ajoutCourbeDiv button:hover {
+    background-color: #0056b3;
+}
+
+body.dark-mode .navBar #navAutre img,
+body.dark-mode .navBar #navDeconnexion #modeIcon {
     filter: invert(1) brightness(1.2);
 }
 
 #modeIcon {
-    width: 20px;
-    height: 20px;
+    width: 15px;
+    height: 15px;
     margin-left: 10px;
     cursor: pointer;
     transition: transform 0.3s ease;
+    vertical-align: middle;
 }
 
-#modeIcon:hover { transform: rotate(20deg); }
-
-body.dark-mode #actionGraphique,
-body.dark-mode #selectPlage {
-    background-color: #090120;
+#modeIcon:hover {
+    transform: scale(1.2);
 }
 
-.modal.dark-mode {
-    background-color: #090120;
-    color: #f0f0f0;
-}
-
-.modal.dark-mode label,
-.modal.dark-mode h2 {
-    color: #f0f0f0;
-}
-
-.modal.dark-mode select,
-.modal.dark-mode input {
-    background-color: #090120;
+body.dark-mode #suppressionCourbeDiv select { /* Spécifique pour le select dans la modale de suppression */
+    background-color: #2a2a2a;
     color: #f0f0f0;
     border: 1px solid #555;
-}
-
-.modal.dark-mode button {
-    background-color: #444;
-    color: #fff;
-    border: 1px solid #666;
-}
-
-.modal.dark-mode button:hover {
-    background-color: #666;
 }
 
 .model { z-index: 10001; }

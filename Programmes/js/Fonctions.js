@@ -164,13 +164,27 @@ function definirPlageTemporelleParDefaut() {
 // --- Met à jour le graphique avec la plage sélectionnée ---
 function updateChartWithTimeRange() {
     const capteurId = document.getElementById('lstCapteur').value;
-    const startDate = document.getElementById('startDate').value;
-    const startTime = document.getElementById('startTime').value;
-    const endDate = document.getElementById('endDate').value;
-    const endTime = document.getElementById('endTime').value;
+    const startDateValue = document.getElementById('startDate').value;
+    const startTimeValue = document.getElementById('startTime').value;
+    const endDateValue = document.getElementById('endDate').value;
+    const endTimeValue = document.getElementById('endTime').value;
 
-    updateChart(capteurId, document.getElementById('monGraphique'), startDate, startTime, endDate, endTime);
-    fermetureModel();
+    // Vérifier que les dates et heures ne sont pas vides
+    if (!startDateValue || !startTimeValue || !endDateValue || !endTimeValue) {
+        alert("Veuillez sélectionner une date et une heure de début et de fin.");
+        return; // Empêche la fermeture de la modale et la mise à jour du graphique
+    }
+
+    const startDateTime = new Date(startDateValue + 'T' + startTimeValue);
+    const endDateTime = new Date(endDateValue + 'T' + endTimeValue);
+
+    if (startDateTime >= endDateTime) {
+        alert("La date de début ne peut pas être après ou égale à la date de fin. Veuillez corriger la sélection.");
+        return; // Empêche la fermeture de la modale et la mise à jour du graphique
+    }
+
+    updateChart(capteurId, document.getElementById('monGraphique'), startDateValue, startTimeValue, endDateValue, endTimeValue);
+    fermetureModel(); // Ferme la modale uniquement si la validation est réussie
 }
 
 // --- Génériques de gestion des select ---

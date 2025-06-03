@@ -73,6 +73,20 @@ body {
     border-radius: 5px;
 }
 
+.navBar #navDeconnexion .btnDeconnexion{
+    background-color: #007bff;
+    color: white; 
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    padding: 5px 10px;
+    transition: transform 0.2s ease;
+}
+
+.navBar #navDeconnexion .btnDeconnexion:hover{
+    transform: scale(1.1);
+}
+
 /*-------------------------------- CONTENEUR PRINCIPAL --------------------------------*/
 
 .container {
@@ -437,4 +451,154 @@ body {
     .modal-close {
         font-size: 24px;
     }
+}
+
+body.dark-mode {
+    background-color: #0f032e;
+    color: #f0f0f0;
+}
+
+body.dark-mode .navBar {
+    background-color: #090120;
+    color: #f0f0f0;
+}
+
+body.dark-mode .navBar #navAutre img,
+body.dark-mode .navBar #navDeconnexion #modeIcon {
+    filter: invert(1) brightness(1.2);
+}
+
+#modeIcon {
+    width: 15px;
+    height: 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    vertical-align: middle;
+}
+
+#modeIcon:hover {
+    transform: scale(1.2);
+}
+
+body.dark-mode .navBar .btnDeconnexion {
+    background-color: transparent;
+    color: #f0f0f0;
+    border: none;
+}
+
+body.dark-mode .container .selectionTable {
+    background-color: #090120;
+}
+
+body.dark-mode .container .selectionTable button {
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #0056b3;
+}
+
+body.dark-mode .container .selectionTable button:hover,
+body.dark-mode .container .selectionTable button.active {
+    background-color: #0056b3;
+}
+
+body.dark-mode .container .tabParametrage {
+    background: #0f032e;
+}
+
+body.dark-mode .container .tabParametrage .divTableau {
+    background-color: #090120;
+    border: 1px solid #555;
+}
+
+body.dark-mode .container .tabParametrage .divTableau #enteteTab h2 {
+    color: #f0f0f0;
+}
+
+body.dark-mode .container .tabParametrage .divTableau #enteteTab #recherche {
+    background-color: #2a2a2a;
+    border: 1px solid #555;
+}
+
+body.dark-mode .container .tabParametrage .divTableau #enteteTab #recherche #imgRecherche {
+    filter: invert(1) brightness(1.2);
+}
+
+body.dark-mode .container .tabParametrage .divTableau #enteteTab #recherche #searchInput {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+}
+body.dark-mode .container .tabParametrage .divTableau #enteteTab #recherche #searchInput::placeholder {
+    color: #aaa;
+}
+
+body.dark-mode .container .tabParametrage .divTableau #tab thead th {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+    border: 1px solid #555;
+}
+
+body.dark-mode .container .tabParametrage .divTableau #tab td {
+    border: 1px solid #444;
+    color: #f0f0f0;
+}
+
+body.dark-mode .container .tabParametrage .divTableau #tab tbody tr:nth-child(even) {
+    background-color: #120227;
+}
+
+body.dark-mode .container .tabParametrage .divTableau #tab tbody tr:nth-child(odd) {
+    background-color: #090120;
+}
+
+body.dark-mode .addImage,
+body.dark-mode .modifyImage,
+body.dark-mode .deleteImage {
+    filter: invert(1) brightness(1.2);
+}
+
+/* Modale de Parametrage */
+body.dark-mode .modal { /* div#modalOverlay */
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode .modal .modal-form {
+    background-color: #090120;
+    color: #f0f0f0;
+    border: 1px solid #555;
+    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .modal .modal-form h2,
+body.dark-mode .modal .modal-form label {
+    color: #f0f0f0;
+}
+
+body.dark-mode .modal .modal-form input[type="text"],
+body.dark-mode .modal .modal-form select {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+    border: 1px solid #555;
+    padding: 8px; /* Ajout padding pour esthétique */
+    border-radius: 4px; /* Ajout radius */
+}
+
+body.dark-mode .modal .modal-form button {
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #0056b3;
+    padding: 8px 12px; /* Cohérence padding */
+    border-radius: 4px; /* Cohérence radius */
+}
+
+body.dark-mode .modal .modal-form button:hover {
+    background-color: #0056b3;
+}
+
+body.dark-mode .modal .modal-form .modal-close {
+    color: #bbb;
+}
+
+body.dark-mode .modal .modal-form .modal-close:hover {
+    color: #fff;
 }

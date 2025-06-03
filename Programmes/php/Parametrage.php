@@ -69,7 +69,7 @@ try {
                 <input type="hidden" name="_csrf_token" value="<?php echo htmlspecialchars($_SESSION['_csrf_token']); ?>">
                 <button type="submit" name="Deconnexion" class="btnDeconnexion">Déconnexion</button>
             </form>
-            <!-- <img id="modeIcon" src="../img/lune.svg" alt="Mode clair" title="Mode sombre"> -->
+            <img id="modeIcon" src="../img/lune.svg" alt="Mode clair" title="Mode sombre">
         </div>
     </header>
 
