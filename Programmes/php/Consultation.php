@@ -136,7 +136,7 @@ try {
     </div>
 
     <div id="model"> <!-- Modale pour la plage temporelle principale -->
-        <span class="close" id="closePlageMain">&times;</span>
+        <img src="../img/croix.svg" alt="Fermer" class="close-icon" id="closePlageMain">
         <label for="startDate">Date de début :</label>
         <input type="date" id="startDate">
         <label for="startTime">Heure de début :</label>
@@ -151,7 +151,7 @@ try {
     </div>
 
     <div id="ajoutCourbeDiv" class="model" style="display: none;"> <!-- Modale ajout courbe -->
-        <span class="close" id="closeAjoutCourbe">&times;</span>
+        <img src="../img/croix.svg" alt="Fermer" class="close-icon" id="closeAjoutCourbe">
         <div id="selectSerre">
             <h3>Selection serre :</h3>
             <select name="lstSerreAjout" id="lstSerreAjout" data-url="getChapelles.php">
@@ -209,7 +209,7 @@ try {
     </div>
 
     <div id="suppressionCourbeDiv" class="model" style="display: none;"> <!-- Modale suppression courbe -->
-        <span class="close" id="closeSuppressionCourbe">&times;</span>
+        <img src="../img/croix.svg" alt="Fermer" class="close-icon" id="closeSuppressionCourbe">
         <h3>Supprimer un graphique</h3>
         <select id="listeGraphiquesASupprimer">
             <option value="">-- Sélectionner un graphique --</option> <!-- Liste déroulante des courbes -->

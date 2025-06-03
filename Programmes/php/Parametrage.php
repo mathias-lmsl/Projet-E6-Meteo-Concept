@@ -105,6 +105,7 @@ try {
     <div id="modalOverlay" class="modal" style="display: none;"> <!-- Fond modale masqué -->
         <form id="modalDynamicForm" class="modal-form"> <!-- Formulaire -->
             <h2 id="modalTitle"></h2> <!-- Titre dynamique -->
+            <img src="../img/croix.svg" alt="Fermer" class="modal-close-icon" id="dynamicModalCloseButton"> 
 
             <!-- Champs dynamiques générés par JavaScript -->
             <div id="modalFieldsContainer"></div>

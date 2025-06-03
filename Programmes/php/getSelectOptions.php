@@ -1,35 +1,38 @@
 <?php
 // Connexion à la base de données
-require "connectDB.php";
+require "connectDB.php"; //
 
 try {
-    $options = []; // Tableau pour stocker toutes les options
+    $options = []; //
 
-    // Récupère tous les états possibles depuis les tables carte et capteur (en supprimant les doublons avec UNION)
     $stmt = $bdd->query("
         SELECT DISTINCT EtatComposant FROM carte
         UNION
         SELECT DISTINCT EtatComposant FROM capteur
-    ");
-    $options['EtatComposant'] = $stmt->fetchAll(PDO::FETCH_COLUMN); // Stocke les états dans le tableau
+    "); //
+    $options['EtatComposant'] = $stmt->fetchAll(PDO::FETCH_COLUMN); //
 
-    // Récupère toutes les grandeurs de capteurs disponibles
-    $stmt = $bdd->query("SELECT DISTINCT GrandeurCapt FROM capteur");
-    $options['GrandeurCapt'] = $stmt->fetchAll(PDO::FETCH_COLUMN); // Stocke les grandeurs dans le tableau
+    $stmt = $bdd->query("SELECT DISTINCT GrandeurCapt FROM capteur"); //
+    $options['GrandeurCapt'] = $stmt->fetchAll(PDO::FETCH_COLUMN); //
 
-    // Récupère toutes les unités de capteurs non nulles
-    $stmt = $bdd->query("SELECT DISTINCT Unite FROM capteur WHERE Unite IS NOT NULL");
-    $options['Unite'] = $stmt->fetchAll(PDO::FETCH_COLUMN); // Stocke les unités dans le tableau
+    $stmt = $bdd->query("SELECT DISTINCT Unite FROM capteur WHERE Unite IS NOT NULL"); //
+    $options['Unite'] = $stmt->fetchAll(PDO::FETCH_COLUMN); //
 
-    // Récupère toutes les cartes (DevEui et Nom)
-    $stmt = $bdd->query("SELECT DevEui, Nom FROM carte");
-    $options['Cartes'] = $stmt->fetchAll(PDO::FETCH_ASSOC); // Stocke les cartes dans le tableau
+    $stmt = $bdd->query("SELECT DevEui, Nom FROM carte"); //
+    $options['Cartes'] = $stmt->fetchAll(PDO::FETCH_ASSOC); //
 
-    // Retourne toutes les options au format JSON
-    echo json_encode($options);
+    // Récupérer toutes les chapelles (pour l'assignation aux cartes)
+    $stmtChapelles = $bdd->query("SELECT IdChapelle, Nom FROM chapelle ORDER BY Nom ASC"); // Modifié de la réponse précédente
+    $options['Chapelles'] = $stmtChapelles->fetchAll(PDO::FETCH_ASSOC); // Modifié de la réponse précédente
+
+    // NOUVEAU : Récupérer toutes les serres (pour l'assignation aux chapelles)
+    $stmtSerres = $bdd->query("SELECT IdSerre, Nom FROM serre ORDER BY Nom ASC");
+    $options['Serres'] = $stmtSerres->fetchAll(PDO::FETCH_ASSOC);
+
+
+    echo json_encode($options); //
 
 } catch (PDOException $e) {
-    // En cas d'erreur SQL, retourne le message d'erreur en JSON
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['error' => $e->getMessage()]); //
 }
 ?>

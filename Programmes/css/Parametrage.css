@@ -351,9 +351,12 @@ button:hover{
     max-width: 25vw;
     min-width: 300px;
     width: 100%;
+    max-height: 95vh; 
     display: flex;
     flex-direction: column;
     gap: 10px;
+    position: relative;
+    overflow-y: auto;
 }
 
 .modal-buttons {
@@ -391,6 +394,19 @@ button:hover{
 
 #modalOverlay {
     border: 20px solid black; /* Encadrement */
+}
+
+.modal-close-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.modal-close-icon:hover {
+    transform: scale(1.2);
 }
 
 /*-------------------------------- RESPONSIVE --------------------------------*/
@@ -608,4 +624,42 @@ body.dark-mode .modal .modal-form .modal-close {
 
 body.dark-mode .modal .modal-form .modal-close:hover {
     color: #fff;
+}
+
+body.dark-mode .modal-close-icon {
+    filter: invert(1) brightness(1.2);
+}
+
+.modal-title-container {
+    display: flex; /* Déjà présent dans votre CSS ou implicite */
+    justify-content: space-between; /* Pour espacer le titre et la croix */
+    align-items: center; /* Pour aligner verticalement */
+    margin-bottom: 15px; /* Espace sous le titre */
+}
+
+.modal-title-container h2 {
+    margin: 0; /* Enlève la marge par défaut du h2 si besoin */
+    flex-grow: 1; /* Permet au titre de prendre l'espace disponible */
+}
+
+.modal-close-icon {
+    width: 20px; /* Ajustez la taille */
+    height: 20px; /* Ajustez la taille */
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    /* Pas besoin de float ou position: absolute si parent est flex et bien configuré */
+    margin-left: 10px; /* Espace entre le titre et la croix si le titre est long */
+}
+
+.modal-close-icon:hover {
+    transform: scale(1.2);
+}
+
+/* Pour le mode sombre */
+body.dark-mode .modal-close-icon {
+    filter: invert(1) brightness(1.2); /* Ou `filter: none;` si vous ne voulez pas l'inverser */
+}
+
+body.dark-mode .modal-form .modal-title-container h2 { /* S'assurer que le titre reste visible */
+    color: #f0f0f0;
 }

@@ -7,19 +7,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table']) && isset($_P
     $table = $_POST['table'];
     $id = $_POST['id'];
 
-    // Remplace les champs vides par NULL
-    foreach ($_POST as $key => $value) {
+    // Utiliser une copie pour le traitement, $_POST original pour référence si besoin
+    $processedPost = $_POST;
+
+    // Remplace les champs vides par NULL DANS processedPost
+    foreach ($processedPost as $key => $value) {
         if ($value === '') {
-            $_POST[$key] = null;
+            $processedPost[$key] = null;
         }
     }
 
     try {
-        $stmt = $bdd->prepare("DESCRIBE " . $table);
-        $stmt->execute();
-        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        // Validation serveur pour les seuils de capteur (déjà présente)
+        if ($table === 'capteur') {
+            $valeurMinInput = $processedPost['ValeurMin'] ?? null;
+            $valeurMaxInput = $processedPost['ValeurMax'] ?? null;
+            $valeurMin = null;
+            $valeurMax = null;
+            $minIsSetAndNotEmpty = ($valeurMinInput !== null && $valeurMinInput !== ''); // chaîne vide déjà null
+            $maxIsSetAndNotEmpty = ($valeurMaxInput !== null && $valeurMaxInput !== '');
+
+            if ($minIsSetAndNotEmpty) {
+                if (is_numeric($valeurMinInput)) {
+                    $valeurMin = (float)$valeurMinInput;
+                } else {
+                    $response['error'] = '[PHP VALIDATION] Le seuil minimum doit être un nombre valide s\'il est renseigné.';
+                    echo json_encode($response);
+                    exit;
+                }
+            }
+            if ($maxIsSetAndNotEmpty) {
+                if (is_numeric($valeurMaxInput)) {
+                    $valeurMax = (float)$valeurMaxInput;
+                } else {
+                    $response['error'] = '[PHP VALIDATION] Le seuil maximum doit être un nombre valide s\'il est renseigné.';
+                    echo json_encode($response);
+                    exit;
+                }
+            }
+            if ($minIsSetAndNotEmpty && $maxIsSetAndNotEmpty) {
+                if ($valeurMax < $valeurMin) {
+                    $response['error'] = '[PHP VALIDATION] Erreur serveur : Le seuil maximum ne peut pas être inférieur au seuil minimum.';
+                    echo json_encode($response);
+                    exit;
+                }
+            }
+        }
+
+        // Mapping spécifique pour la table 'carte'
+        if ($table === 'carte') {
+            if (array_key_exists('NomCarte', $processedPost)) {
+                $processedPost['Nom'] = $processedPost['NomCarte'];
+            }
+        }
+
+        $stmtDescribe = $bdd->prepare("DESCRIBE " . $table);
+        $stmtDescribe->execute();
+        $columnsFromDB = $stmtDescribe->fetchAll(PDO::FETCH_COLUMN);
 
         $ignore = ['DateMiseEnService'];
+        $primaryKey = null;
+
         if ($table === 'capteur') {
             $primaryKey = 'IdCapteur';
             $ignore[] = 'IdCapteur';
@@ -27,37 +75,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table']) && isset($_P
             $primaryKey = 'DevEui';
             $ignore[] = 'DevEui';
         } else {
-            echo json_encode(['success' => false, 'error' => 'Table non supportée']);
+            $response['error'] = '[PHP] Table non supportée pour la mise à jour: ' . $table;
+            echo json_encode($response);
             exit;
         }
 
         $setClause = [];
-        foreach ($columns as $col) {
-            if (!in_array($col, $ignore) && array_key_exists($col, $_POST)) {
-                $setClause[] = "$col = :$col";
+        foreach ($columnsFromDB as $colDB) {
+            if (!in_array($colDB, $ignore) && array_key_exists($colDB, $processedPost)) {
+                $setClause[] = "`$colDB` = :$colDB";
             }
         }
 
-        $sql = "UPDATE $table SET " . implode(", ", $setClause) . " WHERE $primaryKey = :id";
-        $stmt = $bdd->prepare($sql);
+        if (empty($setClause)) {
+            $response['error'] = "[PHP] Aucun champ valide à mettre à jour ou tous les champs sont ignorés.";
+            error_log("Aucun champ à MAJ. Processed POST: " . print_r($processedPost, true) . " DB Columns: " . print_r($columnsFromDB, true) . " Ignored: " . print_r($ignore, true));
+            echo json_encode($response);
+            exit;
+        }
 
-        foreach ($columns as $col) {
-            if (!in_array($col, $ignore) && array_key_exists($col, $_POST)) {
-                $stmt->bindValue(':' . $col, $_POST[$col], $_POST[$col] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $sql = "UPDATE `$table` SET " . implode(", ", $setClause) . " WHERE `$primaryKey` = :id";
+        error_log("SQL Update: " . $sql); // Log pour débogage
+        $stmtUpdate = $bdd->prepare($sql);
+
+        foreach ($columnsFromDB as $colDB) {
+            if (!in_array($colDB, $ignore) && array_key_exists($colDB, $processedPost)) {
+                $stmtUpdate->bindValue(':' . $colDB, $processedPost[$colDB], $processedPost[$colDB] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             }
         }
 
-        $stmt->bindValue(':id', $id);
-        $stmt->execute();
+        $stmtUpdate->bindValue(':id', $id);
+        $stmtUpdate->execute();
 
         $response['success'] = true;
 
     } catch (PDOException $e) {
-        $response['error'] = $e->getMessage();
+        $response['error'] = "[PHP EXCEPTION] " . $e->getMessage();
+        error_log("[PHP EXCEPTION] " . $e->getMessage() . " SQL: " . ($sql ?? "Non défini"));
     }
 
 } else {
-    $response['error'] = "Requête invalide";
+    $response['error'] = "[PHP] Requête invalide ou paramètres manquants.";
 }
 
 echo json_encode($response);
+?>
