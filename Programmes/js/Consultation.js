@@ -235,6 +235,13 @@ document.addEventListener('DOMContentLoaded', function () {
         rafraichirCouleursGraphiques(); // MAJ couleurs
     });
 
+    const btnExportPrincipal = document.getElementById('telechargeCourbe');
+    if (btnExportPrincipal) {
+        btnExportPrincipal.addEventListener('click', function() {
+            exportCSV(); // Appel de la fonction exportCSV définie dans Fonctions.js
+        });
+    }
+
 });
 
 const graphiquesAjoutes = []; // Tableau des courbes secondaires

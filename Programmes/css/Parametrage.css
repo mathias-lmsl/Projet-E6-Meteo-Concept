@@ -462,26 +462,15 @@ button:hover{
 }
 
 @media (max-width: 600px) {
-    .navBar {
-        font-size: 12px;
-    }
+    .navBar { font-size: 12px; }
 
-    .navBar #navTitre {
-        font-size: 24px !important;
-    }
+    .navBar #navTitre { font-size: 24px !important; }
 
-    .container .selectionTable button {
-        width: 80%;
-    }
+    .container .selectionTable button { width: 80%; }
 
-    .modal-form input[type="text"],
-    .modal-form select {
-        font-size: 14px;
-    }
-
-    .modal-close {
-        font-size: 24px;
-    }
+    .modal-form input[type="text"], .modal-form select { font-size: 14px; }
+ 
+    .modal-close { font-size: 24px; }
 }
 
 /*-------------------------------- MODE SOMBRE --------------------------------*/

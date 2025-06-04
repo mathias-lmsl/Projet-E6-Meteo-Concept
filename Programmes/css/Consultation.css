@@ -546,29 +546,17 @@ body.dark-mode .close-icon {
 }
 
 @media (max-width: 600px) {
-    #divSelect h3,
-    #graphique h2 {
-        font-size: 14px;
-    }
+    #divSelect h3, #graphique h2 { font-size: 14px; }
 
-    select,
-    button { /* Taille de police générale pour selects et boutons */
-        font-size: 14px;
-        /* width: 100%; /* Peut être trop restrictif, dépend du contexte */
-    }
-    #selectGraphique select { width: 100%; } /* Assurer que les selects prennent la largeur */
+    select, button { font-size: 14px; }
 
-
-    .navBar {
-        font-size: 12px;
-    }
+    #selectGraphique select { width: 100%; }
+ 
+    .navBar { font-size: 12px; }
+    
     .navBar #navTitre { font-size: 24px !important; }
 
-
-    .graphiqueBloc img.img-export,
-    .graphiqueBloc img#telechargeCourbe {
-        width: 13px;
-    }
+    .graphiqueBloc img.img-export, .graphiqueBloc img#telechargeCourbe { width: 13px; }
 }
 
 /* ------------------------ MODE SOMBRE ------------------------ */
